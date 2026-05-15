@@ -1,0 +1,26 @@
+services:
+  dossier-synthesizer:
+    build: .
+    image: dossier-synthesizer:latest
+    container_name: dossier-synthesizer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"   # Exposé seulement en local — Cloudflare Tunnel s'en occupe
+    env_file: .env
+    volumes:
+      - ./outputs:/srv/outputs        # la "mémoire" des dossiers, persistée
+      - ./uploads:/srv/uploads
+      - whisper-cache:/root/.cache/huggingface
+
+  # Cloudflare Tunnel (optionnel) — décommenter après avoir créé le tunnel
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+  #   depends_on:
+  #     - dossier-synthesizer
+
+volumes:
+  whisper-cache:

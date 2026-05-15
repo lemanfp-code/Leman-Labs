@@ -1,0 +1,18 @@
+venv/
+__pycache__/
+*.pyc
+.env
+uploads/
+Synthèses/
+*.icns
+AppIcon.iconset/
+.DS_Store
+server.log
+*.mp4
+*.mov
+*.webm
+*.mp3
+*.wav
+*.m4a
+.git/
+Ta synthèse en 1 clic.app/

@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dossier Synthesizer — Votre conférence en 1 clic</title>
+  <style>
+    :root {
+      --bg-0: #050b18;
+      --bg-1: #0a1428;
+      --bg-2: #0f1d36;
+      --panel: #121f3a;
+      --panel-2: #182849;
+      --border: #1f3158;
+      --border-2: #2a4474;
+      --text: #e8f0ff;
+      --muted: #93a4c5;
+      --accent: #38bdf8;
+      --accent-soft: #7dd3fc;
+      --accent-deep: #3b82f6;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background:
+        radial-gradient(ellipse 1200px 800px at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 55%),
+        radial-gradient(ellipse 800px 600px at 80% 30%, color-mix(in srgb, var(--accent-deep) 8%, transparent) 0%, transparent 50%),
+        var(--bg-0);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: 0.005em;
+      transition: background .4s;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 40px 22px 100px; position: relative; z-index: 1; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      margin-bottom: 40px; padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+    .brand .name {
+      font-size: 22px; font-weight: 800; font-style: italic; text-transform: uppercase;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-soft) 60%, var(--accent) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .brand .sub { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+      color: var(--accent-soft);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+      text-transform: uppercase;
+    }
+
+    .tag-exclusive {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin-bottom: 14px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.18em;
+      color: var(--accent-soft); text-transform: uppercase;
+    }
+    .tag-exclusive::before, .tag-exclusive::after {
+      content: ""; height: 1px; width: 50px;
+      background: linear-gradient(90deg, transparent, var(--accent-soft));
+    }
+    .tag-exclusive::after { background: linear-gradient(90deg, var(--accent-soft), transparent); }
+
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 {
+      font-size: 40px; line-height: 1.1; margin: 0 0 16px;
+      font-weight: 800; font-style: italic; letter-spacing: -0.01em; text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, var(--accent-soft) 50%, var(--accent) 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    .hero p { color: var(--muted); font-size: 15px; margin: 0 auto; max-width: 580px; line-height: 1.65; }
+    .hero p b { color: var(--text); font-weight: 600; }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--bg-1) 100%);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; margin-bottom: 20px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 60px -30px rgba(0,0,0,0.6);
+    }
+    .card h3 { margin: 0; font-size: 17px; }
+    label {
+      display: block; font-size: 11px; color: var(--muted);
+      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;
+    }
+    input[type="text"] {
+      width: 100%; padding: 13px 14px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 14px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="text"]:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Program picker */
+    .programs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .prog {
+      text-align: left; cursor: pointer; padding: 22px;
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px;
+      transition: transform .12s, border-color .15s, box-shadow .15s; color: var(--text);
+      font-family: inherit;
+    }
+    .prog:hover {
+      transform: translateY(-2px); border-color: var(--accent);
+      box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+    .prog .pname { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .prog .pshort {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      padding: 3px 9px; border-radius: 999px; margin-bottom: 12px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+    .prog .pdesc { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .prog .pfmt { color: var(--muted); font-size: 11.5px; margin-top: 12px; opacity: .85; }
+
+    .drop {
+      border: 2px dashed var(--border-2); border-radius: 14px; padding: 38px 22px;
+      text-align: center; background: var(--panel-2);
+      transition: border-color .15s, background .15s; cursor: pointer;
+    }
+    .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+    .drop .icon { font-size: 28px; margin-bottom: 6px; }
+    .drop p { margin: 6px 0; }
+    .drop .hint { color: var(--muted); font-size: 13px; }
+    #file { display: none; }
+    .file-name { color: var(--accent-soft); font-weight: 600; margin-top: 8px; }
+
+    button.primary {
+      margin-top: 22px; width: 100%; padding: 15px 18px; border: 0; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+      color: var(--bg-0); font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: 0.02em;
+      box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--accent) 55%, transparent);
+      transition: transform .12s, box-shadow .12s;
+    }
+    button.primary:hover { transform: translateY(-1px); }
+    button.primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn {
+      padding: 10px 16px; border-radius: 10px;
+      border: 1px solid var(--border-2); background: var(--panel-2);
+      color: var(--text); text-decoration: none; font-size: 13.5px;
+      cursor: pointer; transition: all .15s; font-family: inherit;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn.ok { background: var(--ok); border-color: var(--ok); color: #052e1c; font-weight: 600; }
+    .btn.ghost { background: transparent; }
+    .btn.danger { color: var(--err); border-color: rgba(239,68,68,0.3); }
+    .btn.primary-outline { border-color: var(--accent); color: var(--accent-soft); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+    .stepper { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 22px; }
+    .step {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px;
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+      font-size: 11px; color: var(--muted); text-align: center; text-transform: uppercase;
+      letter-spacing: 0.05em; font-weight: 600; transition: all .25s;
+    }
+    .step .dot {
+      width: 28px; height: 28px; border-radius: 999px; background: var(--border);
+      display: grid; place-items: center; font-weight: 700; color: var(--muted); font-size: 13px;
+      transition: all .25s;
+    }
+    .step.active { border-color: var(--accent); color: var(--text); }
+    .step.active .dot { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: var(--bg-0); }
+    .step.done { border-color: var(--ok); color: var(--text); }
+    .step.done .dot { background: var(--ok); color: #052e1c; }
+    .step.error { border-color: var(--err); color: var(--err); }
+    .step.error .dot { background: var(--err); color: #fff; }
+
+    .progress { height: 8px; background: var(--panel-2); border-radius: 999px; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border); }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); transition: width .4s; }
+    .progress-text { color: var(--muted); font-size: 13px; text-align: center; }
+    .progress-text b { color: var(--accent-soft); }
+
+    .result-meta { margin: 4px 0 14px; color: var(--muted); font-size: 13px; }
+    .result-meta b { color: var(--text); }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 18px; }
+
+    pre.preview {
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: 11px;
+      padding: 18px; max-height: 480px; overflow: auto; white-space: pre-wrap;
+      font-size: 13px; line-height: 1.65; color: #d8e4f5;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+
+    .history-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 8px; background: var(--panel-2);
+    }
+    .history-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .history-meta .title { font-weight: 600; color: var(--text); font-size: 14px; }
+    .history-meta .sub { color: var(--muted); font-size: 12px; }
+    .history-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    .history-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 18px; }
+
+    .err { color: var(--err); }
+    .hidden { display: none !important; }
+
+    footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 40px; letter-spacing: 0.02em; }
+    footer span { color: var(--accent-soft); }
+    a { color: var(--accent-soft); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <span class="name" id="brand-name">Dossier Synthesizer</span>
+        <span class="sub" id="brand-sub">Outil interne de synthèse</span>
+      </div>
+      <span class="badge" id="badge">Claude Sonnet</span>
+    </header>
+
+    <!-- ÉTAPE 0 : choix du programme -->
+    <section class="hero" id="picker-hero">
+      <div class="tag-exclusive">Synthèse exclusive</div>
+      <h1>Choisissez<br/>votre programme.</h1>
+      <p>Sélectionnez le programme dont vous voulez synthétiser la conférence, puis envoyez votre vidéo. <b>Vos vidéos restent privées.</b></p>
+    </section>
+    <section class="card" id="program-card">
+      <div class="programs" id="programs-list">
+        <div class="history-empty">Chargement des programmes…</div>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 1+ : formulaire (caché tant qu'aucun programme choisi) -->
+    <section class="hero hidden" id="form-hero">
+      <div class="tag-exclusive">Synthèse exclusive</div>
+      <h1>Votre conférence,<br/>votre dossier.<br/>En un clic.</h1>
+      <p id="form-tagline"></p>
+    </section>
+
+    <section class="card hidden" id="form-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px">
+        <h3 id="form-card-title">Nouvelle synthèse</h3>
+        <button class="btn ghost" id="change-program">↩ Changer de programme</button>
+      </div>
+      <div class="row">
+        <div>
+          <label for="month">Mois</label>
+          <input id="month" type="text" placeholder="Ex. Avril" />
+        </div>
+        <div>
+          <label for="year">Année</label>
+          <input id="year" type="text" placeholder="Ex. 2026" />
+        </div>
+      </div>
+
+      <div style="height:14px"></div>
+      <label for="title">Titre éditorial (optionnel)</label>
+      <input id="title" type="text" placeholder="Ex. Plan défensif activé, votre cash devient roi" />
+
+      <div style="height:20px"></div>
+      <label>Replay de la conférence</label>
+      <div class="drop" id="drop">
+        <div class="icon">⬆</div>
+        <p style="font-size:15px; font-weight:600">Glissez-déposez votre vidéo ici</p>
+        <p class="hint">ou cliquez pour parcourir — mp3, mp4, mov, webm — jusqu'à 3h de conférence</p>
+        <p id="filename" class="file-name"></p>
+        <input type="file" id="file" accept=".mp3,.m4a,.wav,.mp4,.mov,.webm,.mkv,.ogg,.flac" />
+      </div>
+
+      <button class="primary" id="go" disabled>Générer la synthèse</button>
+    </section>
+
+    <section class="card hidden" id="progress-card">
+      <div class="stepper">
+        <div class="step" id="s-1"><div class="dot">1</div><span>Upload</span></div>
+        <div class="step" id="s-2"><div class="dot">2</div><span>Extraction</span></div>
+        <div class="step" id="s-3"><div class="dot">3</div><span>Transcription</span></div>
+        <div class="step" id="s-4"><div class="dot">4</div><span>Synthèse</span></div>
+        <div class="step" id="s-5"><div class="dot">✓</div><span>Prêt</span></div>
+      </div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="progress-text" id="progress-text">Démarrage…</div>
+    </section>
+
+    <section class="card hidden" id="result-card">
+      <h3 id="result-title">Dossier généré <span style="color:var(--ok)">✓</span></h3>
+      <p class="result-meta" id="result-meta"></p>
+      <div class="result-actions">
+        <a class="btn ok" id="dl-md" href="#" download>Télécharger le .md</a>
+        <a class="btn" id="dl-txt" href="#" download>Transcription (.txt)</a>
+        <button class="btn ghost" id="copy-md">Copier le Markdown</button>
+        <button class="btn primary-outline" id="new-synthesis" style="margin-left:auto">＋ Nouvelle synthèse</button>
+      </div>
+      <pre class="preview" id="preview"></pre>
+    </section>
+
+    <section class="card hidden" id="error-card">
+      <h3 class="err" style="margin:0 0 8px">Erreur pipeline</h3>
+      <pre class="preview err" id="error-text"></pre>
+      <button class="btn" onclick="resetToNew()" style="margin-top:10px">Recommencer</button>
+    </section>
+
+    <section class="card hidden" id="history-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px">
+        <h3 id="history-title">Dossiers précédents</h3>
+        <button class="btn ghost" id="refresh-history">Rafraîchir</button>
+      </div>
+      <div id="history-list"></div>
+    </section>
+
+    <footer>
+      <span id="footer-org">Dossier Synthesizer</span> — Outil interne · Local &amp; privé · Vos vidéos restent sur le serveur.
+    </footer>
+  </div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let selectedFile = null;
+let PROGRAM = null;          // id du programme choisi
+let PROGRAMS = [];           // liste depuis /api/programs
+
+// --- Chargement des programmes ---
+async function loadPrograms() {
+  try {
+    const r = await fetch("/api/programs");
+    PROGRAMS = await r.json();
+  } catch (e) { PROGRAMS = []; }
+  const list = $("#programs-list");
+  if (!PROGRAMS.length) { list.innerHTML = '<div class="history-empty">Aucun programme configuré.</div>'; return; }
+  list.innerHTML = PROGRAMS.map(p => `
+    <button class="prog" data-id="${p.id}">
+      <div class="pshort">${p.short}</div>
+      <div class="pname">${p.name}</div>
+      <div class="pdesc">${p.tagline}</div>
+      <div class="pfmt">${p.format_label}</div>
+    </button>`).join("");
+  list.querySelectorAll(".prog").forEach(btn =>
+    btn.addEventListener("click", () => selectProgram(btn.dataset.id)));
+}
+
+function selectProgram(id) {
+  const p = PROGRAMS.find(x => x.id === id);
+  if (!p) return;
+  PROGRAM = id;
+
+  // Thème dynamique
+  const root = document.documentElement;
+  // reset puis applique les surcharges du programme
+  ["--bg-0","--bg-1","--bg-2","--panel","--panel-2","--border","--border-2","--accent","--accent-soft","--accent-deep"]
+    .forEach(v => root.style.removeProperty(v));
+  Object.entries(p.theme || {}).forEach(([k, v]) => root.style.setProperty(k, v));
+
+  // Textes
+  $("#brand-name").textContent = p.name;
+  $("#brand-sub").textContent = p.short + " · Outil interne de synthèse";
+  $("#form-tagline").innerHTML = p.tagline;
+  $("#form-card-title").textContent = "Nouvelle synthèse " + p.short;
+  $("#result-title").innerHTML = `Dossier ${p.short} généré <span style="color:var(--ok)">✓</span>`;
+  $("#go").textContent = "Générer la synthèse " + p.short;
+  $("#history-title").textContent = "Dossiers " + p.short + " précédents";
+  $("#footer-org").textContent = p.name;
+
+  // Bascule des écrans
+  $("#picker-hero").classList.add("hidden");
+  $("#program-card").classList.add("hidden");
+  $("#form-hero").classList.remove("hidden");
+  $("#form-card").classList.remove("hidden");
+  $("#history-card").classList.remove("hidden");
+  loadHistory();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function backToPicker() {
+  PROGRAM = null;
+  ["#form-hero","#form-card","#progress-card","#result-card","#error-card","#history-card"]
+    .forEach(s => $(s).classList.add("hidden"));
+  $("#picker-hero").classList.remove("hidden");
+  $("#program-card").classList.remove("hidden");
+  resetToNew(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// --- Drag & drop ---
+const drop = $("#drop");
+const fileIn = $("#file");
+const go = $("#go");
+drop.addEventListener("click", () => fileIn.click());
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => {
+  e.preventDefault(); drop.classList.remove("over");
+  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+fileIn.addEventListener("change", () => { if (fileIn.files.length) setFile(fileIn.files[0]); });
+function setFile(f) { selectedFile = f; $("#filename").textContent = f.name; go.disabled = false; }
+
+$("#change-program").onclick = backToPicker;
+
+// --- Submit ---
+go.addEventListener("click", async () => {
+  if (!selectedFile || !PROGRAM) return;
+  go.disabled = true;
+  $("#form-card").classList.add("hidden");
+  $("#form-hero").classList.add("hidden");
+  $("#progress-card").classList.remove("hidden");
+  $("#result-card").classList.add("hidden");
+  $("#error-card").classList.add("hidden");
+  resetSteps();
+
+  const fd = new FormData();
+  fd.append("video", selectedFile);
+  fd.append("month", $("#month").value);
+  fd.append("year", $("#year").value);
+  fd.append("title", $("#title").value);
+  fd.append("program", PROGRAM);
+
+  let resp;
+  try { resp = await fetch("/api/upload", { method: "POST", body: fd }); }
+  catch (e) { return showError("Réseau : " + e.message); }
+  if (!resp.ok) {
+    const j = await resp.json().catch(() => ({}));
+    return showError(j.detail || j.error || ("HTTP " + resp.status));
+  }
+  const data = await resp.json();
+  if (!data.job_id) return showError("Réponse upload invalide (job_id manquant)");
+  poll(data.job_id);
+});
+
+function setStep(n, state) {
+  const el = $("#s-" + n);
+  if (!el) return;
+  el.classList.remove("active", "done", "error");
+  if (state) el.classList.add(state);
+}
+function resetSteps() { for (let i = 1; i <= 5; i++) setStep(i, null); }
+function updateStepperFromProgress(progress) {
+  if (progress >= 100) { for (let i = 1; i <= 5; i++) setStep(i, "done"); return; }
+  if (progress >= 85)      { setStep(1,"done"); setStep(2,"done"); setStep(3,"done"); setStep(4,"active"); }
+  else if (progress >= 25) { setStep(1,"done"); setStep(2,"done"); setStep(3,"active"); }
+  else if (progress >= 10) { setStep(1,"done"); setStep(2,"active"); }
+  else if (progress >= 1)  { setStep(1,"active"); }
+}
+
+async function poll(jobId) {
+  while (true) {
+    await new Promise(r => setTimeout(r, 1500));
+    let r;
+    try { r = await fetch("/api/status/" + jobId); } catch (e) { continue; }
+    if (!r.ok) return showError("Status HTTP " + r.status);
+    const j = await r.json();
+    $("#bar").style.width = (j.progress || 0) + "%";
+    $("#progress-text").innerHTML = (j.step || "…") + "  ·  <b>" + (j.progress || 0) + "%</b>";
+    updateStepperFromProgress(j.progress || 0);
+    if (j.status === "completed" || (j.progress || 0) >= 100) return showResult(jobId, j);
+    if (j.status === "error") {
+      for (let i=1;i<=5;i++) if (!$("#s-"+i).classList.contains("done")) { setStep(i, "error"); break; }
+      return showError(j.error || "Erreur inconnue");
+    }
+  }
+}
+
+async function showResult(jobId, job) {
+  $("#progress-card").classList.add("hidden");
+  $("#result-card").classList.remove("hidden");
+  $("#dl-md").href  = "/api/download/" + jobId;
+  $("#dl-txt").href = "/api/download-transcription/" + jobId;
+
+  const meta = [];
+  if (job.month) meta.push("<b>" + job.month + (job.year ? " " + job.year : "") + "</b>");
+  if (job.cost_usd) meta.push("coût ≈ <b>$" + job.cost_usd + "</b>");
+  $("#result-meta").innerHTML = meta.join("  ·  ");
+
+  let synthesisText = "";
+  try {
+    const r = await fetch("/api/result/" + jobId);
+    if (r.ok) { const j = await r.json(); synthesisText = j.synthesis || ""; }
+  } catch (e) {}
+  $("#preview").textContent = synthesisText || "(Aperçu indisponible — utilisez le bouton de téléchargement.)";
+
+  $("#copy-md").onclick = async () => {
+    if (!synthesisText) return;
+    await navigator.clipboard.writeText(synthesisText);
+    $("#copy-md").textContent = "✓ Copié";
+    setTimeout(() => $("#copy-md").textContent = "Copier le Markdown", 1500);
+  };
+  loadHistory();
+}
+
+function showError(msg) {
+  $("#progress-card").classList.add("hidden");
+  $("#error-card").classList.remove("hidden");
+  $("#error-text").textContent = msg;
+  go.disabled = false;
+}
+
+function resetToNew(silent) {
+  if (PROGRAM) { $("#form-card").classList.remove("hidden"); $("#form-hero").classList.remove("hidden"); }
+  $("#progress-card").classList.add("hidden");
+  $("#result-card").classList.add("hidden");
+  $("#error-card").classList.add("hidden");
+  selectedFile = null;
+  fileIn.value = "";
+  $("#filename").textContent = "";
+  go.disabled = true;
+  resetSteps();
+  $("#bar").style.width = "0%";
+  if (!silent) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+$("#new-synthesis").onclick = () => resetToNew(false);
+
+// --- Historique (scopé au programme courant) ---
+async function loadHistory() {
+  if (!PROGRAM) return;
+  const list = $("#history-list");
+  let items = [];
+  try {
+    const r = await fetch("/api/jobs?program=" + encodeURIComponent(PROGRAM));
+    if (r.ok) { const j = await r.json(); items = Array.isArray(j) ? j : []; }
+  } catch (e) {}
+
+  if (!items.length) {
+    list.innerHTML = '<div class="history-empty">Aucun dossier généré pour l\'instant.</div>';
+    return;
+  }
+  list.innerHTML = items.slice().reverse().map(j => {
+    const date = j.created_at ? new Date(j.created_at).toLocaleString("fr-FR", {dateStyle:"medium", timeStyle:"short"}) : "";
+    const period = (j.month || "") + (j.year ? " " + j.year : "");
+    const cost = j.cost_usd ? "$" + j.cost_usd : "";
+    const status = j.status === "completed" ? "✓" : j.status === "error" ? "⚠" : "…";
+    const id = j.id;
+    const actions = j.status === "completed"
+      ? `<a class="btn ok" href="/api/download/${id}" download>.md</a>
+         <a class="btn" href="/api/download-transcription/${id}" download>.txt</a>`
+      : '';
+    return `
+      <div class="history-item">
+        <div class="history-meta">
+          <span class="title">${status}  ${period || j.title || j.filename || id}</span>
+          <span class="sub">${date}${cost ? "  ·  " + cost : ""}${j.status === "error" ? "  ·  ERREUR" : ""}</span>
+        </div>
+        <div class="history-actions">
+          ${actions}
+          <button class="btn danger" data-del="${id}">✕</button>
+        </div>
+      </div>`;
+  }).join("");
+  list.querySelectorAll("[data-del]").forEach(b =>
+    b.addEventListener("click", () => deleteJob(b.dataset.del)));
+}
+
+async function deleteJob(id) {
+  if (!confirm("Supprimer ce dossier de l'historique (et ses fichiers) ?")) return;
+  try { await fetch("/api/jobs/" + id, { method: "DELETE" }); } catch (e) {}
+  loadHistory();
+}
+$("#refresh-history").onclick = loadHistory;
+
+loadPrograms();
+</script>
+</body>
+</html>

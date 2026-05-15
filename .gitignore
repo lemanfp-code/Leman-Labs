@@ -1,0 +1,36 @@
+# Secrets
+.env
+*.env
+*.env.local
+
+# Fichiers temporaires & sorties générées (la "mémoire" reste locale)
+uploads/*
+outputs/*
+!uploads/.gitkeep
+!outputs/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Modèles Whisper (téléchargés automatiquement)
+*.bin
+*.pt
+
+# Logs
+*.log
+
+# Sauvegardes
+*.bak
+*.backup
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
