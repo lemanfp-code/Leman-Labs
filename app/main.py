@@ -281,6 +281,22 @@ async def download_markdown(job_id: str):
     return FileResponse(synth_path, filename=f"{prefix}_{job['month']}_{job['year']}.md")
 
 
+@app.get("/api/download-docx/{job_id}")
+async def download_docx_file(job_id: str):
+    job = resolve_job(job_id)
+    if job is None:
+        raise HTTPException(404, "Job non trouvé")
+    docx_path = job.get("docx_path")
+    if not docx_path or not os.path.exists(docx_path):
+        raise HTTPException(400, "Word (.docx) pas disponible pour ce dossier")
+    prefix = get_program(job.get("program")).short
+    return FileResponse(
+        path=docx_path,
+        filename=f"{prefix}_{job['month']}_{job['year']}.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+
+
 @app.get("/api/download-transcription/{job_id}")
 async def download_transcription_file(job_id: str):
     job = resolve_job(job_id)
@@ -396,6 +412,19 @@ async def run_pipeline(job_id: str):
         job["usage"] = synthesis_data["usage"]
         job["cost_usd"] = round(synthesis_data["usage"].get("estimated_cost_usd", 0), 4)
         job["processing_times"]["synthesis_seconds"] = synthesis_data["processing_time_seconds"]
+
+        # .docx mis en page (couverture + identité du programme)
+        try:
+            from pipeline.docx_export import build_docx
+            docx_path = out_dir / f"{job_id}.docx"
+            await asyncio.to_thread(
+                build_docx, synthesis_data["synthesis"], program,
+                job["month"], job["year"], str(docx_path),
+            )
+            job["docx_path"] = str(docx_path)
+        except Exception as e:
+            logger.error(f"[JOB {job_id}] .docx non généré : {e}")
+            job["docx_path"] = None
 
         # === TERMINÉ ===
         job["step"] = "completed"

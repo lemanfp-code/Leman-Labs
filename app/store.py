@@ -18,7 +18,8 @@ RECORD_FIELDS = (
     "month", "year", "title", "filename",
     "created_at", "completed_at", "cost_usd",
     "video_size_mb", "audio_duration_min",
-    "synthesis_path", "transcription_path",
+    "synthesis_path", "transcription_path", "docx_path",
+    "slides_used",
 )
 
 
@@ -79,7 +80,7 @@ def delete_record(job_id: str) -> None:
         except (OSError, ValueError):
             pass
         if rec:
-            for key in ("synthesis_path", "transcription_path"):
+            for key in ("synthesis_path", "transcription_path", "docx_path"):
                 p = rec.get(key)
                 if p and os.path.exists(p):
                     try:

@@ -365,7 +365,8 @@
       <h3 id="result-title">Dossier généré <span style="color:var(--ok)">✓</span></h3>
       <p class="result-meta" id="result-meta"></p>
       <div class="result-actions">
-        <a class="btn ok" id="dl-md" href="#" download>Télécharger le .md</a>
+        <a class="btn ok" id="dl-docx" href="#" download>📄 Word (.docx)</a>
+        <a class="btn" id="dl-md" href="#" download>.md</a>
         <a class="btn" id="dl-txt" href="#" download>Transcription (.txt)</a>
         <button class="btn ok" id="copy-doc">Copier pour Word / Docs</button>
         <button class="btn ghost" id="copy-md">Copier le Markdown</button>
@@ -640,6 +641,7 @@ async function poll(jobId) {
 async function showResult(jobId, job) {
   $("#progress-card").classList.add("hidden");
   $("#result-card").classList.remove("hidden");
+  $("#dl-docx").href = "/api/download-docx/" + jobId;
   $("#dl-md").href  = "/api/download/" + jobId;
   $("#dl-txt").href = "/api/download-transcription/" + jobId;
 
@@ -717,7 +719,8 @@ async function loadHistory() {
     const id = j.id;
     const actions = j.status === "completed"
       ? `<button class="btn primary-outline" data-view="${id}">Voir</button>
-         <a class="btn ok" href="/api/download/${id}" download>.md</a>
+         <a class="btn ok" href="/api/download-docx/${id}" download>.docx</a>
+         <a class="btn" href="/api/download/${id}" download>.md</a>
          <a class="btn" href="/api/download-transcription/${id}" download>.txt</a>`
       : '';
     return `
@@ -747,6 +750,7 @@ async function openDossier(id) {
   $("#error-card").classList.add("hidden");
   $("#result-card").classList.remove("hidden");
 
+  $("#dl-docx").href = "/api/download-docx/" + id;
   $("#dl-md").href  = "/api/download/" + id;
   $("#dl-txt").href = "/api/download-transcription/" + id;
   const meta = [];

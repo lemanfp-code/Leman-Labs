@@ -25,6 +25,7 @@ class Program:
     format_label: str     # description courte du format de sortie
     speakers: tuple       # intervenants attendus (fidélité des noms)
     theme: dict           # surcharges de variables CSS (vide = thème par défaut)
+    docx_accent: str = "1F3A93"  # couleur d'accent du .docx (hex sans #)
 
     @property
     def prompt_path(self) -> Path:
@@ -61,6 +62,7 @@ PROGRAMS: dict[str, Program] = {
         ),
         speakers=("Saturnin Devins", "Christophe Schmitt", "Lucas"),
         theme={},  # thème par défaut (navy + cyan)
+        docx_accent="0E7490",  # cyan profond (identité CRY, lisible sur blanc)
     ),
     "cpc": Program(
         id="cpc",
@@ -90,6 +92,7 @@ PROGRAMS: dict[str, Program] = {
             "--accent-soft": "#f59e4f",
             "--accent-deep": "#d96a1f",
         },
+        docx_accent="E8792B",  # orange CPC officiel
     ),
 }
 
