@@ -336,6 +336,16 @@
         <input type="file" id="file" accept=".mp3,.m4a,.wav,.mp4,.mov,.webm,.mkv,.ogg,.flac" />
       </div>
 
+      <div style="height:18px"></div>
+      <label>Slides de l'émission — PDF (optionnel)</label>
+      <div class="drop" id="drop-slides" style="padding:24px 22px">
+        <div class="icon" style="font-size:22px">📑</div>
+        <p style="font-size:14px; font-weight:600">Glissez le PDF des slides (facultatif)</p>
+        <p class="hint">Claude les lira pour enrichir le dossier et marquer où insérer une illustration</p>
+        <p id="filename-slides" class="file-name"></p>
+        <input type="file" id="file-slides" accept=".pdf,application/pdf" />
+      </div>
+
       <button class="primary" id="go" disabled>Générer la synthèse</button>
     </section>
 
@@ -385,6 +395,7 @@
 <script>
 const $ = (s) => document.querySelector(s);
 let selectedFile = null;
+let slidesFile = null;
 let PROGRAM = null;          // id du programme choisi
 let PROGRAMS = [];           // liste depuis /api/programs
 let HISTORY_ITEMS = [];      // derniers items d'historique (pour "Voir")
@@ -475,6 +486,22 @@ drop.addEventListener("drop", (e) => {
 fileIn.addEventListener("change", () => { if (fileIn.files.length) setFile(fileIn.files[0]); });
 function setFile(f) { selectedFile = f; $("#filename").textContent = f.name; go.disabled = false; }
 
+// Slides PDF (optionnel)
+const dropS = $("#drop-slides");
+const fileInS = $("#file-slides");
+dropS.addEventListener("click", () => fileInS.click());
+dropS.addEventListener("dragover", (e) => { e.preventDefault(); dropS.classList.add("over"); });
+dropS.addEventListener("dragleave", () => dropS.classList.remove("over"));
+dropS.addEventListener("drop", (e) => {
+  e.preventDefault(); dropS.classList.remove("over");
+  if (e.dataTransfer.files.length) setSlides(e.dataTransfer.files[0]);
+});
+fileInS.addEventListener("change", () => { if (fileInS.files.length) setSlides(fileInS.files[0]); });
+function setSlides(f) {
+  if (f && !f.name.toLowerCase().endsWith(".pdf")) { alert("Les slides doivent être un PDF."); return; }
+  slidesFile = f; $("#filename-slides").textContent = f ? f.name : "";
+}
+
 $("#change-program").onclick = backToPicker;
 
 // --- Submit ---
@@ -490,6 +517,7 @@ go.addEventListener("click", async () => {
 
   const fd = new FormData();
   fd.append("video", selectedFile);
+  if (slidesFile) fd.append("slides", slidesFile);
   fd.append("month", $("#month").value);
   fd.append("year", $("#year").value);
   fd.append("title", $("#title").value);
@@ -580,8 +608,11 @@ function resetToNew(silent) {
   $("#result-card").classList.add("hidden");
   $("#error-card").classList.add("hidden");
   selectedFile = null;
+  slidesFile = null;
   fileIn.value = "";
+  fileInS.value = "";
   $("#filename").textContent = "";
+  $("#filename-slides").textContent = "";
   go.disabled = true;
   resetSteps();
   $("#bar").style.width = "0%";

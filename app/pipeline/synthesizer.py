@@ -2,16 +2,25 @@
 
 Le prompt système et le nom du webinaire proviennent du *programme*
 choisi (voir app/programs). Le transcript est envoyé en message
-utilisateur. Calcule le coût estimé en USD selon le modèle utilisé.
+utilisateur. Si un PDF de slides est fourni, il est joint au message
+(Claude le lit nativement) pour enrichir le dossier et y placer des
+repères d'illustration. Calcule le coût estimé en USD.
 """
 
 import os
 import time
+import base64
+import logging
 from pathlib import Path
 
 from anthropic import Anthropic
 
 from programs import Program, get_program
+
+logger = logging.getLogger("dossier-synthesizer")
+
+# Limite API Anthropic pour les PDF : 32 Mo / 100 pages. Marge de sécurité.
+MAX_SLIDES_BYTES = 28 * 1024 * 1024
 
 # Tarifs par 1M tokens (USD) — source console.anthropic.com
 PRICING = {
@@ -32,11 +41,51 @@ def load_system_prompt(program: Program) -> str:
     return path.read_text(encoding="utf-8")
 
 
+SLIDES_INSTRUCTIONS = """
+SLIDES DE L'ÉMISSION (PDF joint) :
+- Un PDF des slides est fourni. Sers-t'en pour FIABILISER et ENRICHIR le dossier
+  (chiffres, graphiques, tableaux affichés mais pas forcément dits à l'oral).
+- Les mêmes règles de fidélité s'appliquent aux slides : ne reprends que ce qui
+  y figure réellement.
+- Là où une illustration du deck renforcerait nettement le dossier (graphe clé,
+  schéma, tableau de perf…), insère — UNIQUEMENT au besoin, avec parcimonie —
+  un repère sur sa propre ligne, exactement sous cette forme :
+  **【Illustration suggérée — slide N : courte description】**
+  (N = numéro de la slide). N'insère pas d'image toi-même : juste ce repère,
+  l'opérateur collera la slide au bon endroit.
+"""
+
+
+def _build_user_content(user_message: str, slides_path: str | None):
+    """Retourne le contenu du message utilisateur : texte seul, ou bloc
+    document PDF (slides) + texte si un PDF exploitable est fourni."""
+    if not slides_path:
+        return user_message
+    p = Path(slides_path)
+    if not p.exists() or p.suffix.lower() != ".pdf":
+        return user_message
+    size = p.stat().st_size
+    if size == 0 or size > MAX_SLIDES_BYTES:
+        logger.warning(
+            f"[SYNTHÈSE] Slides ignorées (taille {size} o, max {MAX_SLIDES_BYTES}) — synthèse texte seule"
+        )
+        return user_message
+    data = base64.standard_b64encode(p.read_bytes()).decode("ascii")
+    return [
+        {
+            "type": "document",
+            "source": {"type": "base64", "media_type": "application/pdf", "data": data},
+        },
+        {"type": "text", "text": user_message},
+    ]
+
+
 def synthesize(
     transcription_text: str,
     month: str = "",
     year: str = "",
     program: Program | str | None = None,
+    slides_path: str | None = None,
 ) -> dict:
     if not isinstance(program, Program):
         program = get_program(program)
@@ -51,6 +100,9 @@ def synthesize(
     system_prompt = load_system_prompt(program)
     speakers = " / ".join(program.speakers) if program.speakers else "tels que prononcés"
 
+    content = _build_user_content("", slides_path)
+    has_slides = isinstance(content, list)
+
     user_message = f"""Voici la transcription complète du webinaire {program.webinar_name} de {month} {year}.
 
 Transformez cette transcription en un dossier {program.short} complet en suivant rigoureusement les instructions du prompt système.
@@ -62,7 +114,7 @@ Règles de fidélité strictes :
 - Tickers + ISIN obligatoires pour toute action recommandée.
 - Zones d'achat exactes (en gras) pour toute crypto/action recommandée.
 - Plateformes : Saxo / Degiro pour actions ; SwissBorg / Kraken pour cryptos.
-
+{SLIDES_INSTRUCTIONS if has_slides else ""}
 ---
 TRANSCRIPTION :
 
@@ -71,8 +123,13 @@ TRANSCRIPTION :
 ---
 Produisez maintenant le dossier {program.short} complet au format Markdown."""
 
+    if has_slides:
+        content[-1]["text"] = user_message
+    else:
+        content = user_message
+
     print(f"[SYNTHÈSE] Programme : {program.name} ({program.id})")
-    print(f"[SYNTHÈSE] Modèle : {model}")
+    print(f"[SYNTHÈSE] Modèle : {model} | slides PDF : {'oui' if has_slides else 'non'}")
     print(f"[SYNTHÈSE] Transcription : {len(transcription_text)} caractères")
 
     client = Anthropic(api_key=api_key)
@@ -82,7 +139,7 @@ Produisez maintenant le dossier {program.short} complet au format Markdown."""
         max_tokens=max_tokens,
         temperature=0.3,
         system=system_prompt,
-        messages=[{"role": "user", "content": user_message}],
+        messages=[{"role": "user", "content": content}],
     )
     elapsed = time.time() - start
 
@@ -105,6 +162,7 @@ Produisez maintenant le dossier {program.short} complet au format Markdown."""
         "processing_time_seconds": elapsed,
         "model": model,
         "program": program.id,
+        "slides_used": has_slides,
     }
 
 

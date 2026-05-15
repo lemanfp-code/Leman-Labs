@@ -162,12 +162,13 @@ async def get_programs():
 @app.post("/api/upload")
 async def upload_video(
     video: UploadFile = File(...),
+    slides: UploadFile | None = File(None),
     month: str = Form(""),
     year: str = Form(""),
     title: str = Form(""),
     program: str = Form(""),
 ):
-    """Upload une vidéo et lance le pipeline de traitement pour un programme donné."""
+    """Upload une vidéo (+ slides PDF optionnelles) et lance le pipeline."""
     prog = get_program(program)
 
     if not video.filename.lower().endswith(('.mp4', '.webm', '.mkv', '.avi', '.mov', '.mp3', '.m4a', '.wav', '.ogg', '.flac')):
@@ -186,6 +187,18 @@ async def upload_video(
     size_mb = os.path.getsize(video_path) / (1024 * 1024)
     logger.info(f"[JOB {job_id}] {prog.id} — vidéo uploadée : {video.filename} ({size_mb:.0f} MB)")
 
+    # Slides PDF optionnelles (Claude les lit pour enrichir + repères d'illustration)
+    slides_path = None
+    if slides is not None and slides.filename:
+        if not slides.filename.lower().endswith(".pdf"):
+            raise HTTPException(400, "Les slides doivent être un PDF.")
+        slides_path = UPLOADS_DIR / f"{job_id}_slides.pdf"
+        with open(slides_path, "wb") as f:
+            while chunk := await slides.read(1024 * 1024):
+                f.write(chunk)
+        logger.info(f"[JOB {job_id}] slides PDF : {slides.filename} "
+                    f"({os.path.getsize(slides_path) / (1024 * 1024):.1f} MB)")
+
     if not month or not year:
         now = datetime.now()
         month = month or now.strftime("%B")
@@ -199,6 +212,7 @@ async def upload_video(
         "step": "upload",
         "progress": 0,
         "video_path": str(video_path),
+        "slides_path": str(slides_path) if slides_path else None,
         "video_size_mb": round(size_mb, 1),
         "month": month,
         "year": year,
@@ -369,8 +383,10 @@ async def run_pipeline(job_id: str):
         from pipeline.synthesizer import synthesize, save_synthesis
 
         synthesis_data = await asyncio.to_thread(
-            synthesize, transcription["full_text"], job["month"], job["year"], program
+            synthesize, transcription["full_text"], job["month"], job["year"],
+            program, job.get("slides_path"),
         )
+        job["slides_used"] = synthesis_data.get("slides_used", False)
 
         synth_path = out_dir / f"{job_id}_synthese.md"
         await asyncio.to_thread(save_synthesis, synthesis_data, str(synth_path))
@@ -396,8 +412,8 @@ async def run_pipeline(job_id: str):
         logger.error(traceback.format_exc())
 
     finally:
-        # Nettoyer audio + vidéo temporaires (les synthèses, elles, persistent)
-        for path in (job.get("audio_path"), job.get("video_path")):
+        # Nettoyer audio + vidéo + slides temporaires (les synthèses persistent)
+        for path in (job.get("audio_path"), job.get("video_path"), job.get("slides_path")):
             if path and os.path.exists(path):
                 try:
                     os.remove(path)
