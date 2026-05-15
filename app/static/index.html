@@ -328,6 +328,7 @@ const $ = (s) => document.querySelector(s);
 let selectedFile = null;
 let PROGRAM = null;          // id du programme choisi
 let PROGRAMS = [];           // liste depuis /api/programs
+let HISTORY_ITEMS = [];      // derniers items d'historique (pour "Voir")
 
 // --- Chargement des programmes ---
 async function loadPrograms() {
@@ -539,7 +540,8 @@ async function loadHistory() {
     const status = j.status === "completed" ? "✓" : j.status === "error" ? "⚠" : "…";
     const id = j.id;
     const actions = j.status === "completed"
-      ? `<a class="btn ok" href="/api/download/${id}" download>.md</a>
+      ? `<button class="btn primary-outline" data-view="${id}">Voir</button>
+         <a class="btn ok" href="/api/download/${id}" download>.md</a>
          <a class="btn" href="/api/download-transcription/${id}" download>.txt</a>`
       : '';
     return `
@@ -554,8 +556,43 @@ async function loadHistory() {
         </div>
       </div>`;
   }).join("");
+  HISTORY_ITEMS = items;
   list.querySelectorAll("[data-del]").forEach(b =>
     b.addEventListener("click", () => deleteJob(b.dataset.del)));
+  list.querySelectorAll("[data-view]").forEach(b =>
+    b.addEventListener("click", () => openDossier(b.dataset.view)));
+}
+
+async function openDossier(id) {
+  const job = HISTORY_ITEMS.find(x => x.id === id) || {};
+  $("#form-hero").classList.add("hidden");
+  $("#form-card").classList.add("hidden");
+  $("#progress-card").classList.add("hidden");
+  $("#error-card").classList.add("hidden");
+  $("#result-card").classList.remove("hidden");
+
+  $("#dl-md").href  = "/api/download/" + id;
+  $("#dl-txt").href = "/api/download-transcription/" + id;
+  const meta = [];
+  if (job.month) meta.push("<b>" + job.month + (job.year ? " " + job.year : "") + "</b>");
+  if (job.cost_usd) meta.push("coût ≈ <b>$" + job.cost_usd + "</b>");
+  meta.push("dossier archivé");
+  $("#result-meta").innerHTML = meta.join("  ·  ");
+
+  $("#preview").textContent = "Chargement…";
+  let synthesisText = "";
+  try {
+    const r = await fetch("/api/result/" + id);
+    if (r.ok) { const j = await r.json(); synthesisText = j.synthesis || ""; }
+  } catch (e) {}
+  $("#preview").textContent = synthesisText || "(Aperçu indisponible — utilisez le téléchargement.)";
+  $("#copy-md").onclick = async () => {
+    if (!synthesisText) return;
+    await navigator.clipboard.writeText(synthesisText);
+    $("#copy-md").textContent = "✓ Copié";
+    setTimeout(() => $("#copy-md").textContent = "Copier le Markdown", 1500);
+  };
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function deleteJob(id) {

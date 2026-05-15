@@ -23,6 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from programs import get_program, list_programs
+import store
 
 load_dotenv()
 
@@ -60,6 +61,13 @@ def program_output_dir(program_id: str) -> Path:
 
 # Statut des jobs en cours (en mémoire ; les fichiers persistent sur disque)
 jobs = {}
+
+
+def resolve_job(job_id: str) -> dict | None:
+    """Job vivant en mémoire si présent, sinon dossier persisté sur disque."""
+    if job_id in jobs:
+        return jobs[job_id]
+    return store.find_record(job_id)
 
 # --- Servir la landing page ---
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
@@ -148,13 +156,20 @@ async def get_status(job_id: str):
 
 @app.get("/api/result/{job_id}")
 async def get_result(job_id: str):
-    if job_id not in jobs:
+    job = resolve_job(job_id)
+    if job is None:
         raise HTTPException(404, "Job non trouvé")
-    job = jobs[job_id]
-    if job["status"] != "completed":
+    if job_id in jobs and job["status"] != "completed":
         raise HTTPException(400, f"Job en cours : {job['step']}")
+    synthesis = job.get("synthesis")
+    if not synthesis:
+        sp = job.get("synthesis_path")
+        if sp and os.path.exists(sp):
+            synthesis = Path(sp).read_text(encoding="utf-8")
+    if not synthesis:
+        raise HTTPException(404, "Synthèse introuvable")
     return {
-        "synthesis": job["synthesis"],
+        "synthesis": synthesis,
         "transcription_preview": job.get("transcription_preview", ""),
         "usage": job.get("usage", {}),
         "processing_times": job.get("processing_times", {}),
@@ -163,9 +178,9 @@ async def get_result(job_id: str):
 
 @app.get("/api/transcription/{job_id}")
 async def get_transcription(job_id: str):
-    if job_id not in jobs:
+    job = resolve_job(job_id)
+    if job is None:
         raise HTTPException(404, "Job non trouvé")
-    job = jobs[job_id]
     trans_path = job.get("transcription_path")
     if not trans_path or not os.path.exists(trans_path):
         raise HTTPException(400, "Transcription pas encore disponible")
@@ -175,9 +190,9 @@ async def get_transcription(job_id: str):
 
 @app.get("/api/download/{job_id}")
 async def download_markdown(job_id: str):
-    if job_id not in jobs:
+    job = resolve_job(job_id)
+    if job is None:
         raise HTTPException(404, "Job non trouvé")
-    job = jobs[job_id]
     synth_path = job.get("synthesis_path")
     if not synth_path or not os.path.exists(synth_path):
         raise HTTPException(400, "Synthèse pas encore disponible")
@@ -187,9 +202,9 @@ async def download_markdown(job_id: str):
 
 @app.get("/api/download-transcription/{job_id}")
 async def download_transcription_file(job_id: str):
-    if job_id not in jobs:
+    job = resolve_job(job_id)
+    if job is None:
         raise HTTPException(404, "Job non trouvé")
-    job = jobs[job_id]
     trans_path = job.get("transcription_path")
     if not trans_path or not os.path.exists(trans_path):
         raise HTTPException(400, "Transcription pas encore disponible")
@@ -203,26 +218,27 @@ async def download_transcription_file(job_id: str):
 
 @app.get("/api/jobs")
 async def list_jobs(program: str = ""):
-    """Liste les jobs, optionnellement filtrés par programme (?program=cpc)."""
-    values = list(jobs.values())
-    if program:
-        values = [j for j in values if j.get("program") == program]
-    return values
+    """Historique : fusion des jobs en mémoire (session courante, y compris en
+    cours) et des dossiers persistés sur disque. Filtrable par programme."""
+    merged: dict[str, dict] = {}
+    for rec in store.list_records(program):
+        merged[rec["id"]] = rec
+    for j in jobs.values():
+        if program and j.get("program") != program:
+            continue
+        merged[j["id"]] = {**merged.get(j["id"], {}), **j}
+    items = list(merged.values())
+    items.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+    return items
 
 
 @app.delete("/api/jobs/{job_id}")
 async def delete_job(job_id: str):
-    """Retire un job de la mémoire et supprime ses fichiers de sortie."""
-    if job_id not in jobs:
+    """Retire un job (mémoire + sidecar JSON + fichiers .md/.txt)."""
+    if job_id not in jobs and store.find_record(job_id) is None:
         raise HTTPException(404, "Job non trouvé")
-    job = jobs.pop(job_id)
-    for key in ("synthesis_path", "transcription_path"):
-        p = job.get(key)
-        if p and os.path.exists(p):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
+    jobs.pop(job_id, None)
+    store.delete_record(job_id)
     return {"deleted": job_id}
 
 
@@ -303,6 +319,7 @@ async def run_pipeline(job_id: str):
         job["status"] = "completed"
         job["progress"] = 100
         job["completed_at"] = datetime.now().isoformat()
+        store.save_record(job)  # persiste la "mémoire" (survit au redémarrage)
         logger.info(f"[JOB {job_id}] {program.id} — terminé avec succès")
 
     except Exception as e:
