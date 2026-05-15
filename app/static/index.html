@@ -367,6 +367,7 @@
       <div class="result-actions">
         <a class="btn ok" id="dl-md" href="#" download>Télécharger le .md</a>
         <a class="btn" id="dl-txt" href="#" download>Transcription (.txt)</a>
+        <button class="btn ok" id="copy-doc">Copier pour Word / Docs</button>
         <button class="btn ghost" id="copy-md">Copier le Markdown</button>
         <button class="btn primary-outline" id="new-synthesis" style="margin-left:auto">＋ Nouvelle synthèse</button>
       </div>
@@ -400,6 +401,74 @@ let PROGRAM = null;          // id du programme choisi
 let PROGRAMS = [];           // liste depuis /api/programs
 let HISTORY_ITEMS = [];      // derniers items d'historique (pour "Voir")
 let READONLY = false;        // true = visiteur (consultation seule)
+
+// --- Markdown → HTML (sous-ensemble produit par Claude) pour collage Word/Docs ---
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function inlineMd(s){
+  return esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*]+?)\*(?!\*)/g, "$1<em>$2</em>");
+}
+function mdToHtml(md){
+  const lines = (md || "").replace(/\r/g,"").split("\n");
+  let html = "", i = 0;
+  while (i < lines.length) {
+    let l = lines[i];
+    // Tableau Markdown
+    if (/^\s*\|.*\|\s*$/.test(l) && i+1 < lines.length && /^\s*\|?[\s:-]+\|[\s:|-]*$/.test(lines[i+1])) {
+      const head = l.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+      i += 2; let rows = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        rows.push(lines[i].trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim())); i++;
+      }
+      html += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
+      html += "<tr>" + head.map(c=>`<th style="background:#f0f0f0">${inlineMd(c)}</th>`).join("") + "</tr>";
+      rows.forEach(r => html += "<tr>" + r.map(c=>`<td>${inlineMd(c)}</td>`).join("") + "</tr>");
+      html += "</table>"; continue;
+    }
+    let m;
+    if (m = l.match(/^(#{1,6})\s+(.*)$/)) { const n=m[1].length; html += `<h${n}>${inlineMd(m[2])}</h${n}>`; i++; continue; }
+    if (/^\s*[-*]\s+/.test(l)) {
+      html += "<ul>";
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { html += `<li>${inlineMd(lines[i].replace(/^\s*[-*]\s+/,""))}</li>`; i++; }
+      html += "</ul>"; continue;
+    }
+    if (/^\s*\d+\.\s+/.test(l)) {
+      html += "<ol>";
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { html += `<li>${inlineMd(lines[i].replace(/^\s*\d+\.\s+/,""))}</li>`; i++; }
+      html += "</ol>"; continue;
+    }
+    if (l.trim() === "" || /^\s*---\s*$/.test(l)) { i++; continue; }
+    let para = [];
+    while (i < lines.length && lines[i].trim() !== "" && !/^(#{1,6}\s|\s*[-*]\s|\s*\d+\.\s|\s*\|)/.test(lines[i])) { para.push(lines[i]); i++; }
+    html += `<p>${para.map(inlineMd).join("<br/>")}</p>`;
+  }
+  return html;
+}
+async function copyForDocs(text, btn){
+  if (!text) return;
+  const body = mdToHtml(text);
+  const full = `<!doctype html><html><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.4">${body}</body></html>`;
+  const label = btn.textContent;
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      "text/html": new Blob([full], {type:"text/html"}),
+      "text/plain": new Blob([text], {type:"text/plain"})
+    })]);
+  } catch(e) {
+    try { await navigator.clipboard.writeText(text); } catch(_) {}
+  }
+  btn.textContent = "✓ Copié — colle dans Word/Docs";
+  setTimeout(() => btn.textContent = label, 1800);
+}
+function wireCopy(text){
+  $("#copy-doc").onclick = () => copyForDocs(text, $("#copy-doc"));
+  $("#copy-md").onclick = async () => {
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    const b = $("#copy-md"); b.textContent = "✓ Copié"; setTimeout(() => b.textContent = "Copier le Markdown", 1500);
+  };
+}
 
 // --- Chargement des programmes ---
 async function loadPrograms() {
@@ -586,12 +655,7 @@ async function showResult(jobId, job) {
   } catch (e) {}
   $("#preview").textContent = synthesisText || "(Aperçu indisponible — utilisez le bouton de téléchargement.)";
 
-  $("#copy-md").onclick = async () => {
-    if (!synthesisText) return;
-    await navigator.clipboard.writeText(synthesisText);
-    $("#copy-md").textContent = "✓ Copié";
-    setTimeout(() => $("#copy-md").textContent = "Copier le Markdown", 1500);
-  };
+  wireCopy(synthesisText);
   loadHistory();
 }
 
@@ -698,12 +762,7 @@ async function openDossier(id) {
     if (r.ok) { const j = await r.json(); synthesisText = j.synthesis || ""; }
   } catch (e) {}
   $("#preview").textContent = synthesisText || "(Aperçu indisponible — utilisez le téléchargement.)";
-  $("#copy-md").onclick = async () => {
-    if (!synthesisText) return;
-    await navigator.clipboard.writeText(synthesisText);
-    $("#copy-md").textContent = "✓ Copié";
-    setTimeout(() => $("#copy-md").textContent = "Copier le Markdown", 1500);
-  };
+  wireCopy(synthesisText);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
