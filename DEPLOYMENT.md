@@ -6,11 +6,55 @@ un identifiant/mot de passe, c'est tout.
 
 Coût : VPS Hetzner CX22 ≈ **3,79 €/mois** · Cloudflare Tunnel **gratuit**.
 
-> Les étapes ci-dessous nécessitent **tes** comptes (Hetzner, Cloudflare,
-> GitHub). L'app est déjà prête : auth intégrée, Dockerfile, compose,
-> healthcheck `/healthz`.
+> Les étapes ci-dessous (VPS) nécessitent **tes** comptes (Hetzner,
+> Cloudflare, GitHub). L'app est déjà prête : auth intégrée, Dockerfile,
+> compose, healthcheck `/healthz`.
 
 ---
+
+## ⭐ Variante recommandée : local + lien consultation (0 €, sans VPS)
+
+Modèle retenu : **toi seul génères** les synthèses (en local), les
+collaborateurs **consultent** les dossiers via un lien, en lecture seule.
+
+### 1. Configurer les 2 rôles dans `.env` (local)
+
+```
+ANTHROPIC_API_KEY=sk-ant-...        # ta clé (reprends celle de CRY/.env)
+CLAUDE_MODEL=claude-sonnet-4-6
+WHISPER_MODEL=small
+PORT=8000
+BASIC_AUTH_USER=ahcene              # TOI : accès complet (génération)
+BASIC_AUTH_PASS=<mot de passe fort>
+VIEWER_AUTH_USER=equipe             # EUX : consultation seule
+VIEWER_AUTH_PASS=<mot de passe partagé à l'équipe>
+```
+
+### 2. Lancer l'app
+
+```bash
+python run.py            # → http://localhost:8000 (toi, opérateur)
+```
+
+### 3. Exposer un lien gratuit pour l'équipe (au choix)
+
+- **Tailscale Funnel** (URL stable `https://<machine>.ts.net`, HTTPS auto,
+  gratuit) : `tailscale funnel 8000`
+- ou **Cloudflare quick tunnel** (URL aléatoire, gratuit, sans compte) :
+  `cloudflared tunnel --url http://localhost:8000`
+
+Tu partages à l'équipe l'**URL + l'identifiant visiteur** (`equipe / …`).
+Ils voient la même interface, mais sans bouton de génération : ils
+choisissent le programme, parcourent la bibliothèque de dossiers, lisent
+et téléchargent. Toute génération/suppression leur est refusée (403).
+
+> Ton Mac doit être allumé pendant qu'ils consultent. Pour un outil
+> mensuel, tu lances l'app quand tu publies un dossier et tu laisses
+> tourner le temps utile. Zéro coût, zéro serveur.
+
+---
+
+## VPS (option 24/7) — Hetzner
 
 ## 1. Créer le VPS (Hetzner Cloud)
 

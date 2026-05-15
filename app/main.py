@@ -45,31 +45,65 @@ if not api_key or api_key.startswith("sk-ant-xxx"):
 app = FastAPI(title="Dossier Synthesizer", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# --- Auth HTTP Basic (pour la mise en ligne ; transparente en local) ---
+# --- Auth HTTP Basic + rôles (opérateur = tout / visiteur = lecture seule) ---
 BASIC_USER = os.getenv("BASIC_AUTH_USER", "")
 BASIC_PASS = os.getenv("BASIC_AUTH_PASS", "")
-AUTH_ENABLED = bool(BASIC_USER and BASIC_PASS)
+VIEWER_USER = os.getenv("VIEWER_AUTH_USER", "")
+VIEWER_PASS = os.getenv("VIEWER_AUTH_PASS", "")
+OPERATOR_AUTH = bool(BASIC_USER and BASIC_PASS)
+VIEWER_AUTH = bool(VIEWER_USER and VIEWER_PASS)
+AUTH_ENABLED = OPERATOR_AUTH or VIEWER_AUTH
 if not AUTH_ENABLED:
-    logger.warning("🔓 Auth HTTP Basic désactivée (BASIC_AUTH_USER/PASS absents) — OK en local, À DÉFINIR pour la mise en ligne")
+    logger.warning("🔓 Auth désactivée (aucun identifiant) — OK en local (rôle opérateur), À DÉFINIR pour la mise en ligne")
+
+
+def _matches(header: str, user: str, pwd: str) -> bool:
+    if not header.startswith("Basic "):
+        return False
+    try:
+        u, _, p = base64.b64decode(header[6:]).decode("utf-8").partition(":")
+    except Exception:
+        return False
+    return secrets.compare_digest(u, user) and secrets.compare_digest(p, pwd)
+
+
+def _role(request: Request) -> str | None:
+    """'operator' | 'viewer' | None (non authentifié)."""
+    if not AUTH_ENABLED:
+        return "operator"  # local sans auth = opérateur
+    header = request.headers.get("Authorization", "")
+    if OPERATOR_AUTH and _matches(header, BASIC_USER, BASIC_PASS):
+        return "operator"
+    if VIEWER_AUTH and _matches(header, VIEWER_USER, VIEWER_PASS):
+        return "viewer"
+    return None
+
+
+def _is_write(request: Request) -> bool:
+    """Actions réservées à l'opérateur."""
+    p = request.url.path
+    if request.method == "POST" and p == "/api/upload":
+        return True
+    if request.method == "DELETE" and p.startswith("/api/jobs/"):
+        return True
+    return False
 
 
 @app.middleware("http")
-async def basic_auth(request: Request, call_next):
+async def auth_and_roles(request: Request, call_next):
     # /healthz reste public pour le healthcheck Docker / Cloudflare
-    if not AUTH_ENABLED or request.url.path == "/healthz":
+    if request.url.path == "/healthz":
         return await call_next(request)
-    header = request.headers.get("Authorization", "")
-    if header.startswith("Basic "):
-        try:
-            user, _, pwd = base64.b64decode(header[6:]).decode("utf-8").partition(":")
-            if secrets.compare_digest(user, BASIC_USER) and secrets.compare_digest(pwd, BASIC_PASS):
-                return await call_next(request)
-        except Exception:
-            pass
-    return Response(
-        status_code=401,
-        headers={"WWW-Authenticate": 'Basic realm="Dossier Synthesizer"'},
-    )
+    role = _role(request)
+    if role is None:
+        return Response(
+            status_code=401,
+            headers={"WWW-Authenticate": 'Basic realm="Dossier Synthesizer"'},
+        )
+    if role == "viewer" and _is_write(request):
+        return Response(status_code=403, content="Mode consultation : action réservée à l'opérateur.")
+    request.state.role = role
+    return await call_next(request)
 
 # Dossiers
 BASE_DIR = Path(__file__).parent.parent
@@ -109,6 +143,12 @@ async def home():
 @app.get("/healthz")
 async def healthz():
     return {"ok": True}
+
+
+@app.get("/api/mode")
+async def get_mode(request: Request):
+    """Le front s'adapte : visiteur = consultation seule, opérateur = tout."""
+    return {"viewer": getattr(request.state, "role", "operator") == "viewer"}
 
 
 @app.get("/api/programs")

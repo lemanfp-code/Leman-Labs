@@ -89,6 +89,10 @@ PORT=8000
   sorties par programme.
 - Phase 2 faite : mémoire persistante (sidecar JSON par dossier, `store.py`),
   historique qui survit au redémarrage, bouton « Voir » un ancien dossier.
-- Phase 3 : auth HTTP Basic intégrée (`BASIC_AUTH_USER/PASS`, `/healthz`
-  public). Reste le provisioning (VPS Hetzner + Cloudflare Tunnel) — voir
-  `DEPLOYMENT.md` (nécessite les comptes externes).
+- Phase 3 : auth HTTP Basic à **2 rôles** — opérateur (`BASIC_AUTH_*`,
+  accès complet) et visiteur (`VIEWER_AUTH_*`, **consultation seule** :
+  upload/suppression → 403). `/api/mode` indique le rôle au front, qui
+  masque la génération en mode visiteur. `/healthz` public.
+- Modèle d'usage retenu : **seul l'opérateur génère** (en local) ; les
+  collaborateurs **consultent** via un lien (tunnel gratuit). Pas de VPS
+  obligatoire — voir `DEPLOYMENT.md` (variante locale + consultation).

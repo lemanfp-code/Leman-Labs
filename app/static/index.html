@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dossier Synthesizer — Votre conférence en 1 clic</title>
+  <title>Léman Finance Labs — Synthèse d'émissions</title>
   <style>
     :root {
       --bg-0: #050b18;
@@ -130,6 +130,59 @@
     .prog .pdesc { color: var(--muted); font-size: 13px; line-height: 1.6; }
     .prog .pfmt { color: var(--muted); font-size: 11.5px; margin-top: 12px; opacity: .85; }
 
+    /* ===== HUB — accueil clair, épuré, Léman Finance Labs ===== */
+    body.hub-mode {
+      background: #f4f6fa;
+      color: #15294d;
+    }
+    body.hub-mode .wrap { max-width: 1060px; padding: 60px 22px 90px; }
+    #hub { text-align: center; }
+    .hub-logo { display: flex; justify-content: center; margin: 4px 0 22px; }
+    .hub-logo img { max-width: 380px; width: 58%; height: auto; }
+    .lfp-fallback {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 66px; font-weight: 800; color: #15294d;
+      letter-spacing: 0.04em; line-height: 1;
+    }
+    .lfp-fallback small {
+      display: block; font-family: -apple-system, sans-serif;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.34em;
+      color: #15294d; margin-top: 10px;
+    }
+    .hub-title {
+      font-size: 30px; font-weight: 800; color: #15294d;
+      margin: 0 0 6px; letter-spacing: -0.01em;
+    }
+    .hub-sub { font-size: 15px; color: #5b6b85; margin: 0 0 30px; }
+    .hub-divider {
+      height: 1px; max-width: 700px; margin: 0 auto 36px;
+      background: linear-gradient(90deg, transparent, #d3dbe7, transparent);
+    }
+    body.hub-mode #program-card {
+      background: none; border: 0; box-shadow: none; padding: 0;
+      margin: 0 auto; max-width: 780px;
+    }
+    body.hub-mode .programs { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+    body.hub-mode .prog {
+      background: #fff; border: 1px solid #e4e9f1; border-radius: 18px;
+      padding: 30px 26px; box-shadow: 0 1px 2px rgba(20,40,80,0.04);
+    }
+    body.hub-mode .prog:hover {
+      transform: translateY(-3px); border-color: #15294d;
+      box-shadow: 0 18px 40px -22px rgba(21,41,77,0.45);
+    }
+    body.hub-mode .prog .pshort {
+      background: #15294d; color: #fff; border: 0;
+    }
+    body.hub-mode .prog .pname { color: #15294d; font-size: 25px; font-weight: 800; }
+    body.hub-mode .prog .pdesc { color: #5b6b85; font-size: 13.5px; }
+    body.hub-mode .prog .pfmt { color: #8a98b0; }
+    body.hub-mode .history-empty { color: #5b6b85; }
+    .hub-foot {
+      margin-top: 46px; text-align: center;
+      color: #8a98b0; font-size: 11.5px; letter-spacing: 0.02em;
+    }
+
     .drop {
       border: 2px dashed var(--border-2); border-radius: 14px; padding: 38px 22px;
       text-align: center; background: var(--panel-2);
@@ -218,26 +271,32 @@
     a { color: var(--accent-soft); }
   </style>
 </head>
-<body>
+<body class="hub-mode">
   <div class="wrap">
-    <header>
+    <header id="topbar" class="hidden">
       <div class="brand">
-        <span class="name" id="brand-name">Dossier Synthesizer</span>
-        <span class="sub" id="brand-sub">Outil interne de synthèse</span>
+        <span class="name" id="brand-name">Léman Finance Labs</span>
+        <span class="sub" id="brand-sub">Synthèse d'émissions</span>
       </div>
       <span class="badge" id="badge">Claude Sonnet</span>
     </header>
 
-    <!-- ÉTAPE 0 : choix du programme -->
-    <section class="hero" id="picker-hero">
-      <div class="tag-exclusive">Synthèse exclusive</div>
-      <h1>Choisissez<br/>votre programme.</h1>
-      <p>Sélectionnez le programme dont vous voulez synthétiser la conférence, puis envoyez votre vidéo. <b>Vos vidéos restent privées.</b></p>
-    </section>
-    <section class="card" id="program-card">
-      <div class="programs" id="programs-list">
-        <div class="history-empty">Chargement des programmes…</div>
+    <!-- ÉTAPE 0 : HUB Léman Finance Labs -->
+    <section id="hub">
+      <div class="hub-logo">
+        <img id="lfp-logo" src="/static/logo.png" alt="Léman Finance Partners"
+             onerror="this.style.display='none';document.getElementById('lfp-fallback').style.display='block';" />
+        <div id="lfp-fallback" class="lfp-fallback" style="display:none">LFP<small>LÉMAN FINANCE LABS</small></div>
       </div>
+      <h1 class="hub-title" id="hub-title">Léman Finance Labs</h1>
+      <p class="hub-sub" id="hub-subtitle">Sélectionnez l'émission à synthétiser</p>
+      <div class="hub-divider"></div>
+      <section id="program-card">
+        <div class="programs" id="programs-list">
+          <div class="history-empty">Chargement des émissions…</div>
+        </div>
+      </section>
+      <div class="hub-foot">Léman Finance Partners · Outil interne · Local &amp; privé</div>
     </section>
 
     <!-- ÉTAPE 1+ : formulaire (caché tant qu'aucun programme choisi) -->
@@ -319,7 +378,7 @@
     </section>
 
     <footer>
-      <span id="footer-org">Dossier Synthesizer</span> — Outil interne · Local &amp; privé · Vos vidéos restent sur le serveur.
+      <span id="footer-org">Léman Finance Labs</span> — Outil interne · Local &amp; privé · Vos vidéos restent sur le serveur.
     </footer>
   </div>
 
@@ -329,6 +388,7 @@ let selectedFile = null;
 let PROGRAM = null;          // id du programme choisi
 let PROGRAMS = [];           // liste depuis /api/programs
 let HISTORY_ITEMS = [];      // derniers items d'historique (pour "Voir")
+let READONLY = false;        // true = visiteur (consultation seule)
 
 // --- Chargement des programmes ---
 async function loadPrograms() {
@@ -337,7 +397,7 @@ async function loadPrograms() {
     PROGRAMS = await r.json();
   } catch (e) { PROGRAMS = []; }
   const list = $("#programs-list");
-  if (!PROGRAMS.length) { list.innerHTML = '<div class="history-empty">Aucun programme configuré.</div>'; return; }
+  if (!PROGRAMS.length) { list.innerHTML = '<div class="history-empty">Aucune émission configurée.</div>'; return; }
   list.innerHTML = PROGRAMS.map(p => `
     <button class="prog" data-id="${p.id}">
       <div class="pshort">${p.short}</div>
@@ -371,12 +431,21 @@ function selectProgram(id) {
   $("#history-title").textContent = "Dossiers " + p.short + " précédents";
   $("#footer-org").textContent = p.name;
 
-  // Bascule des écrans
-  $("#picker-hero").classList.add("hidden");
-  $("#program-card").classList.add("hidden");
-  $("#form-hero").classList.remove("hidden");
-  $("#form-card").classList.remove("hidden");
+  // Bascule des écrans : on quitte le hub clair → espace de travail sombre
+  document.body.classList.remove("hub-mode");
+  $("#hub").classList.add("hidden");
+  $("#topbar").classList.remove("hidden");
   $("#history-card").classList.remove("hidden");
+  $("#form-hero").classList.remove("hidden");
+  if (READONLY) {
+    $("#form-card").classList.add("hidden");
+    $("#form-hero").querySelector("h1").innerHTML = "Les dossiers<br/>" + p.name + ".";
+    $("#form-tagline").textContent =
+      "Consultez et téléchargez les dossiers " + p.short + " publiés par l'équipe. Lecture seule.";
+    $("#history-title").textContent = "Dossiers " + p.short + " disponibles";
+  } else {
+    $("#form-card").classList.remove("hidden");
+  }
   loadHistory();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -385,8 +454,9 @@ function backToPicker() {
   PROGRAM = null;
   ["#form-hero","#form-card","#progress-card","#result-card","#error-card","#history-card"]
     .forEach(s => $(s).classList.add("hidden"));
-  $("#picker-hero").classList.remove("hidden");
-  $("#program-card").classList.remove("hidden");
+  document.body.classList.add("hub-mode");
+  $("#topbar").classList.add("hidden");
+  $("#hub").classList.remove("hidden");
   resetToNew(true);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -517,7 +587,18 @@ function resetToNew(silent) {
   $("#bar").style.width = "0%";
   if (!silent) window.scrollTo({ top: 0, behavior: "smooth" });
 }
-$("#new-synthesis").onclick = () => resetToNew(false);
+function newSynthesisAction() {
+  if (READONLY) {
+    $("#result-card").classList.add("hidden");
+    $("#error-card").classList.add("hidden");
+    $("#form-hero").classList.remove("hidden");
+    $("#history-card").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    resetToNew(false);
+  }
+}
+$("#new-synthesis").onclick = newSynthesisAction;
 
 // --- Historique (scopé au programme courant) ---
 async function loadHistory() {
@@ -552,7 +633,7 @@ async function loadHistory() {
         </div>
         <div class="history-actions">
           ${actions}
-          <button class="btn danger" data-del="${id}">✕</button>
+          ${READONLY ? "" : `<button class="btn danger" data-del="${id}">✕</button>`}
         </div>
       </div>`;
   }).join("");
@@ -602,7 +683,21 @@ async function deleteJob(id) {
 }
 $("#refresh-history").onclick = loadHistory;
 
-loadPrograms();
+async function init() {
+  try {
+    const r = await fetch("/api/mode");
+    if (r.ok) READONLY = (await r.json()).viewer === true;
+  } catch (e) {}
+  if (READONLY) {
+    $("#badge").textContent = "Mode consultation";
+    $("#new-synthesis").textContent = "← Retour aux dossiers";
+    $("#hub-title").textContent = "Consultez les dossiers";
+    $("#hub-subtitle").textContent =
+      "Choisissez l'émission pour voir et télécharger les dossiers publiés. Lecture seule.";
+  }
+  loadPrograms();
+}
+init();
 </script>
 </body>
 </html>
