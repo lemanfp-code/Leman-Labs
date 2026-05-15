@@ -87,5 +87,8 @@ PORT=8000
 - Issu de la fusion CPC + CRY (mai 2026), tous deux validés en prod.
 - Phase 1 faite : codebase unifié, sélecteur de programme, thème dynamique,
   sorties par programme.
-- À venir : Phase 2 (page mémoire/historique enrichie), Phase 3 (déploiement
-  en ligne — VPS Hetzner + Cloudflare Tunnel + auth HTTP Basic).
+- Phase 2 faite : mémoire persistante (sidecar JSON par dossier, `store.py`),
+  historique qui survit au redémarrage, bouton « Voir » un ancien dossier.
+- Phase 3 : auth HTTP Basic intégrée (`BASIC_AUTH_USER/PASS`, `/healthz`
+  public). Reste le provisioning (VPS Hetzner + Cloudflare Tunnel) — voir
+  `DEPLOYMENT.md` (nécessite les comptes externes).

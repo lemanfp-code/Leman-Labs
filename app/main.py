@@ -10,15 +10,16 @@ os.environ["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + os.environ.get("PATH"
 
 """Dossier Synthesizer — Serveur FastAPI unifié (multi-programmes)."""
 import uuid
-import shutil
+import base64
+import secrets
 import asyncio
 import logging
 import traceback
 from datetime import datetime
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -43,6 +44,32 @@ if not api_key or api_key.startswith("sk-ant-xxx"):
 # --- App ---
 app = FastAPI(title="Dossier Synthesizer", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+# --- Auth HTTP Basic (pour la mise en ligne ; transparente en local) ---
+BASIC_USER = os.getenv("BASIC_AUTH_USER", "")
+BASIC_PASS = os.getenv("BASIC_AUTH_PASS", "")
+AUTH_ENABLED = bool(BASIC_USER and BASIC_PASS)
+if not AUTH_ENABLED:
+    logger.warning("🔓 Auth HTTP Basic désactivée (BASIC_AUTH_USER/PASS absents) — OK en local, À DÉFINIR pour la mise en ligne")
+
+
+@app.middleware("http")
+async def basic_auth(request: Request, call_next):
+    # /healthz reste public pour le healthcheck Docker / Cloudflare
+    if not AUTH_ENABLED or request.url.path == "/healthz":
+        return await call_next(request)
+    header = request.headers.get("Authorization", "")
+    if header.startswith("Basic "):
+        try:
+            user, _, pwd = base64.b64decode(header[6:]).decode("utf-8").partition(":")
+            if secrets.compare_digest(user, BASIC_USER) and secrets.compare_digest(pwd, BASIC_PASS):
+                return await call_next(request)
+        except Exception:
+            pass
+    return Response(
+        status_code=401,
+        headers={"WWW-Authenticate": 'Basic realm="Dossier Synthesizer"'},
+    )
 
 # Dossiers
 BASE_DIR = Path(__file__).parent.parent
