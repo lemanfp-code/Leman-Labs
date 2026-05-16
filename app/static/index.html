@@ -137,17 +137,29 @@
     }
     body.hub-mode .wrap { max-width: 1060px; padding: 60px 22px 90px; }
     #hub { text-align: center; }
-    .hub-logo { display: flex; justify-content: center; margin: 4px 0 22px; }
-    .hub-logo img { max-width: 380px; width: 58%; height: auto; }
-    .lfp-fallback {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 66px; font-weight: 800; color: #15294d;
-      letter-spacing: 0.04em; line-height: 1;
+    /* Verrou de marque : [logo] → LÉMAN FINANCE PARTNERS → LABS */
+    .brand-lockup {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; margin: 6px 0 26px;
     }
-    .lfp-fallback small {
-      display: block; font-family: -apple-system, sans-serif;
-      font-size: 13px; font-weight: 700; letter-spacing: 0.34em;
-      color: #15294d; margin-top: 10px;
+    .brand-lockup img { max-width: 300px; width: 56%; height: auto; display: block; }
+    .lfp-mark {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 78px; font-weight: 800; color: #15294d;
+      letter-spacing: 0.06em; line-height: 1;
+    }
+    .brand-name {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.34em;
+      color: #15294d; text-transform: uppercase;
+    }
+    .brand-labs {
+      display: inline-flex; align-items: center; gap: 14px;
+      font-size: 15px; font-weight: 800; letter-spacing: 0.42em;
+      color: #15294d; text-transform: uppercase;
+    }
+    .brand-labs::before, .brand-labs::after {
+      content: ""; width: 34px; height: 2px; background: #15294d; opacity: .35;
     }
     .hub-title {
       font-size: 30px; font-weight: 800; color: #15294d;
@@ -326,12 +338,13 @@
 
     <!-- ÉTAPE 0 : MENU GÉNÉRAL LFP LABS (outils) -->
     <section id="tools">
-      <div class="hub-logo">
-        <img id="lfp-logo" src="/static/logo.png" alt="Léman Finance Partners"
-             onerror="this.style.display='none';document.getElementById('lfp-fallback').style.display='block';" />
-        <div id="lfp-fallback" class="lfp-fallback" style="display:none">LFP<small>LÉMAN FINANCE LABS</small></div>
+      <div class="brand-lockup">
+        <img id="lfp-logo" src="/static/logo.png" alt="LFP — Léman Finance Partners"
+             onerror="this.style.display='none';document.getElementById('lfp-fallback').style.display='block';document.getElementById('brand-name').style.display='block';" />
+        <div id="lfp-fallback" class="lfp-mark" style="display:none">LFP</div>
+        <div id="brand-name" class="brand-name" style="display:none">Léman Finance Partners</div>
+        <div class="brand-labs">Labs</div>
       </div>
-      <h1 class="hub-title">Léman Finance Labs</h1>
       <p class="hub-sub">Vos outils internes — choisissez un outil</p>
       <div class="hub-divider"></div>
       <div class="tools-grid">
