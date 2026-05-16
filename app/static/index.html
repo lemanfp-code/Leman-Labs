@@ -355,14 +355,20 @@
             <div class="tool-desc">Transformez un replay (CPC, CRY…) en dossier de synthèse formaté, prêt à diffuser.</div>
           </div>
         </button>
-        <div class="tool soon">
+        <button class="tool live" data-href="/static/patrimoine/index.html">
           <div class="tool-inner">
-            <span class="tool-badge soon">Bientôt</span>
-            <div class="tool-name">Générateur de rapports clients</div>
-            <div class="tool-desc">Reporting de portefeuille personnalisé en un clic.</div>
+            <span class="tool-badge ok">Disponible</span>
+            <div class="tool-name">Patrimoine Crypto</div>
+            <div class="tool-desc">Suivi du patrimoine net, profil de risque, allocation crypto &amp; objectifs.</div>
           </div>
-          <div class="ribbon"><span>Bientôt</span></div>
-        </div>
+        </button>
+        <button class="tool live" data-href="/static/screener/index.html">
+          <div class="tool-inner">
+            <span class="tool-badge ok">Disponible</span>
+            <div class="tool-name">Screener Bourse</div>
+            <div class="tool-desc">Screener CAC 40 avec signal OBV et données de marché.</div>
+          </div>
+        </button>
         <div class="tool soon">
           <div class="tool-inner">
             <span class="tool-badge soon">Bientôt</span>
@@ -376,14 +382,6 @@
             <span class="tool-badge soon">Bientôt</span>
             <div class="tool-name">Assistant rédaction</div>
             <div class="tool-desc">Newsletters et emails à la charte LFP.</div>
-          </div>
-          <div class="ribbon"><span>Bientôt</span></div>
-        </div>
-        <div class="tool soon">
-          <div class="tool-inner">
-            <span class="tool-badge soon">Bientôt</span>
-            <div class="tool-name">Screener Bourse</div>
-            <div class="tool-desc">Filtrage d'actions selon vos critères LFP.</div>
           </div>
           <div class="ribbon"><span>Bientôt</span></div>
         </div>
@@ -676,6 +674,9 @@ function showProgramPicker() {
 }
 $("#tool-synth").addEventListener("click", showProgramPicker);
 $("#back-to-tools").addEventListener("click", showTools);
+// Outils externes embarqués (Patrimoine, Screener) : ouverture nouvel onglet
+document.querySelectorAll(".tool.live[data-href]").forEach(el =>
+  el.addEventListener("click", () => window.open(el.dataset.href, "_blank", "noopener")));
 
 // --- Drag & drop ---
 const drop = $("#drop");
