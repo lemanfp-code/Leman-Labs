@@ -19,7 +19,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
-from .clement_universe import TICKERS, FX_TO_EUR
+from .clement_universe import FX_TO_EUR
+from .universe_loader import load_universe
 
 logger = logging.getLogger("dossier-synthesizer")
 
@@ -181,8 +182,9 @@ def _fetch_one(sym, name, country, sector):
 
 def _build():
     import os
+    full = load_universe()
     limit = int(os.getenv("CLEMENT_LIMIT", "0") or 0)
-    universe = TICKERS[:limit] if limit > 0 else TICKERS
+    universe = full[:limit] if limit > 0 else full
     companies = []
     with ThreadPoolExecutor(max_workers=8) as ex:
         futs = [ex.submit(_fetch_one, *u) for u in universe]
