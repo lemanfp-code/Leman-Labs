@@ -102,17 +102,11 @@ footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
     <span class="disclaimer" id="updated"></span>
   </div>
   <p class="sub">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> : entreprises solides, en croissance durable, au dividende attractif et croissant — pour <strong>bâtir</strong> (accumulation, renforts, effet boule de neige) et non spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
-  <p class="disclaimer"><strong>Données illustratives à des fins éducatives.</strong> Sociétés réelles (univers Stoxx&nbsp;600 + SMI), mais chiffres approximatifs/illustratifs servant à démontrer la logique de screening. Ne constitue pas un conseil en investissement.</p>
+  <p class="disclaimer"><strong>Données réelles via Yahoo Finance.</strong> Univers Stoxx&nbsp;600 + SMI. Croissance évaluée sur les exercices réellement publiés (≈ 3 à 5 ans selon la source ; cours &amp; dividende sur ~5 ans). Seules les sociétés à données complètes sont affichées (aucune valeur inventée, aucun « n/d »). Information éducative, ne constitue pas un conseil en investissement.</p>
 </header>
 
 <div class="controls">
   <input type="text" id="q" placeholder="Rechercher une société, un secteur, un pays…">
-  <span class="field">Horizon
-    <span class="seg" id="seg-h">
-      <button data-h="5">5 ans</button>
-      <button data-h="10" class="on">10 ans</button>
-    </span>
-  </span>
   <span class="field">Rendement min
     <input type="number" id="yld" value="3" step="0.25" min="0">%
   </span>
@@ -151,7 +145,7 @@ footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
 <div class="empty" id="empty" style="display:none">Aucune société ne correspond aux critères actuels.</div>
 
 <footer>
-  Préalable : univers Stoxx&nbsp;600 + SMI, capitalisation &gt; seuil. Puis <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse vs horizon · rendement &gt; seuil · DetteNette/EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse vs horizon. La <strong>crème de la crème</strong> = les 7 critères au vert.
+  Préalable : univers Stoxx&nbsp;600 + SMI, capitalisation &gt; seuil, données réelles complètes. Puis <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur ~5 ans · rendement &gt; seuil · DetteNette/EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.
 </footer>
 
 <div class="overlay" id="ov"></div>
@@ -200,21 +194,19 @@ const SAMPLE=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
 let DATA=[];      // peuplé par /api/screener/clement (données réelles)
 let META={};
 
-// Horizon par défaut = 5 ans : Yahoo ne fournit ~que 4 ans de comptes,
-// donc l'écart « 10 ans » sur CA/EBITDA/RN est n/d (cours & div : 10 ans OK).
-const state={h:5,yld:3,lev:2,cap:3,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
+const state={yld:3,lev:2,cap:3,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
 
-const HIDX={5:1,10:0}; // index du passé selon l'horizon (2 = aujourd'hui)
-function gt(a,i){ // 'ok' | 'no' | 'nd' (donnée absente — jamais inventée)
-  if(!a||a[2]==null||a[i]==null) return 'nd';
-  return a[2]>a[i] ? 'ok' : 'no';
+// Croissance = dernier point vs plus ancien (données réelles complètes).
+function gt(a){
+  if(!a||a.length<2) return 'no';
+  const old=a[0], now=a[a.length-1];
+  if(old==null||now==null) return 'no';
+  return now>old ? 'ok' : 'no';
 }
 function evalCo(c){
-  const pasti=HIDX[state.h];
-  const sRev=gt(c.rev,pasti), sEb=gt(c.eb,pasti), sNi=gt(c.ni,pasti),
-        sDiv=gt(c.div,pasti), sPr=gt(c.p,pasti);
-  const sYld=(c.yield==null)?'nd':(c.yield>state.yld?'ok':'no');
-  const sDebt=(c.nd==null)?'nd':(c.nd<=state.lev?'ok':'no'); // nd<0 = trésorerie nette → OK
+  const sRev=gt(c.rev), sEb=gt(c.eb), sNi=gt(c.ni), sDiv=gt(c.div), sPr=gt(c.p);
+  const sYld=(c.yield>state.yld)?'ok':'no';
+  const sDebt=(c.nd<=state.lev)?'ok':'no'; // nd<0 = trésorerie nette → OK
   const capOK=(c.mcap!=null&&c.mcap>state.cap);
   const states=[sRev,sEb,sNi,sDiv,sYld,sDebt,sPr];
   const crit=[
@@ -222,8 +214,8 @@ function evalCo(c){
     {k:"EBITDA en hausse",s:sEb,d:fmtEvo(c.eb,"Md")},
     {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md")},
     {k:"Dividende en hausse",s:sDiv,d:fmtEvo(c.div,"/action")},
-    {k:"Rendement > "+state.yld+"%",s:sYld,d:(c.yield==null?"n/d":c.yield.toFixed(2)+"%")},
-    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,d:(c.nd==null?"n/d":(c.nd<=0?("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)"):(c.nd.toFixed(2)+"x EBITDA")))},
+    {k:"Rendement > "+state.yld+"%",s:sYld,d:c.yield.toFixed(2)+"%"},
+    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,d:(c.nd<=0?("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)"):(c.nd.toFixed(2)+"x EBITDA"))},
     {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
   ];
   const greens=states.filter(s=>s==='ok').length;
@@ -231,8 +223,8 @@ function evalCo(c){
   const score=Math.round((greens/7)*100);
   return {crit,greens,eligible,score,capOK,bools:states};
 }
-function fmtEvo(a,u){const s=v=>v==null?"n/d":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
-  return a?(s(a[0])+" → "+s(a[1])+" → "+s(a[2])+(u?" "+u:"")):"n/d";}
+function fmtEvo(a,u){const s=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+  return a&&a.length?(a.map(s).join(" → ")+(u?" "+u:"")):"—";}
 
 function rank(r){if(r.eligible)return{c:"creme",t:"⭐ Crème",o:3};if(r.capOK&&r.greens>=5)return{c:"near",t:"Proche ("+r.greens+"/7)",o:2};return{c:"out",t:"Recalé",o:1};}
 
@@ -296,7 +288,7 @@ function renderSummary(rows){
     ["Crème de la crème",creme.length,"creme"],
     ["Rdt moyen crème",avgYld.toFixed(2)+"%","creme"],
     ["Affichées",rows.length,""],
-    ["Horizon",state.h+" ans",""]
+    ["Base de croissance","~5 ans réels",""]
   ];
   document.getElementById("summary").innerHTML=s.map(t=>'<div class="tile '+(t[2])+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+'</div></div>').join("");
 }
@@ -309,15 +301,16 @@ function openPanel(i){
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()">×</button></div>'
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
-    +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) sur l\'horizon '+state.h+' ans — ne remplit pas (encore) le profil recherché.')+'</div>'
+    +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) sur ~5 ans — ne remplit pas (encore) le profil recherché.')+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
-    +'<div class="evo-h">Trajectoire (il y a 10 ans → 5 ans → aujourd\'hui)</div>'
-    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€")+evoCell("EBITDA",c.eb,"Md€")+evoCell("Résultat net",c.ni,"Md€")+'</div>'
-    +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[null,null,c.yield],"%")+'</div>';
+    +'<div class="evo-h">Trajectoire (il y a ~5 ans → aujourd\'hui)</div>'
+    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md")+evoCell("EBITDA",c.eb,"Md")+evoCell("Résultat net",c.ni,"Md")+'</div>'
+    +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>';
   p.classList.add("open");document.getElementById("ov").classList.add("open");
 }
-function evoCell(l,a,u){a=a||[null,null,null];const f=v=>v==null?"n/d":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
-  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(a[2]!=null?f(a[2])+(u?" "+u:""):"n/d")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+f(a[0])+" → "+f(a[1])+" → "+f(a[2])+'</div></div>';}
+function evoCell(l,a,u){a=a||[];const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+  const cur=a.length?a[a.length-1]:null;
+  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div></div>';}
 function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("ov").classList.remove("open");}
 document.getElementById("ov").onclick=closePanel;
 
@@ -329,8 +322,6 @@ function buildSectors(){
   [...new Set(DATA.map(c=>c.sec))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;secSel.appendChild(o);});
   secSel.value=cur;
 }
-document.getElementById("seg-h").onclick=e=>{const b=e.target.closest("button");if(!b)return;
-  state.h=+b.dataset.h;[...e.currentTarget.children].forEach(x=>x.classList.toggle("on",x===b));render();};
 document.getElementById("yld").oninput=e=>{state.yld=parseFloat(e.target.value)||0;render();};
 document.getElementById("lev").oninput=e=>{state.lev=parseFloat(e.target.value)||0;render();};
 document.getElementById("cap").oninput=e=>{state.cap=parseFloat(e.target.value)||0;render();};
@@ -340,8 +331,6 @@ document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.check
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
   const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
-// défaut horizon = 5 ans (Yahoo : comptes ~4 ans ; 10 ans = n/d sur CA/EBITDA/RN)
-[...document.getElementById("seg-h").children].forEach(x=>x.classList.toggle("on",x.dataset.h==="5"));
 
 const statusEl=document.getElementById("updated");
 async function loadData(){

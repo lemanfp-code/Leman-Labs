@@ -65,9 +65,10 @@ def _fetch_one(sym, name, country, sector):
         "name": name, "tk": sym.split(".")[0], "ctry": country, "sec": sector,
         "color": _SECTOR_COLOR.get(sector, "#444"),
         "mcap": None, "yield": None, "nd": None,
-        "rev": [None, None, None], "eb": [None, None, None],
-        "ni": [None, None, None], "div": [None, None, None],
-        "p": [None, None, None], "ccy": None, "err": None,
+        "rev": [None, None], "eb": [None, None],
+        "ni": [None, None], "div": [None, None],
+        "p": [None, None], "years": None, "ok": False,
+        "ccy": None, "err": None,
     }
     try:
         t = yf.Ticker(sym)
@@ -85,71 +86,77 @@ def _fetch_one(sym, name, country, sector):
             cap_ccy = "GBP" if ccy == "GBp" else ccy
             rec["mcap"] = round(mc * FX_TO_EUR.get(cap_ccy, 1.0) / 1e9, 1)
 
-        # Cours : historique mensuel ~11 ans
+        # Cours : ~5 ans réels (plus ancien point ≤ 5 ans → aujourd'hui)
         try:
-            h = t.history(period="11y", interval="1mo")["Close"].dropna()
+            h = t.history(period="6y", interval="1mo")["Close"].dropna()
         except Exception:
             h = None
         if h is not None and len(h):
             now_dt = h.index[-1]
             pnow = float(h.iloc[-1])
-            p5 = h[h.index <= now_dt - timedelta(days=365 * 5)]
-            p10 = h[h.index <= now_dt - timedelta(days=365 * 10)]
-            rec["p"] = [
-                round(float(p10.iloc[-1]), 2) if len(p10) else None,
-                round(float(p5.iloc[-1]), 2) if len(p5) else None,
-                round(pnow, 2),
-            ]
+            p5s = h[h.index <= now_dt - timedelta(days=365 * 5)]
+            rec["p"] = [round(float(p5s.iloc[-1]), 2) if len(p5s) else None,
+                        round(pnow, 2)]
 
-        # Dividendes : rendement TTM réel + croissance 5/10 ans
+        # Dividendes : rendement TTM réel + dividende il y a ~5 ans
+        # (0.0 = aucun versement cette année-là — donnée réelle, pas n/d)
         try:
             d = t.dividends
         except Exception:
             d = None
+        pnow = rec["p"][1]
         if d is not None and len(d):
             now = datetime.now(d.index.tz) if d.index.tz else datetime.now()
             ttm = float(d[d.index >= now - timedelta(days=365)].sum())
-            cy = now.year
-
-            def yr(y):
-                s = float(d[d.index.year == y].sum())
-                return s if s > 0 else None
-
-            rec["div"] = [yr(cy - 10), yr(cy - 5), round(ttm, 4) if ttm > 0 else None]
-            pnow = rec["p"][2]
-            if ttm > 0 and pnow:
-                rec["yield"] = round(ttm / pnow * 100, 2)
-            else:
-                rec["yield"] = 0.0
+            d5 = float(d[d.index.year == now.year - 5].sum())
+            rec["div"] = [round(d5, 4), round(ttm, 4)]
+            rec["yield"] = round(ttm / pnow * 100, 2) if (ttm > 0 and pnow) else 0.0
         else:
+            rec["div"] = [0.0, 0.0]
             rec["yield"] = 0.0
 
-        # Comptes annuels (Yahoo : ~4 ans). "10 ans" non disponible → None.
+        # Comptes annuels (Yahoo ~4 ans) : plus ancien exercice → dernier
         try:
             fin = t.income_stmt
         except Exception:
             fin = None
 
-        def row(df, *names):
-            """(plus récent, plus ancien) en filtrant les NaN ;
-            colonnes income_stmt = du plus récent au plus ancien."""
+        def series(df, *names):
             if df is None:
-                return None, None
+                return None
             for nm in names:
                 if nm in df.index:
-                    ser = df.loc[nm].dropna()
-                    if len(ser) >= 2:
-                        return float(ser.iloc[0]), float(ser.iloc[-1])
-                    if len(ser) == 1:
-                        return float(ser.iloc[0]), None
-            return None, None
+                    s = df.loc[nm].dropna()
+                    if len(s):
+                        return s
+            return None
 
-        rNow, rOld = row(fin, "Total Revenue", "Operating Revenue")
-        eNow, eOld = row(fin, "EBITDA", "Normalized EBITDA")
-        nNow, nOld = row(fin, "Net Income", "Net Income Common Stockholders")
-        rec["rev"] = [None, _bn(rOld), _bn(rNow)]
-        rec["eb"] = [None, _bn(eOld), _bn(eNow) if eNow is not None else _bn(info.get("ebitda"))]
-        rec["ni"] = [None, _bn(nOld), _bn(nNow)]
+        def oldnew(s):  # colonnes : récent → ancien
+            if s is None or len(s) < 2:
+                return None, None
+            return float(s.iloc[-1]), float(s.iloc[0])
+
+        rev_s = series(fin, "Total Revenue", "Operating Revenue")
+        ni_s = series(fin, "Net Income", "Net Income Common Stockholders")
+        eb_s = series(fin, "EBITDA", "Normalized EBITDA")
+        if eb_s is None and fin is not None:
+            ebit = series(fin, "EBIT", "Operating Income")
+            dep = series(fin, "Reconciled Depreciation",
+                         "Depreciation And Amortization In Income Statement")
+            if ebit is not None and dep is not None:
+                eb_s = ebit.add(dep, fill_value=0).dropna()
+
+        rOld, rNow = oldnew(rev_s)
+        eOld, eNow = oldnew(eb_s)
+        nOld, nNow = oldnew(ni_s)
+        rec["rev"] = [_bn(rOld), _bn(rNow)]
+        rec["eb"] = [_bn(eOld), _bn(eNow)]
+        rec["ni"] = [_bn(nOld), _bn(nNow)]
+        try:
+            idx = list(rev_s.index)
+            rec["years"] = int(abs(idx[0].year - idx[-1].year)) if len(idx) >= 2 else None
+        except Exception:
+            rec["years"] = None
 
         # Levier DetteNette / EBITDA
         ebitda = _num(info.get("ebitda")) or _num(eNow)
@@ -157,6 +164,16 @@ def _fetch_one(sym, name, country, sector):
         cash = _num(info.get("totalCash"))
         if ebitda and ebitda > 0 and debt is not None and cash is not None:
             rec["nd"] = round((debt - cash) / ebitda, 2)
+
+        # Société retenue seulement si TOUTES les données réelles sont là
+        # (sinon exclue — jamais affichée en n/d)
+        rec["ok"] = (
+            rec["mcap"] is not None and rec["yield"] is not None
+            and rec["nd"] is not None
+            and None not in rec["rev"] and None not in rec["eb"]
+            and None not in rec["ni"] and None not in rec["p"]
+            and None not in rec["div"]
+        )
     except Exception as e:
         rec["err"] = str(e)[:200]
     return rec
@@ -174,15 +191,16 @@ def _build():
                 companies.append(f.result(timeout=60))
             except Exception as e:
                 logger.warning(f"[CLEMENT] ticker échoué : {e}")
-    ok = [c for c in companies if c.get("mcap") is not None]
+    ok = [c for c in companies if c.get("ok")]
     payload = {
         "as_of": datetime.now().isoformat(timespec="seconds"),
         "source": "Yahoo Finance (yfinance)",
         "count": len(ok),
         "fetched": len(companies),
-        "note": "Données réelles. Yahoo ne fournit ~que 4 ans de comptes : "
-                "l'écart « 10 ans » sur CA/EBITDA/RN est marqué n/d. "
-                "Cours & dividendes : 5 et 10 ans réels.",
+        "note": "Données réelles. Croissance évaluée sur ~5 ans (plus ancien "
+                "exercice publié par la source → dernier ; cours & dividende "
+                "sur ~5 ans). Seules les sociétés à données complètes sont "
+                "affichées — aucune valeur inventée, aucun n/d.",
         "companies": ok,
     }
     if not ok:
