@@ -1,0 +1,252 @@
+"""Moteur du Screener de Clément : vraies données via Yahoo Finance.
+
+- Récupère par ticker : capitalisation (→ €), cours (10/5 ans/auj.),
+  dividendes (croissance 5/10 ans + rendement TTM réel), agrégats
+  (CA / EBITDA / résultat net : Yahoo ne fournit ~que 4 ans → l'écart
+  long terme est marqué « n/d » plutôt qu'inventé), levier DetteNette/EBITDA.
+- Cache disque (outputs/_cache/clement.json) + rafraîchissement en
+  arrière-plan (l'univers complet = lent ; le front lit le cache).
+
+Aucune donnée inventée : si Yahoo ne renvoie pas une valeur, elle vaut
+None et le critère correspondant est « n/d » (non satisfait).
+"""
+
+import json
+import time
+import logging
+import threading
+from datetime import datetime, timedelta
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
+from .clement_universe import TICKERS, FX_TO_EUR
+
+logger = logging.getLogger("dossier-synthesizer")
+
+CACHE_PATH = Path(__file__).resolve().parent.parent.parent / "outputs" / "_cache" / "clement.json"
+STALE_SECONDS = 24 * 3600
+
+_lock = threading.Lock()
+_state = {"refreshing": False, "started_at": None, "last_attempt": 0.0}
+AUTO_RETRY_COOLDOWN = 120  # s — évite de re-déclencher un build en boucle
+
+_SECTOR_COLOR = {
+    "Conso. déf.": "#0B5C3E", "Santé": "#0033A0", "Tech": "#0B5394",
+    "Luxe": "#1A1A1A", "Industrie": "#185FA5", "Énergie": "#E2001A",
+    "Matériaux": "#7A4DBD", "Finance": "#0F6E56", "Assurance": "#0B3D91",
+    "Conso. cycl.": "#B8860B", "Télécom": "#534AB7", "Services": "#993556",
+    "Immobilier": "#854F0B", "Utilities": "#0B8A3E",
+}
+
+
+def _bn(v):
+    """En milliards, arrondi ; None si inexploitable."""
+    try:
+        v = float(v)
+        if v != v:  # NaN
+            return None
+        return round(v / 1e9, 2)
+    except (TypeError, ValueError):
+        return None
+
+
+def _num(v):
+    try:
+        v = float(v)
+        return None if v != v else v
+    except (TypeError, ValueError):
+        return None
+
+
+def _fetch_one(sym, name, country, sector):
+    import yfinance as yf
+
+    rec = {
+        "name": name, "tk": sym.split(".")[0], "ctry": country, "sec": sector,
+        "color": _SECTOR_COLOR.get(sector, "#444"),
+        "mcap": None, "yield": None, "nd": None,
+        "rev": [None, None, None], "eb": [None, None, None],
+        "ni": [None, None, None], "div": [None, None, None],
+        "p": [None, None, None], "ccy": None, "err": None,
+    }
+    try:
+        t = yf.Ticker(sym)
+        try:
+            info = t.get_info()
+        except Exception:
+            info = getattr(t, "info", {}) or {}
+        ccy = info.get("currency") or "EUR"
+        rec["ccy"] = ccy
+
+        mc = _num(info.get("marketCap"))
+        if mc:
+            # marketCap est en devise majeure même quand les cours sont en
+            # pence (GBp) : ne pas lui appliquer le facteur pence.
+            cap_ccy = "GBP" if ccy == "GBp" else ccy
+            rec["mcap"] = round(mc * FX_TO_EUR.get(cap_ccy, 1.0) / 1e9, 1)
+
+        # Cours : historique mensuel ~11 ans
+        try:
+            h = t.history(period="11y", interval="1mo")["Close"].dropna()
+        except Exception:
+            h = None
+        if h is not None and len(h):
+            now_dt = h.index[-1]
+            pnow = float(h.iloc[-1])
+            p5 = h[h.index <= now_dt - timedelta(days=365 * 5)]
+            p10 = h[h.index <= now_dt - timedelta(days=365 * 10)]
+            rec["p"] = [
+                round(float(p10.iloc[-1]), 2) if len(p10) else None,
+                round(float(p5.iloc[-1]), 2) if len(p5) else None,
+                round(pnow, 2),
+            ]
+
+        # Dividendes : rendement TTM réel + croissance 5/10 ans
+        try:
+            d = t.dividends
+        except Exception:
+            d = None
+        if d is not None and len(d):
+            now = datetime.now(d.index.tz) if d.index.tz else datetime.now()
+            ttm = float(d[d.index >= now - timedelta(days=365)].sum())
+            cy = now.year
+
+            def yr(y):
+                s = float(d[d.index.year == y].sum())
+                return s if s > 0 else None
+
+            rec["div"] = [yr(cy - 10), yr(cy - 5), round(ttm, 4) if ttm > 0 else None]
+            pnow = rec["p"][2]
+            if ttm > 0 and pnow:
+                rec["yield"] = round(ttm / pnow * 100, 2)
+            else:
+                rec["yield"] = 0.0
+        else:
+            rec["yield"] = 0.0
+
+        # Comptes annuels (Yahoo : ~4 ans). "10 ans" non disponible → None.
+        try:
+            fin = t.income_stmt
+        except Exception:
+            fin = None
+
+        def row(df, *names):
+            """(plus récent, plus ancien) en filtrant les NaN ;
+            colonnes income_stmt = du plus récent au plus ancien."""
+            if df is None:
+                return None, None
+            for nm in names:
+                if nm in df.index:
+                    ser = df.loc[nm].dropna()
+                    if len(ser) >= 2:
+                        return float(ser.iloc[0]), float(ser.iloc[-1])
+                    if len(ser) == 1:
+                        return float(ser.iloc[0]), None
+            return None, None
+
+        rNow, rOld = row(fin, "Total Revenue", "Operating Revenue")
+        eNow, eOld = row(fin, "EBITDA", "Normalized EBITDA")
+        nNow, nOld = row(fin, "Net Income", "Net Income Common Stockholders")
+        rec["rev"] = [None, _bn(rOld), _bn(rNow)]
+        rec["eb"] = [None, _bn(eOld), _bn(eNow) if eNow is not None else _bn(info.get("ebitda"))]
+        rec["ni"] = [None, _bn(nOld), _bn(nNow)]
+
+        # Levier DetteNette / EBITDA
+        ebitda = _num(info.get("ebitda")) or _num(eNow)
+        debt = _num(info.get("totalDebt"))
+        cash = _num(info.get("totalCash"))
+        if ebitda and ebitda > 0 and debt is not None and cash is not None:
+            rec["nd"] = round((debt - cash) / ebitda, 2)
+    except Exception as e:
+        rec["err"] = str(e)[:200]
+    return rec
+
+
+def _build():
+    import os
+    limit = int(os.getenv("CLEMENT_LIMIT", "0") or 0)
+    universe = TICKERS[:limit] if limit > 0 else TICKERS
+    companies = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futs = [ex.submit(_fetch_one, *u) for u in universe]
+        for f in futs:
+            try:
+                companies.append(f.result(timeout=60))
+            except Exception as e:
+                logger.warning(f"[CLEMENT] ticker échoué : {e}")
+    ok = [c for c in companies if c.get("mcap") is not None]
+    payload = {
+        "as_of": datetime.now().isoformat(timespec="seconds"),
+        "source": "Yahoo Finance (yfinance)",
+        "count": len(ok),
+        "fetched": len(companies),
+        "note": "Données réelles. Yahoo ne fournit ~que 4 ans de comptes : "
+                "l'écart « 10 ans » sur CA/EBITDA/RN est marqué n/d. "
+                "Cours & dividendes : 5 et 10 ans réels.",
+        "companies": ok,
+    }
+    if not ok:
+        # Build infructueux : ne pas écraser un bon cache existant.
+        prev = _read_cache()
+        if prev and prev.get("companies"):
+            logger.warning("[CLEMENT] build vide — ancien cache conservé")
+            return prev
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CACHE_PATH.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return payload
+
+
+def _refresh_locked():
+    if not _lock.acquire(blocking=False):
+        return
+    try:
+        _state["refreshing"] = True
+        _state["started_at"] = datetime.now().isoformat(timespec="seconds")
+        _state["last_attempt"] = time.time()
+        t0 = time.time()
+        p = _build()
+        logger.info(f"[CLEMENT] cache rafraîchi : {p['count']}/{p['fetched']} valeurs en {time.time()-t0:.0f}s")
+    except Exception as e:
+        logger.error(f"[CLEMENT] échec refresh : {e}")
+    finally:
+        _state["refreshing"] = False
+        _lock.release()
+
+
+def refresh_async():
+    """Lance un rafraîchissement en arrière-plan (non bloquant)."""
+    if _state["refreshing"]:
+        return False
+    threading.Thread(target=_refresh_locked, daemon=True).start()
+    return True
+
+
+def _read_cache():
+    try:
+        return json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def get():
+    """Renvoie le cache + méta. Déclenche un refresh si vide ou périmé."""
+    cache = _read_cache()
+    stale = True
+    if cache:
+        try:
+            age = (datetime.now() - datetime.fromisoformat(cache["as_of"])).total_seconds()
+            stale = age > STALE_SECONDS
+        except Exception:
+            stale = True
+        if not cache.get("companies"):
+            stale = True  # cache vide (build raté) = à réessayer
+    needs = cache is None or stale
+    cooldown_ok = (time.time() - _state["last_attempt"]) > AUTO_RETRY_COOLDOWN
+    if needs and not _state["refreshing"] and cooldown_ok:
+        refresh_async()
+    return {
+        "ready": cache is not None,
+        "refreshing": _state["refreshing"],
+        "stale": stale,
+        **(cache or {"companies": [], "count": 0, "as_of": None}),
+    }

@@ -60,6 +60,7 @@ tr:last-child td{border-bottom:0}
 .chip{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-size:13px;font-weight:700}
 .chip.ok{background:var(--green-bg);color:var(--green-d)}
 .chip.no{background:var(--red-bg);color:var(--red-d)}
+.chip.nd{background:#ECEAE3;color:#8A877E;font-weight:600}
 .verdict{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px}
 .verdict.creme{background:var(--gold);color:#fff}
 .verdict.near{background:var(--amber-bg);color:var(--amber-d)}
@@ -194,38 +195,44 @@ const RAW = [
   ["Deutsche Börse","DB1","DE","Finance",42,[2.0,2.9,5.4],[1.2,1.7,3.0],[0.8,1.1,1.8],[2.10,2.90,3.80],2.0,-0.4,[60,110,210],"#003366"]
 ];
 const COLS=["name","tk","ctry","sec","mcap","rev","eb","ni","div","yield","nd","p","color"];
-const DATA=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
+// Échantillon illustratif (repli si l'API est indisponible).
+const SAMPLE=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
+let DATA=[];      // peuplé par /api/screener/clement (données réelles)
+let META={};
 
-const state={h:10,yld:3,lev:2,cap:3,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
+// Horizon par défaut = 5 ans : Yahoo ne fournit ~que 4 ans de comptes,
+// donc l'écart « 10 ans » sur CA/EBITDA/RN est n/d (cours & div : 10 ans OK).
+const state={h:5,yld:3,lev:2,cap:3,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
 
 const HIDX={5:1,10:0}; // index du passé selon l'horizon (2 = aujourd'hui)
+function gt(a,i){ // 'ok' | 'no' | 'nd' (donnée absente — jamais inventée)
+  if(!a||a[2]==null||a[i]==null) return 'nd';
+  return a[2]>a[i] ? 'ok' : 'no';
+}
 function evalCo(c){
   const pasti=HIDX[state.h];
-  const grewRev=c.rev[2]>c.rev[pasti];
-  const grewEb=c.eb[2]>c.eb[pasti];
-  const grewNi=c.ni[2]>c.ni[pasti];
-  const grewDiv=c.div[2]>c.div[pasti];
-  const yldOK=c.yield>state.yld;
-  const debtOK=c.nd<=state.lev;          // nd négatif = trésorerie nette → OK
-  const priceOK=c.p[2]>c.p[pasti];
-  const capOK=c.mcap>state.cap;
+  const sRev=gt(c.rev,pasti), sEb=gt(c.eb,pasti), sNi=gt(c.ni,pasti),
+        sDiv=gt(c.div,pasti), sPr=gt(c.p,pasti);
+  const sYld=(c.yield==null)?'nd':(c.yield>state.yld?'ok':'no');
+  const sDebt=(c.nd==null)?'nd':(c.nd<=state.lev?'ok':'no'); // nd<0 = trésorerie nette → OK
+  const capOK=(c.mcap!=null&&c.mcap>state.cap);
+  const states=[sRev,sEb,sNi,sDiv,sYld,sDebt,sPr];
   const crit=[
-    {k:"CA en hausse",ok:grewRev,d:fmtEvo(c.rev,"Md€")},
-    {k:"EBITDA en hausse",ok:grewEb,d:fmtEvo(c.eb,"Md€")},
-    {k:"Résultat net en hausse",ok:grewNi,d:fmtEvo(c.ni,"Md€")},
-    {k:"Dividende en hausse",ok:grewDiv,d:fmtEvo(c.div,"/action")},
-    {k:"Rendement > "+state.yld+"%",ok:yldOK,d:c.yield.toFixed(2)+"%"},
-    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",ok:debtOK,d:c.nd<=0?("trésorerie nette ("+Math.abs(c.nd).toFixed(1)+"x EBITDA)"):(c.nd.toFixed(1)+"x EBITDA")},
-    {k:"Cours en hausse",ok:priceOK,d:fmtEvo(c.p,"")}
+    {k:"CA en hausse",s:sRev,d:fmtEvo(c.rev,"Md")},
+    {k:"EBITDA en hausse",s:sEb,d:fmtEvo(c.eb,"Md")},
+    {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md")},
+    {k:"Dividende en hausse",s:sDiv,d:fmtEvo(c.div,"/action")},
+    {k:"Rendement > "+state.yld+"%",s:sYld,d:(c.yield==null?"n/d":c.yield.toFixed(2)+"%")},
+    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,d:(c.nd==null?"n/d":(c.nd<=0?("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)"):(c.nd.toFixed(2)+"x EBITDA")))},
+    {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
   ];
-  const greens=crit.filter(x=>x.ok).length;
+  const greens=states.filter(s=>s==='ok').length;
   const eligible=capOK&&greens===7;
   const score=Math.round((greens/7)*100);
-  return {crit,greens,eligible,score,capOK,
-    bools:[grewRev,grewEb,grewNi,grewDiv,yldOK,debtOK,priceOK]};
+  return {crit,greens,eligible,score,capOK,bools:states};
 }
-function fmtEvo(a,u){const s=v=>(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
-  return s(a[0])+" → "+s(a[1])+" → "+s(a[2])+(u?" "+u:"");}
+function fmtEvo(a,u){const s=v=>v==null?"n/d":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+  return a?(s(a[0])+" → "+s(a[1])+" → "+s(a[2])+(u?" "+u:"")):"n/d";}
 
 function rank(r){if(r.eligible)return{c:"creme",t:"⭐ Crème",o:3};if(r.capOK&&r.greens>=5)return{c:"near",t:"Proche ("+r.greens+"/7)",o:2};return{c:"out",t:"Recalé",o:1};}
 
@@ -264,12 +271,13 @@ function render(){
   document.getElementById("empty").style.display=rows.length?"none":"block";
   tb.innerHTML=rows.map((x,i)=>{
     const c=x.c,r=x.r,rk=rank(r);
-    const chips=r.bools.map(b=>'<td><span class="chip '+(b?'ok">✓':'no">✗')+'</span></td>').join("");
+    const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':'nd" title="donnée non disponible">–')+'</span></td>';
+    const chips=r.bools.map(chip).join("");
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
       +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+c.name+' <span style="color:var(--muted);font-weight:400">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
-      +'<td class="num">'+c.mcap.toFixed(0)+'</td>'
-      +'<td class="num">'+c.yield.toFixed(2)+'</td>'
-      +'<td class="num">'+(c.nd<=0?'<span style="color:var(--green-d)">net cash</span>':c.nd.toFixed(1)+'x')+'</td>'
+      +'<td class="num">'+(c.mcap==null?'—':c.mcap.toFixed(0))+'</td>'
+      +'<td class="num">'+(c.yield==null?'—':c.yield.toFixed(2))+'</td>'
+      +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green-d)">net cash</span>':c.nd.toFixed(1)+'x'))+'</td>'
       +chips
       +'<td class="num score">'+r.score+'</td>'
       +'<td><span class="verdict '+rk.c+'">'+rk.t+'</span></td>'
@@ -297,25 +305,30 @@ function openPanel(i){
   const c=DATA[i],r=evalCo(c),rk=rank(r);
   const p=document.getElementById("panel");
   p.innerHTML='<div class="panel-h">'+logo(c).replace('class="logo"','class="logo" style="width:50px;height:50px;font-size:14px;background:'+c.color+'"')
-    +'<div><h2>'+c.name+'</h2><div class="sec">'+c.sec+' · '+c.ctry+' · '+c.tk+' · '+c.mcap.toFixed(0)+' Md€</div></div>'
+    +'<div><h2>'+c.name+'</h2><div class="sec">'+c.sec+' · '+c.ctry+' · '+c.tk+' · '+(c.mcap==null?'cap. n/d':c.mcap.toFixed(0)+' Md€')+'</div></div>'
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()">×</button></div>'
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
     +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) sur l\'horizon '+state.h+' ans — ne remplit pas (encore) le profil recherché.')+'</div>'
-    +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.ok?'ok">✓':'no">✗')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
+    +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire (il y a 10 ans → 5 ans → aujourd\'hui)</div>'
     +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€")+evoCell("EBITDA",c.eb,"Md€")+evoCell("Résultat net",c.ni,"Md€")+'</div>'
     +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[null,null,c.yield],"%")+'</div>';
   p.classList.add("open");document.getElementById("ov").classList.add("open");
 }
-function evoCell(l,a,u){const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
-  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(a[2]!=null?f(a[2])+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a[0]!=null?(f(a[0])+" → "+f(a[1])+" → "+f(a[2])):"")+'</div></div>';}
+function evoCell(l,a,u){a=a||[null,null,null];const f=v=>v==null?"n/d":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(a[2]!=null?f(a[2])+(u?" "+u:""):"n/d")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+f(a[0])+" → "+f(a[1])+" → "+f(a[2])+'</div></div>';}
 function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("ov").classList.remove("open");}
 document.getElementById("ov").onclick=closePanel;
 
 // ── Contrôles ──
 const secSel=document.getElementById("sec");
-[...new Set(DATA.map(c=>c.sec))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;secSel.appendChild(o);});
+function buildSectors(){
+  const cur=secSel.value;
+  secSel.innerHTML='<option value="">Tous secteurs</option>';
+  [...new Set(DATA.map(c=>c.sec))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;secSel.appendChild(o);});
+  secSel.value=cur;
+}
 document.getElementById("seg-h").onclick=e=>{const b=e.target.closest("button");if(!b)return;
   state.h=+b.dataset.h;[...e.currentTarget.children].forEach(x=>x.classList.toggle("on",x===b));render();};
 document.getElementById("yld").oninput=e=>{state.yld=parseFloat(e.target.value)||0;render();};
@@ -326,9 +339,40 @@ document.getElementById("q").oninput=e=>{state.q=e.target.value;render();};
 document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.checked;render();};
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
   const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();});
-document.getElementById("updated").textContent="Univers Stoxx 600 + SMI · "+DATA.length+" sociétés · données illustratives";
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
-render();
+// défaut horizon = 5 ans (Yahoo : comptes ~4 ans ; 10 ans = n/d sur CA/EBITDA/RN)
+[...document.getElementById("seg-h").children].forEach(x=>x.classList.toggle("on",x.dataset.h==="5"));
+
+const statusEl=document.getElementById("updated");
+async function loadData(){
+  statusEl.textContent="⏳ Chargement des données réelles…";
+  for(let tries=0;tries<60;tries++){
+    let j;
+    try{ j=await(await fetch("/api/screener/clement")).json(); }catch(e){ break; }
+    META=j;
+    if(j.companies&&j.companies.length){
+      DATA=j.companies; buildSectors(); render();
+      const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
+      statusEl.textContent=(j.refreshing?"↻ actualisation en cours · ":"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
+      if(!j.refreshing) return;
+    }else{
+      statusEl.textContent="⏳ 1ʳᵉ récupération Yahoo Finance (univers complet, ~1-3 min)…";
+    }
+    await new Promise(r=>setTimeout(r,5000));
+  }
+  if(!DATA.length){ DATA=SAMPLE; buildSectors(); render(); statusEl.textContent="⚠️ API indisponible — échantillon illustratif affiché (relancez plus tard)"; }
+}
+const refreshBtn=document.createElement("button");
+refreshBtn.className="toggle"; refreshBtn.style.cursor="pointer"; refreshBtn.textContent="↻ Rafraîchir les données";
+refreshBtn.onclick=async()=>{ refreshBtn.disabled=true;
+  try{ const r=await fetch("/api/screener/clement/refresh",{method:"POST"});
+       if(r.status===403) statusEl.textContent="⚠️ Rafraîchissement réservé à l'opérateur (mode consultation)."; }
+  catch(e){}
+  setTimeout(()=>{ refreshBtn.disabled=false; loadData(); },1500);
+};
+document.querySelector(".controls").appendChild(refreshBtn);
+render();      // état vide (chargement) puis peuplé par loadData()
+loadData();
 </script>
 </body>
 </html>

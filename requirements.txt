@@ -8,3 +8,4 @@ pydub==0.25.1
 python-docx==1.1.2
 requests
 huggingface-hub
+yfinance>=0.2.40

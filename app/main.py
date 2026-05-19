@@ -24,6 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from programs import get_program, list_programs
+from screeners import clement
 import store
 
 load_dotenv()
@@ -85,6 +86,8 @@ def _is_write(request: Request) -> bool:
     if request.method == "POST" and p == "/api/upload":
         return True
     if request.method == "DELETE" and p.startswith("/api/jobs/"):
+        return True
+    if request.method == "POST" and p == "/api/screener/clement/refresh":
         return True
     return False
 
@@ -155,6 +158,27 @@ async def get_mode(request: Request):
 async def get_programs():
     """Liste des programmes disponibles (pour le sélecteur du front)."""
     return list_programs()
+
+
+@app.get("/api/screener/clement")
+async def screener_clement():
+    """Données réelles du Screener de Clément (cache ; refresh auto si périmé)."""
+    return clement.get()
+
+
+@app.post("/api/screener/clement/refresh")
+async def screener_clement_refresh():
+    """Force un rafraîchissement en arrière-plan (réservé opérateur)."""
+    return {"started": clement.refresh_async()}
+
+
+@app.on_event("startup")
+async def _warm_clement():
+    # Déclenche un refresh en arrière-plan si le cache est vide/périmé.
+    try:
+        clement.get()
+    except Exception as e:
+        logger.warning(f"[CLEMENT] warm-up ignoré : {e}")
 
 
 # --- API Endpoints ---
