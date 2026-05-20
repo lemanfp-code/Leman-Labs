@@ -70,6 +70,7 @@ def _fetch_one(sym, name, country, sector):
         "ni": [None, None], "div": [None, None],
         "p": [None, None], "years": None, "ok": False,
         "ccy": None, "err": None,
+        "is_financial": (sector or "").lower() in ("finance", "assurance"),
     }
     try:
         t = yf.Ticker(sym)
@@ -166,12 +167,17 @@ def _fetch_one(sym, name, country, sector):
         if ebitda and ebitda > 0 and debt is not None and cash is not None:
             rec["nd"] = round((debt - cash) / ebitda, 2)
 
-        # Société retenue seulement si TOUTES les données réelles sont là
-        # (sinon exclue — jamais affichée en n/d)
+        # Société retenue si TOUTES les données réelles pertinentes sont là.
+        # Pour les financières (banques/assureurs), EBITDA & DetteNette/EBITDA
+        # ne sont pas pertinents : on ne les exige pas dans la complétude
+        # (ils seront marqués « n/a (secteur) » côté affichage et comptés
+        # comme satisfaits — ce n'est pas un trou, c'est non applicable).
+        fin = rec["is_financial"]
         rec["ok"] = (
             rec["mcap"] is not None and rec["yield"] is not None
-            and rec["nd"] is not None
-            and None not in rec["rev"] and None not in rec["eb"]
+            and (fin or rec["nd"] is not None)
+            and None not in rec["rev"]
+            and (fin or None not in rec["eb"])
             and None not in rec["ni"] and None not in rec["p"]
             and None not in rec["div"]
         )

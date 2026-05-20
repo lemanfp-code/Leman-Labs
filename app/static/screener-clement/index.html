@@ -61,6 +61,7 @@ tr:last-child td{border-bottom:0}
 .chip.ok{background:var(--green-bg);color:var(--green-d)}
 .chip.no{background:var(--red-bg);color:var(--red-d)}
 .chip.nd{background:#ECEAE3;color:#8A877E;font-weight:600}
+.chip.na{background:#E9F1F8;color:#3B72A0;font-weight:600;font-size:10px}
 .verdict{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px}
 .verdict.creme{background:var(--gold);color:#fff}
 .verdict.near{background:var(--amber-bg);color:var(--amber-d)}
@@ -204,24 +205,31 @@ function gt(a){
   return now>old ? 'ok' : 'no';
 }
 function evalCo(c){
-  const sRev=gt(c.rev), sEb=gt(c.eb), sNi=gt(c.ni), sDiv=gt(c.div), sPr=gt(c.p);
+  const fin=!!c.is_financial;
+  const sRev=gt(c.rev), sNi=gt(c.ni), sDiv=gt(c.div), sPr=gt(c.p);
   const sYld=(c.yield>state.yld)?'ok':'no';
-  const sDebt=(c.nd<=state.lev)?'ok':'no'; // nd<0 = trésorerie nette → OK
+  // EBITDA & levier non applicables aux financières (banques/assureurs)
+  const sEb   = fin ? 'na' : gt(c.eb);
+  const sDebt = fin ? 'na' : (c.nd==null ? 'no' : (c.nd<=state.lev ? 'ok' : 'no'));
   const capOK=(c.mcap!=null&&c.mcap>state.cap);
   const states=[sRev,sEb,sNi,sDiv,sYld,sDebt,sPr];
   const crit=[
     {k:"CA en hausse",s:sRev,d:fmtEvo(c.rev,"Md")},
-    {k:"EBITDA en hausse",s:sEb,d:fmtEvo(c.eb,"Md")},
+    {k:"EBITDA en hausse",s:sEb,d: fin ? "non applicable (secteur financier)" : fmtEvo(c.eb,"Md")},
     {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md")},
     {k:"Dividende en hausse",s:sDiv,d:fmtEvo(c.div,"/action")},
     {k:"Rendement > "+state.yld+"%",s:sYld,d:c.yield.toFixed(2)+"%"},
-    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,d:(c.nd<=0?("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)"):(c.nd.toFixed(2)+"x EBITDA"))},
+    {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,
+     d: fin ? "non applicable (secteur financier)"
+            : (c.nd==null ? "—" : (c.nd<=0 ? ("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)")
+                                            : (c.nd.toFixed(2)+"x EBITDA")))},
     {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
   ];
-  const greens=states.filter(s=>s==='ok').length;
-  const eligible=capOK&&greens===7;
+  // 'na' (non applicable) compte comme satisfait dans le scoring
+  const greens=states.filter(s=>s==='ok'||s==='na').length;
+  const eligible=capOK && states.every(s=>s==='ok'||s==='na');
   const score=Math.round((greens/7)*100);
-  return {crit,greens,eligible,score,capOK,bools:states};
+  return {crit,greens,eligible,score,capOK,bools:states,fin};
 }
 function fmtEvo(a,u){const s=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   return a&&a.length?(a.map(s).join(" → ")+(u?" "+u:"")):"—";}
@@ -263,7 +271,7 @@ function render(){
   document.getElementById("empty").style.display=rows.length?"none":"block";
   tb.innerHTML=rows.map((x,i)=>{
     const c=x.c,r=x.r,rk=rank(r);
-    const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':'nd" title="donnée non disponible">–')+'</span></td>';
+    const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':s==='na'?'na" title="non applicable au secteur financier">n/a':'nd">–')+'</span></td>';
     const chips=r.bools.map(chip).join("");
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
       +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+c.name+' <span style="color:var(--muted);font-weight:400">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
@@ -302,7 +310,7 @@ function openPanel(i){
     +'<button class="close" onclick="closePanel()">×</button></div>'
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
     +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) sur ~5 ans — ne remplit pas (encore) le profil recherché.')+'</div>'
-    +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
+    +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire (il y a ~5 ans → aujourd\'hui)</div>'
     +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md")+evoCell("EBITDA",c.eb,"Md")+evoCell("Résultat net",c.ni,"Md")+'</div>'
     +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>';
