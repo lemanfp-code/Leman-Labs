@@ -70,7 +70,9 @@ def _fetch_one(sym, name, country, sector):
         "ni": [None, None], "div": [None, None],
         "p": [None, None], "years": None, "ok": False,
         "ccy": None, "err": None,
-        "is_financial": (sector or "").lower() in ("finance", "assurance"),
+        # Secteurs où EBITDA & levier ne sont pas pertinents (banques sans EBITDA,
+        # assureurs idem, foncières/REITs raisonnent en FFO).
+        "is_financial": (sector or "").lower() in ("finance", "assurance", "immobilier"),
     }
     try:
         t = yf.Ticker(sym)

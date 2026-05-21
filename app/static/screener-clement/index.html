@@ -215,12 +215,12 @@ function evalCo(c){
   const states=[sRev,sEb,sNi,sDiv,sYld,sDebt,sPr];
   const crit=[
     {k:"CA en hausse",s:sRev,d:fmtEvo(c.rev,"Md")},
-    {k:"EBITDA en hausse",s:sEb,d: fin ? "non applicable (secteur financier)" : fmtEvo(c.eb,"Md")},
+    {k:"EBITDA en hausse",s:sEb,d: fin ? "non applicable (banque, assureur ou foncière)" : fmtEvo(c.eb,"Md")},
     {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md")},
     {k:"Dividende en hausse",s:sDiv,d:fmtEvo(c.div,"/action")},
     {k:"Rendement > "+state.yld+"%",s:sYld,d:c.yield.toFixed(2)+"%"},
     {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,
-     d: fin ? "non applicable (secteur financier)"
+     d: fin ? "non applicable (banque, assureur ou foncière)"
             : (c.nd==null ? "—" : (c.nd<=0 ? ("trésorerie nette ("+Math.abs(c.nd).toFixed(2)+"x EBITDA)")
                                             : (c.nd.toFixed(2)+"x EBITDA")))},
     {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
@@ -271,7 +271,7 @@ function render(){
   document.getElementById("empty").style.display=rows.length?"none":"block";
   tb.innerHTML=rows.map((x,i)=>{
     const c=x.c,r=x.r,rk=rank(r);
-    const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':s==='na'?'na" title="non applicable au secteur financier">n/a':'nd">–')+'</span></td>';
+    const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':s==='na'?'na" title="non applicable (banque, assureur ou foncière)">n/a':'nd">–')+'</span></td>';
     const chips=r.bools.map(chip).join("");
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
       +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+c.name+' <span style="color:var(--muted);font-weight:400">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
