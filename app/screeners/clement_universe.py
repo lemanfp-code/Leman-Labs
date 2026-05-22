@@ -13,8 +13,9 @@ Format : (ticker_yahoo, nom, pays_ISO, secteur_court_FR)
 # Taux de change approximatifs → EUR (pour normaliser marketCap).
 # Affinables ; suffisant pour un filtre de capitalisation.
 FX_TO_EUR = {
-    "EUR": 1.0, "CHF": 1.05, "GBP": 1.17, "GBp": 0.0117,
+    "EUR": 1.0, "CHF": 1.05, "GBP": 1.17, "GBp": 0.0117, "GBX": 0.0117,
     "SEK": 0.088, "DKK": 0.134, "NOK": 0.086, "USD": 0.92,
+    "PLN": 0.235, "CZK": 0.040, "ILS": 0.25,
 }
 
 TICKERS = [

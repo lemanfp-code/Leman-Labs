@@ -25,7 +25,9 @@ from .universe_loader import load_universe
 logger = logging.getLogger("dossier-synthesizer")
 
 CACHE_PATH = Path(__file__).resolve().parent.parent.parent / "outputs" / "_cache" / "clement.json"
-STALE_SECONDS = 24 * 3600
+# Maj prix + fondamentaux 1×/trimestre : les comptes annuels (CA/EBITDA/dette)
+# ne bougent pas plus vite, et cela évite de marteler Yahoo à chaque visite.
+STALE_SECONDS = 91 * 24 * 3600
 
 _lock = threading.Lock()
 _state = {"refreshing": False, "started_at": None, "last_attempt": 0.0}
@@ -68,8 +70,9 @@ def _fetch_one(sym, name, country, sector):
         "mcap": None, "yield": None, "nd": None,
         "rev": [None, None], "eb": [None, None],
         "ni": [None, None], "div": [None, None],
-        "p": [None, None], "years": None, "ok": False,
-        "ccy": None, "err": None,
+        "rev_raw": [None, None], "eb_raw": [None, None], "ni_raw": [None, None],
+        "p": [None, None], "years": None, "fy": None, "ok": False,
+        "ccy": None, "fin_ccy": None, "err": None,
         # Secteurs où EBITDA & levier ne sont pas pertinents (banques sans EBITDA,
         # assureurs idem, foncières/REITs raisonnent en FFO).
         "is_financial": (sector or "").lower() in ("finance", "assurance", "immobilier"),
@@ -82,6 +85,11 @@ def _fetch_one(sym, name, country, sector):
             info = getattr(t, "info", {}) or {}
         ccy = info.get("currency") or "EUR"
         rec["ccy"] = ccy
+        # Devise de PUBLICATION des comptes — souvent ≠ devise de cotation
+        # (AstraZeneca cote en pence mais publie en USD ; TotalEnergies en USD).
+        fin_ccy = info.get("financialCurrency") or ("GBP" if ccy == "GBp" else ccy)
+        rec["fin_ccy"] = fin_ccy
+        fx_fin = FX_TO_EUR.get(fin_ccy, 1.0)
 
         mc = _num(info.get("marketCap"))
         if mc:
@@ -112,6 +120,14 @@ def _fetch_one(sym, name, country, sector):
         if d is not None and len(d):
             now = datetime.now(d.index.tz) if d.index.tz else datetime.now()
             ttm = float(d[d.index >= now - timedelta(days=365)].sum())
+            if ttm == 0:
+                # Payeur annuel dont le versement est hors fenêtre 365 j :
+                # repli sur le dernier exercice civil ayant versé.
+                for y in range(now.year, now.year - 4, -1):
+                    s = float(d[d.index.year == y].sum())
+                    if s > 0:
+                        ttm = s
+                        break
             d5 = float(d[d.index.year == now.year - 5].sum())
             rec["div"] = [round(d5, 4), round(ttm, 4)]
             rec["yield"] = round(ttm / pnow * 100, 2) if (ttm > 0 and pnow) else 0.0
@@ -153,13 +169,27 @@ def _fetch_one(sym, name, country, sector):
         rOld, rNow = oldnew(rev_s)
         eOld, eNow = oldnew(eb_s)
         nOld, nNow = oldnew(ni_s)
-        rec["rev"] = [_bn(rOld), _bn(rNow)]
-        rec["eb"] = [_bn(eOld), _bn(eNow)]
-        rec["ni"] = [_bn(nOld), _bn(nNow)]
+        # Comptes convertis en € (Yahoo les publie en devise de reporting :
+        # CHF, USD, GBP, SEK… → comparabilité). On conserve EN PLUS la valeur
+        # publiée d'origine (rev_raw/eb_raw/ni_raw) : affichée en sous-titre,
+        # elle permet de vérifier chaque chiffre directement à la source.
+        cv = lambda v: _bn(v * fx_fin) if v is not None else None
+        rec["rev"] = [cv(rOld), cv(rNow)]
+        rec["eb"] = [cv(eOld), cv(eNow)]
+        rec["ni"] = [cv(nOld), cv(nNow)]
+        rec["rev_raw"] = [_bn(rOld), _bn(rNow)]
+        rec["eb_raw"] = [_bn(eOld), _bn(eNow)]
+        rec["ni_raw"] = [_bn(nOld), _bn(nNow)]
         try:
             idx = list(rev_s.index)
-            rec["years"] = int(abs(idx[0].year - idx[-1].year)) if len(idx) >= 2 else None
+            # Exercices RÉELLEMENT comparés (ex. [2022, 2025]) : la trajectoire
+            # n'est pas « ~5 ans » mais l'écart entre les exercices publiés par
+            # Yahoo (~3 à 5 ans selon la société). Affiché tel quel côté front.
+            if len(idx) >= 2:
+                rec["fy"] = [int(idx[-1].year), int(idx[0].year)]
+                rec["years"] = abs(rec["fy"][1] - rec["fy"][0])
         except Exception:
+            rec["fy"] = None
             rec["years"] = None
 
         # Levier DetteNette / EBITDA

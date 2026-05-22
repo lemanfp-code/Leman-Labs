@@ -146,7 +146,7 @@ footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
 <div class="empty" id="empty" style="display:none">Aucune société ne correspond aux critères actuels.</div>
 
 <footer>
-  Préalable : univers Stoxx&nbsp;600 + SMI, capitalisation &gt; seuil, données réelles complètes. Puis <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur ~5 ans · rendement &gt; seuil · DetteNette/EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.
+  Préalable : univers Stoxx&nbsp;600 + SMI, capitalisation &gt; seuil, données réelles complètes. Puis <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette/EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.
 </footer>
 
 <div class="overlay" id="ov"></div>
@@ -214,9 +214,9 @@ function evalCo(c){
   const capOK=(c.mcap!=null&&c.mcap>state.cap);
   const states=[sRev,sEb,sNi,sDiv,sYld,sDebt,sPr];
   const crit=[
-    {k:"CA en hausse",s:sRev,d:fmtEvo(c.rev,"Md")},
-    {k:"EBITDA en hausse",s:sEb,d: fin ? "non applicable (banque, assureur ou foncière)" : fmtEvo(c.eb,"Md")},
-    {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md")},
+    {k:"CA en hausse",s:sRev,d:fmtEvo(c.rev,"Md€")},
+    {k:"EBITDA en hausse",s:sEb,d: fin ? "non applicable (banque, assureur ou foncière)" : fmtEvo(c.eb,"Md€")},
+    {k:"Résultat net en hausse",s:sNi,d:fmtEvo(c.ni,"Md€")},
     {k:"Dividende en hausse",s:sDiv,d:fmtEvo(c.div,"/action")},
     {k:"Rendement > "+state.yld+"%",s:sYld,d:c.yield.toFixed(2)+"%"},
     {k:"Levier ≤ "+state.lev+"x ou trésorerie nette",s:sDebt,
@@ -296,7 +296,7 @@ function renderSummary(rows){
     ["Crème de la crème",creme.length,"creme"],
     ["Rdt moyen crème",avgYld.toFixed(2)+"%","creme"],
     ["Affichées",rows.length,""],
-    ["Base de croissance","~5 ans réels",""]
+    ["Base de croissance","exercices publiés",""]
   ];
   document.getElementById("summary").innerHTML=s.map(t=>'<div class="tile '+(t[2])+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+'</div></div>').join("");
 }
@@ -309,16 +309,21 @@ function openPanel(i){
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()">×</button></div>'
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
-    +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) sur ~5 ans — ne remplit pas (encore) le profil recherché.')+'</div>'
+    +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.')+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
-    +'<div class="evo-h">Trajectoire (il y a ~5 ans → aujourd\'hui)</div>'
-    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md")+evoCell("EBITDA",c.eb,"Md")+evoCell("Résultat net",c.ni,"Md")+'</div>'
+    +'<div class="evo-h">Trajectoire ('+(c.fy?'exercices '+c.fy[0]+' → '+c.fy[1]:'derniers exercices publiés')+' · CA/EBITDA/RN en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+' · cours &amp; dividende sur ~5 ans)</div>'
+    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
     +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>';
   p.classList.add("open");document.getElementById("ov").classList.add("open");
 }
-function evoCell(l,a,u){a=a||[];const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+function evoCell(l,a,u,raw,ccy){a=a||[];const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   const cur=a.length?a[a.length-1]:null;
-  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div></div>';}
+  // Sous-ligne « publié : … » = montant tel que publié par la société
+  // (USD, CHF, GBP…) → vérifiable directement sur Zonebourse / le rapport annuel.
+  let rawl="";
+  if(raw&&raw.length&&ccy&&ccy!=="EUR"&&raw.some(v=>v!=null))
+    rawl='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">publié : '+raw.map(f).join(" → ")+' Md '+ccy+'</div>';
+  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div>'+rawl+'</div>';}
 function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("ov").classList.remove("open");}
 document.getElementById("ov").onclick=closePanel;
 
@@ -341,23 +346,33 @@ document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
 
 const statusEl=document.getElementById("updated");
+function showData(j,prefix){
+  DATA=j.companies; META=j; buildSectors(); render();
+  const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
+  statusEl.textContent=(prefix||"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
+}
 async function loadData(){
-  statusEl.textContent="⏳ Chargement des données réelles…";
+  statusEl.textContent="⏳ Chargement des données…";
+  // 1) API backend (app FastAPI locale)
   for(let tries=0;tries<60;tries++){
     let j;
-    try{ j=await(await fetch("/api/screener/clement")).json(); }catch(e){ break; }
-    META=j;
+    try{ const r=await fetch("/api/screener/clement"); if(!r.ok) throw 0; j=await r.json(); }
+    catch(e){ break; }   // pas d'API → mode statique
     if(j.companies&&j.companies.length){
-      DATA=j.companies; buildSectors(); render();
-      const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
-      statusEl.textContent=(j.refreshing?"↻ actualisation en cours · ":"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
+      showData(j,j.refreshing?"↻ actualisation · ":"");
       if(!j.refreshing) return;
-    }else{
-      statusEl.textContent="⏳ 1ʳᵉ récupération Yahoo Finance (univers complet, ~1-3 min)…";
-    }
+    }else statusEl.textContent="⏳ 1ʳᵉ récupération Yahoo Finance (~1-3 min)…";
     await new Promise(r=>setTimeout(r,5000));
   }
-  if(!DATA.length){ DATA=SAMPLE; buildSectors(); render(); statusEl.textContent="⚠️ API indisponible — échantillon illustratif affiché (relancez plus tard)"; }
+  if(DATA.length) return;
+  // 2) Snapshot statique (déploiement Vercel / fichier seul)
+  try{
+    const j=await(await fetch("./clement-data.json")).json();
+    if(j.companies&&j.companies.length){ showData(j,""); return; }
+  }catch(e){}
+  // 3) repli ultime
+  DATA=SAMPLE; buildSectors(); render();
+  statusEl.textContent="⚠️ Données indisponibles — échantillon affiché";
 }
 const refreshBtn=document.createElement("button");
 refreshBtn.className="toggle"; refreshBtn.style.cursor="pointer"; refreshBtn.textContent="↻ Rafraîchir les données";
