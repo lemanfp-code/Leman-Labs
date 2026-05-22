@@ -199,12 +199,40 @@ def _fetch_one(sym, name, country, sector):
             rec["fy"] = None
             rec["years"] = None
 
-        # Levier DetteNette / EBITDA
-        ebitda = _num(info.get("ebitda")) or _num(eNow)
-        debt = _num(info.get("totalDebt"))
-        cash = _num(info.get("totalCash"))
-        if ebitda and ebitda > 0 and debt is not None and cash is not None:
-            rec["nd"] = round((debt - cash) / ebitda, 2)
+        # Levier DetteNette / EBITDA — calculé sur le BILAN DE CLÔTURE, et non
+        # sur la photo TTM de `info` : `info` agrège une dette qui INCLUT les
+        # locations (IFRS 16) et un cash daté hors clôture → surestimait
+        # lourdement le levier (ex. Bouygues : 1,8x affiché vs ~0,8x réel).
+        # On prend la dette nette FINANCIÈRE (hors leases) de l'exercice publié
+        # ÷ EBITDA du même exercice. Non pertinent pour les financières.
+        if not rec["is_financial"]:
+            try:
+                bs = t.balance_sheet
+            except Exception:
+                bs = None
+
+            def bs_val(*names):
+                if bs is None:
+                    return None
+                for nm in names:
+                    if nm in bs.index:
+                        s = bs.loc[nm].dropna()
+                        if len(s):
+                            return float(s.iloc[0])  # colonne la plus récente
+                return None
+
+            # Yahoo publie une ligne « Net Debt » = dette brute − leases − cash.
+            net_debt = bs_val("Net Debt")
+            if net_debt is None:
+                gross = bs_val("Total Debt")
+                lease = bs_val("Capital Lease Obligations") or 0.0
+                csh = bs_val("Cash And Cash Equivalents",
+                             "Cash Cash Equivalents And Short Term Investments")
+                if gross is not None and csh is not None:
+                    net_debt = gross - lease - csh
+            ebitda_fy = _num(eNow)
+            if net_debt is not None and ebitda_fy and ebitda_fy > 0:
+                rec["nd"] = round(net_debt / ebitda_fy, 2)
 
         # Société retenue si TOUTES les données réelles pertinentes sont là.
         # Pour les financières (banques/assureurs), EBITDA & DetteNette/EBITDA
@@ -225,19 +253,42 @@ def _fetch_one(sym, name, country, sector):
     return rec
 
 
+def _fetch_universe(universe, workers):
+    """Récupère un sous-univers → liste de (tuple_univers, rec | None)."""
+    out = []
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = {ex.submit(_fetch_one, *u): u for u in universe}
+        for f in futs:
+            try:
+                out.append((futs[f], f.result(timeout=60)))
+            except Exception as e:
+                logger.warning(f"[CLEMENT] ticker échoué : {e}")
+                out.append((futs[f], None))
+    return out
+
+
 def _build():
     import os
     full = load_universe()
     limit = int(os.getenv("CLEMENT_LIMIT", "0") or 0)
     universe = full[:limit] if limit > 0 else full
-    companies = []
-    with ThreadPoolExecutor(max_workers=8) as ex:
-        futs = [ex.submit(_fetch_one, *u) for u in universe]
-        for f in futs:
-            try:
-                companies.append(f.result(timeout=60))
-            except Exception as e:
-                logger.warning(f"[CLEMENT] ticker échoué : {e}")
+
+    # 1ʳᵉ passe — parallélisme modéré (5 workers, pas 8) : depuis l'ajout de
+    # l'appel `balance_sheet`, Yahoo rate-limite plus vite (401 Invalid Crumb).
+    by_sym = {u[0]: rec for u, rec in _fetch_universe(universe, 5) if rec}
+
+    # 2ᵉ passe — on retente les tickers en échec ou incomplets : la cause est
+    # quasi toujours un rate-limit transitoire, pas une absence réelle de
+    # données. Pause + parallélisme réduit pour maximiser le taux de succès.
+    retry = [u for u in universe if not (by_sym.get(u[0]) or {}).get("ok")]
+    if retry:
+        logger.info(f"[CLEMENT] 2ᵉ passe : {len(retry)} tickers retentés")
+        time.sleep(20)
+        for u, rec in _fetch_universe(retry, 3):
+            if rec and (rec.get("ok") or u[0] not in by_sym):
+                by_sym[u[0]] = rec
+
+    companies = list(by_sym.values())
     ok = [c for c in companies if c.get("ok")]
     payload = {
         "as_of": datetime.now().isoformat(timespec="seconds"),
