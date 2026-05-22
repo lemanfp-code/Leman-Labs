@@ -187,6 +187,13 @@ def _fetch_one(sym, name, country, sector):
         rec["rev_raw"] = [_bn(rOld), _bn(rNow)]
         rec["eb_raw"] = [_bn(eOld), _bn(eNow)]
         rec["ni_raw"] = [_bn(nOld), _bn(nNow)]
+        # Garde anti-données aberrantes : un chiffre d'affaires ne peut pas
+        # être négatif. Vu chez quelques assureurs sous IFRS 17 (Prudential,
+        # Aviva, ASR…) où Yahoo livre des valeurs absurdes (« Total Revenue »
+        # négatif) — on invalide rev → la société est écartée par `ok`.
+        if any(v is not None and v < 0 for v in rec["rev"]):
+            rec["rev"] = [None, None]
+            rec["rev_raw"] = [None, None]
         try:
             idx = list(rev_s.index)
             # Exercices RÉELLEMENT comparés (ex. [2022, 2025]) : la trajectoire
