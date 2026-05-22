@@ -311,19 +311,24 @@ function openPanel(i){
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
     +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.')+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
-    +'<div class="evo-h">Trajectoire ('+(c.fy?'exercices '+c.fy[0]+' → '+c.fy[1]:'derniers exercices publiés')+' · CA/EBITDA/RN en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+' · cours &amp; dividende sur ~5 ans)</div>'
-    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
+    +'<div class="evo-h">Trajectoire ('+(c.fy?'exercices '+c.fy[0]+' → '+c.fy[1]:'derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA/EBITDA/RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+' · cours &amp; dividende sur ~5 ans)</div>'
+    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy,null,c.is_financial?"produits totaux (base Yahoo) — non comparable aux primes émises":null)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy,c.is_financial?"non pertinent — banque, assureur ou foncière":null)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
     +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>';
   p.classList.add("open");document.getElementById("ov").classList.add("open");
 }
-function evoCell(l,a,u,raw,ccy){a=a||[];const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+function evoCell(l,a,u,raw,ccy,na,note){
+  const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
+  // na : métrique non pertinente pour le secteur (EBITDA d'une financière) →
+  // « n/a » explicite plutôt qu'une valeur reconstruite absurde.
+  if(na) return '<div class="cell"><div class="l">'+l+'</div><div class="v" style="color:var(--muted)">n/a</div><div class="l" style="margin-top:4px;text-transform:none">'+na+'</div></div>';
+  a=a||[];
   const cur=a.length?a[a.length-1]:null;
-  // Sous-ligne « publié : … » = montant tel que publié par la société
-  // (USD, CHF, GBP…) → vérifiable directement sur Zonebourse / le rapport annuel.
-  let rawl="";
+  let extra="";
+  // Sous-ligne « publié : … » = montant en devise d'origine → vérifiable à la source.
   if(raw&&raw.length&&ccy&&ccy!=="EUR"&&raw.some(v=>v!=null))
-    rawl='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">publié : '+raw.map(f).join(" → ")+' Md '+ccy+'</div>';
-  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div>'+rawl+'</div>';}
+    extra='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">publié : '+raw.map(f).join(" → ")+' Md '+ccy+'</div>';
+  if(note) extra+='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">'+note+'</div>';
+  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div>'+extra+'</div>';}
 function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("ov").classList.remove("open");}
 document.getElementById("ov").onclick=closePanel;
 

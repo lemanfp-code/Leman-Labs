@@ -158,13 +158,20 @@ def _fetch_one(sym, name, country, sector):
 
         rev_s = series(fin, "Total Revenue", "Operating Revenue")
         ni_s = series(fin, "Net Income", "Net Income Common Stockholders")
-        eb_s = series(fin, "EBITDA", "Normalized EBITDA")
-        if eb_s is None and fin is not None:
-            ebit = series(fin, "EBIT", "Operating Income")
-            dep = series(fin, "Reconciled Depreciation",
-                         "Depreciation And Amortization In Income Statement")
-            if ebit is not None and dep is not None:
-                eb_s = ebit.add(dep, fill_value=0).dropna()
+        # EBITDA : non pertinent pour une financière (banque / assureur /
+        # foncière). On ne le calcule PAS — la reconstruction EBIT+amortissements
+        # y tombe sur des lignes Yahoo absurdes (ex. AXA : amortissements
+        # négatifs, EBIT manquant) et produit des valeurs sans aucun sens.
+        # Laissé à None → carte « n/a » côté affichage.
+        eb_s = None
+        if not rec["is_financial"]:
+            eb_s = series(fin, "EBITDA", "Normalized EBITDA")
+            if eb_s is None and fin is not None:
+                ebit = series(fin, "EBIT", "Operating Income")
+                dep = series(fin, "Reconciled Depreciation",
+                             "Depreciation And Amortization In Income Statement")
+                if ebit is not None and dep is not None:
+                    eb_s = ebit.add(dep, fill_value=0).dropna()
 
         rOld, rNow = oldnew(rev_s)
         eOld, eNow = oldnew(eb_s)
