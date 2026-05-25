@@ -225,16 +225,20 @@ function evalCo(c){
                                             : (c.nd.toFixed(2)+"x EBITDA")))},
     {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
   ];
-  // 'na' (non applicable) compte comme satisfait dans le scoring
-  const greens=states.filter(s=>s==='ok'||s==='na').length;
-  const eligible=capOK && states.every(s=>s==='ok'||s==='na');
-  const score=Math.round((greens/7)*100);
-  return {crit,greens,eligible,score,capOK,bools:states,fin};
+  // 'na' (non applicable au secteur) N'EST PAS comptabilisé comme satisfait :
+  // les financières plafonnent à 5/5 critères applicables (= score 100%) mais
+  // ne peuvent jamais être crème, leurs 2 critères 'na' (EBITDA, levier)
+  // empêchant le tableau « 7 critères au vert » par construction.
+  const greens=states.filter(s=>s==='ok').length;
+  const applicable=states.filter(s=>s!=='na').length;
+  const eligible=capOK && states.every(s=>s==='ok');
+  const score=Math.round((greens/applicable)*100);
+  return {crit,greens,applicable,eligible,score,capOK,bools:states,fin};
 }
 function fmtEvo(a,u){const s=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   return a&&a.length?(a.map(s).join(" → ")+(u?" "+u:"")):"—";}
 
-function rank(r){if(r.eligible)return{c:"creme",t:"⭐ Crème",o:3};if(r.capOK&&r.greens>=5)return{c:"near",t:"Proche ("+r.greens+"/7)",o:2};return{c:"out",t:"Recalé",o:1};}
+function rank(r){if(r.eligible)return{c:"creme",t:"⭐ Crème",o:3};if(r.capOK&&r.greens>=5)return{c:"near",t:"Proche ("+r.greens+"/"+r.applicable+")",o:2};return{c:"out",t:"Recalé",o:1};}
 
 function compute(){
   return DATA.map(c=>({c,r:evalCo(c)}))
@@ -309,7 +313,11 @@ function openPanel(i){
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()">×</button></div>'
     +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
-    +(r.eligible?'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.':'<strong>'+(7-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.')+'</div>'
+    +(r.eligible
+       ? 'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.'
+       : (r.fin && r.greens===r.applicable
+          ? 'Les <strong>'+r.applicable+' critères applicables</strong> sont au vert — mais le profil « crème » exige les 7 critères, dont EBITDA et levier qui ne s\'appliquent pas aux banques, assureurs et foncières. Société de qualité sur ses métriques pertinentes, mais hors du périmètre « crème » par construction.'
+          : '<strong>'+(r.applicable-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.'))+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire ('+(c.fy?'exercices '+c.fy[0]+' → '+c.fy[1]:'derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA/EBITDA/RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+' · cours &amp; dividende sur ~5 ans)</div>'
     +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy,null,c.is_financial?"produits totaux (base Yahoo) — non comparable aux primes émises":null)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy,c.is_financial?"non pertinent — banque, assureur ou foncière":null)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
