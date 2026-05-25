@@ -626,33 +626,35 @@ function showData(j,prefix){
 }
 async function loadData(){
   statusEl.textContent="⏳ Chargement des données…";
-  // 1) API backend (app FastAPI locale)
-  for(let tries=0;tries<60;tries++){
-    let j;
-    try{ const r=await fetch("/api/screener/clement"); if(!r.ok) throw 0; j=await r.json(); }
-    catch(e){ break; }   // pas d'API → mode statique
-    if(j.companies&&j.companies.length){
-      showData(j,j.refreshing?"↻ actualisation · ":"");
-      if(!j.refreshing) return;
-    }else statusEl.textContent="⏳ 1ʳᵉ récupération Yahoo Finance (~1-3 min)…";
-    await new Promise(r=>setTimeout(r,5000));
+  const isLocal = location.hostname==="localhost" || location.hostname==="127.0.0.1";
+  // 1) API backend (uniquement en local — sur Vercel l'endpoint n'existe pas)
+  if(isLocal){
+    for(let tries=0;tries<60;tries++){
+      let j;
+      try{ const r=await fetch("/api/screener/clement"); if(!r.ok) throw 0; j=await r.json(); }
+      catch(e){ break; }
+      if(j.companies&&j.companies.length){
+        showData(j,j.refreshing?"↻ actualisation · ":"");
+        if(!j.refreshing) return;
+      }else statusEl.textContent="⏳ 1ʳᵉ récupération Yahoo Finance (~1-3 min)…";
+      await new Promise(r=>setTimeout(r,5000));
+    }
+    if(DATA.length) return;
   }
-  if(DATA.length) return;
-  // 2) Snapshot statique (déploiement Vercel) — avec retries en cas d'échec
-  // réseau ponctuel (fichier 1-2 MB, peut timeout sur connexion lente).
-  for(let tries=0;tries<4;tries++){
+  // 2) Snapshot statique — directement, retries en cas d'échec réseau
+  for(let tries=0;tries<5;tries++){
     try{
-      const r=await fetch("./clement-data.json?_="+Date.now(),{cache:"reload"});
+      const r=await fetch("./clement-data.json?_="+Date.now());
       if(r.ok){
         const j=await r.json();
         if(j.companies&&j.companies.length){ showData(j,""); return; }
       }
-    }catch(e){console.warn("snapshot fetch try "+tries+" failed",e);}
-    await new Promise(r=>setTimeout(r,1500));
+    }catch(e){console.warn("snapshot try "+tries+" failed",e);}
+    await new Promise(r=>setTimeout(r,1200));
   }
   // 3) repli ultime
   DATA=SAMPLE; buildSectors(); render();
-  statusEl.textContent="⚠️ Données indisponibles — rechargez la page (Cmd+Shift+R) ou réessayez plus tard";
+  statusEl.textContent="⚠️ Données indisponibles — rechargez la page (Cmd+Shift+R)";
 }
 // Bouton de rafraîchissement — uniquement affiché si le backend FastAPI
 // est joignable (app locale). Sur le déploiement statique Vercel, l'endpoint
