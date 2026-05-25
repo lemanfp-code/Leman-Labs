@@ -159,6 +159,20 @@ tr.creme .score-fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gol
 .descr p{font-size:13.5px;line-height:1.62;color:var(--ink-2);margin:0}
 .descr .src{font-size:10.5px;color:var(--muted-2);margin-top:8px;font-style:italic}
 
+/* Fiche société (générée par Claude Haiku, style LDT) */
+.fiche{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:22px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.fiche-row{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:14px 18px;border-bottom:1px solid var(--border-soft);align-items:start}
+.fiche-row:last-child{border-bottom:0}
+.fiche-row.particulier{background:linear-gradient(90deg,var(--gold-soft) 0%,rgba(245,235,209,0.4) 100%);border-left:3px solid var(--gold)}
+.fiche-row .l{font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding-top:2px;line-height:1.3}
+.fiche-row.activite .l{color:var(--navy)}
+.fiche-row.contexte .l{color:var(--green)}
+.fiche-row.chiffres .l{color:#534AB7}
+.fiche-row.catalyseurs .l{color:var(--amber)}
+.fiche-row.particulier .l{color:var(--gold)}
+.fiche-row p{margin:0;font-size:13px;line-height:1.6;color:var(--ink-2)}
+@media(max-width:760px){.fiche-row{grid-template-columns:1fr;gap:5px;padding:12px 14px}}
+
 /* Drapeaux rouges / Points forts (auto-dérivés des données) */
 .flags{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
 .flag-list{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow-sm)}
@@ -328,7 +342,7 @@ const SAMPLE=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
 let DATA=[];      // peuplé par /api/screener/clement (données réelles)
 let META={};
 
-const state={yld:3,lev:2,cap:3,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
+const state={yld:3,lev:2,cap:0,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
 
 // Croissance = dernier point vs plus ancien (données réelles complètes).
 function gt(a){
@@ -435,6 +449,17 @@ function descrHTML(c){
   if(!c.descr)return"";
   return '<div class="descr"><div class="l"><span>Activité</span>'+(c.industry?'<span class="ind">'+c.industry+'</span>':'')+'</div><p>'+c.descr+'</p><div class="src">Source : Yahoo Finance · description en anglais</div></div>';
 }
+function ficheHTML(c){
+  if(!c.fiche_activite)return"";
+  const row=(cls,l,txt)=>txt?'<div class="fiche-row '+cls+'"><div class="l">'+l+'</div><p>'+txt+'</p></div>':'';
+  return '<div class="fiche">'
+    +row('activite','Activité',c.fiche_activite)
+    +row('contexte','Contexte',c.fiche_contexte)
+    +row('chiffres','Chiffres décodés',c.fiche_chiffres_decodes)
+    +row('catalyseurs','Catalyseurs',c.fiche_catalyseurs)
+    +row('particulier','Pour un particulier',c.fiche_particulier)
+    +'</div>';
+}
 function autoFlags(c,r){
   const reds=[],greens=[];
   // Drapeaux rouges
@@ -528,8 +553,8 @@ function openPanel(i){
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()" aria-label="Fermer">×</button></div>'
     +'<div class="panel-body">'
-    +descrHTML(c)
     +statsHTML(c)
+    +(c.fiche_activite?ficheHTML(c):descrHTML(c))
     +flagsHTML(c,r)
     +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
