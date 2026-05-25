@@ -638,14 +638,21 @@ async function loadData(){
     await new Promise(r=>setTimeout(r,5000));
   }
   if(DATA.length) return;
-  // 2) Snapshot statique (déploiement Vercel / fichier seul)
-  try{
-    const j=await(await fetch("./clement-data.json")).json();
-    if(j.companies&&j.companies.length){ showData(j,""); return; }
-  }catch(e){}
+  // 2) Snapshot statique (déploiement Vercel) — avec retries en cas d'échec
+  // réseau ponctuel (fichier 1-2 MB, peut timeout sur connexion lente).
+  for(let tries=0;tries<4;tries++){
+    try{
+      const r=await fetch("./clement-data.json?_="+Date.now(),{cache:"reload"});
+      if(r.ok){
+        const j=await r.json();
+        if(j.companies&&j.companies.length){ showData(j,""); return; }
+      }
+    }catch(e){console.warn("snapshot fetch try "+tries+" failed",e);}
+    await new Promise(r=>setTimeout(r,1500));
+  }
   // 3) repli ultime
   DATA=SAMPLE; buildSectors(); render();
-  statusEl.textContent="⚠️ Données indisponibles — échantillon affiché";
+  statusEl.textContent="⚠️ Données indisponibles — rechargez la page (Cmd+Shift+R) ou réessayez plus tard";
 }
 // Bouton de rafraîchissement — uniquement affiché si le backend FastAPI
 // est joignable (app locale). Sur le déploiement statique Vercel, l'endpoint
