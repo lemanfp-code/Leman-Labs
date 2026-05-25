@@ -9,134 +9,228 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Screener de Clément</title>
+<title>Screener de Clément — Crème de la crème · Léman Labs</title>
+<meta name="description" content="Le screener boursier de Clément Brilland. La crème de la crème des actions européennes & suisses : sociétés solides, en croissance durable, au dividende croissant. Bâtir avec discipline, vision, constance.">
+<meta name="theme-color" content="#122846">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='80' font-family='serif' fill='%23A88142'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root { color-scheme: light; --bg:#FAFAF7; --surface:#FFFFFF; --border:#E5E4DE; --text:#1a1a1a; --muted:#6B6B66; --green:#1d9e75; --green-bg:#E1F5EE; --green-d:#0F6E56; --red:#E24B4A; --red-bg:#FCEBEB; --red-d:#A32D2D; --amber:#BA7517; --amber-bg:#FAEEDA; --amber-d:#854F0B; --blue:#185FA5; --blue-bg:#E6F1FB; --purple:#534AB7; --teal:#0F6E56; --pink:#993556; --gold:#B8860B; --gold-bg:#FBF3DA; }
+:root {
+  color-scheme: light;
+  --bg:#FBF9F4; --bg-soft:#F4F1E8; --surface:#FFFFFF; --surface-tint:#FCF9F2;
+  --border:#E8E3D6; --border-soft:#F0EBDD; --border-strong:#C9C2B0;
+  --ink:#0E1B2E; --ink-2:#2A3548; --ink-3:#4A5468; --muted:#777C8B; --muted-2:#9DA1AD;
+  --navy:#122846; --navy-2:#1E3A66; --navy-soft:#E6EAF1;
+  --gold:#A88142; --gold-2:#C7A66B; --gold-soft:#F5EBD1; --gold-line:#D9BC7E;
+  --green:#146747; --green-bg:#DDE9DE; --green-line:#6AAA85;
+  --red:#963838; --red-bg:#EFD9D9; --red-line:#B97070;
+  --amber:#94680E; --amber-bg:#F4E5C5; --amber-line:#DEB97A;
+  --neutral:#6F7280; --neutral-bg:#ECEAE3;
+  --shadow-sm:0 1px 2px rgba(14,27,46,0.05);
+  --shadow-md:0 8px 24px -10px rgba(14,27,46,0.12), 0 1px 2px rgba(14,27,46,0.04);
+  --shadow-lg:0 30px 80px -25px rgba(14,27,46,0.22);
+  --font-serif:'Fraunces','Source Serif Pro',Georgia,serif;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:16px 20px;font-size:14px}
-header{margin-bottom:14px}
-.title-row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px}
-h1{font-size:21px;font-weight:600;margin:0}
-.sub{font-size:13px;color:var(--muted);margin:4px 0 0;max-width:760px;line-height:1.55}
-.sub strong{color:var(--text);font-weight:600}
-.disclaimer{font-size:11px;color:var(--muted);max-width:780px;line-height:1.5;margin-top:8px}
-.disclaimer strong{color:var(--text);font-weight:500}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);margin:0;padding:0;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.page{max-width:1380px;margin:0 auto;padding:38px 40px 80px}
 
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 14px}
-.controls input[type=text],.controls select{font:inherit;font-size:13px;padding:7px 10px;border:0.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none}
-.controls input[type=text]{flex:1;min-width:200px}
-.controls input:hover,.controls select:hover{border-color:#C0BEB8}
-.controls input:focus,.controls select:focus{border-color:var(--blue)}
-.seg{display:inline-flex;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
-.seg button{font:inherit;font-size:13px;padding:7px 14px;border:0;background:transparent;color:var(--muted);cursor:pointer}
-.seg button.on{background:var(--text);color:#fff;font-weight:500}
-.field{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.field input[type=number]{width:62px;font:inherit;font-size:13px;padding:6px 8px;border:0.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text)}
-.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--text);cursor:pointer;user-select:none;padding:7px 12px;border:0.5px solid var(--border);border-radius:8px;background:var(--surface)}
-.toggle input{accent-color:var(--gold)}
+/* ── Hero ── */
+header{margin-bottom:30px;padding-bottom:26px;border-bottom:1px solid var(--border);position:relative}
+.kicker{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.kicker .sep{color:var(--border-strong);margin:0 8px;font-weight:400}
+.kicker strong{color:var(--gold);font-weight:700}
+h1{font-family:var(--font-serif);font-weight:500;font-size:46px;letter-spacing:-0.022em;line-height:1.04;margin:0 0 16px;color:var(--ink)}
+h1 .star{color:var(--gold);font-weight:400;font-size:0.85em;vertical-align:0.06em}
+.lead{font-size:16.5px;line-height:1.6;color:var(--ink-3);max-width:780px;margin:0 0 18px}
+.lead strong{color:var(--ink);font-weight:600}
+.aphorism{font-family:var(--font-serif);font-style:italic;font-size:14.5px;color:var(--gold);letter-spacing:0.05em;margin:0 0 14px;font-weight:400}
+.updated{font-size:12px;color:var(--muted);margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.updated::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green-line)}
 
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:18px}
-.tile{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:10px 14px}
-.tile .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px}
-.tile .v{font-size:22px;font-weight:600;margin-top:2px}
-.tile.creme{background:var(--gold-bg);border-color:transparent}
+/* ── Controls ── */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.search-wrap{flex:1;min-width:240px;position:relative}
+.search-wrap::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:17px;pointer-events:none}
+.controls input[type=text],.controls select,.controls input[type=number]{font:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;font-feature-settings:'tnum'}
+.controls input[type=text]{width:100%;padding-left:38px}
+.controls input:focus,.controls select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(18,40,70,0.10)}
+.field{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);white-space:nowrap}
+.field-label{font-weight:600;color:var(--ink-3);letter-spacing:0.01em}
+.field input[type=number]{width:62px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);cursor:pointer;user-select:none;padding:8px 14px;border:1px solid var(--border);border-radius:9px;background:var(--bg);transition:border-color .15s,background .15s;font-weight:500}
+.toggle:hover{border-color:var(--gold-line);background:var(--surface)}
+.toggle input{accent-color:var(--gold);margin:0;cursor:pointer}
+
+/* ── Summary tiles ── */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;position:relative;transition:transform .15s,box-shadow .15s}
+.tile .l{font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--font-serif);font-size:30px;font-weight:500;margin-top:6px;color:var(--ink);font-feature-settings:'tnum';letter-spacing:-0.012em;line-height:1}
+.tile .vsub{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:0.02em}
+.tile.creme{background:linear-gradient(135deg,var(--gold-soft) 0%,#FAF1D7 100%);border-color:var(--gold-line)}
+.tile.creme .l{color:var(--gold)}
 .tile.creme .v{color:var(--gold)}
 
-.tbl-wrap{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:auto}
-table{border-collapse:collapse;width:100%;font-size:13px;min-width:1040px}
-th,td{padding:10px 12px;text-align:left;border-bottom:0.5px solid var(--border);white-space:nowrap}
-th{font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:var(--surface);user-select:none}
-th.num,td.num{text-align:right}
-th:hover{color:var(--text)}
-tbody tr{cursor:pointer;transition:background 0.12s}
-tbody tr:hover{background:#FBFAF6}
-tbody tr.creme{background:var(--gold-bg)}
-tbody tr.creme:hover{background:#F6EBCB}
-tr:last-child td{border-bottom:0}
-.co{display:flex;align-items:center;gap:10px}
-.logo{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600;flex-shrink:0;letter-spacing:-0.3px}
-.co .nm{font-weight:600;font-size:13px}
-.co .sec{font-size:11px;color:var(--muted)}
-.chip{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-size:13px;font-weight:700}
-.chip.ok{background:var(--green-bg);color:var(--green-d)}
-.chip.no{background:var(--red-bg);color:var(--red-d)}
-.chip.nd{background:#ECEAE3;color:#8A877E;font-weight:600}
-.chip.na{background:#E9F1F8;color:#3B72A0;font-weight:600;font-size:10px}
-.verdict{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px}
-.verdict.creme{background:var(--gold);color:#fff}
-.verdict.near{background:var(--amber-bg);color:var(--amber-d)}
-.verdict.out{background:var(--red-bg);color:var(--red-d)}
-.score{font-weight:700}
-.empty{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+/* ── Section header ── */
+.section-h{display:flex;align-items:baseline;justify-content:space-between;margin:10px 4px 12px;gap:14px;flex-wrap:wrap}
+.section-h h2{font-family:var(--font-serif);font-size:20px;font-weight:500;color:var(--ink);margin:0;letter-spacing:-0.012em}
+.section-h .hint{font-size:12px;color:var(--muted);margin:0}
 
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:100;backdrop-filter:blur(2px)}
-.overlay.open{display:block}
-.panel{position:fixed;top:0;right:0;bottom:0;width:min(680px,100vw);background:var(--bg);transform:translateX(100%);transition:transform 0.25s;z-index:101;overflow-y:auto;padding:18px 22px}
+/* ── Table ── */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:auto;box-shadow:var(--shadow-sm)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:1120px}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:0.10em;color:var(--muted);font-weight:600;cursor:pointer;position:sticky;top:0;background:var(--surface);user-select:none;z-index:2;border-bottom:1px solid var(--border)}
+th.num,td.num{text-align:right;font-feature-settings:'tnum'}
+th:hover{color:var(--ink)}
+tbody tr{cursor:pointer;transition:background 0.12s}
+tbody tr:hover{background:var(--surface-tint)}
+tbody tr.creme{background:linear-gradient(90deg,var(--gold-soft) 0%,rgba(245,235,209,0.35) 100%)}
+tbody tr.creme:hover{background:linear-gradient(90deg,#F0E1B8 0%,var(--gold-soft) 100%)}
+tbody tr.creme td:first-child{border-left:3px solid var(--gold);padding-left:11px}
+tr:last-child td{border-bottom:0}
+
+.co{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:600;flex-shrink:0;letter-spacing:-0.3px;box-shadow:inset 0 -1px 0 rgba(0,0,0,0.14)}
+.co .nm{font-weight:600;font-size:13.5px;color:var(--ink);display:inline-flex;align-items:center;gap:7px}
+.co .nm .star{color:var(--gold);font-size:11px}
+.co .nm .ctry{font-size:10.5px;font-weight:600;color:var(--muted);padding:2px 6px;border-radius:4px;background:var(--bg-soft);letter-spacing:0.05em}
+.co .sec{font-size:11.5px;color:var(--muted);margin-top:1px;letter-spacing:0.005em}
+
+.chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;font-size:13px;font-weight:700;border:1px solid transparent}
+.chip.ok{background:var(--green-bg);color:var(--green);border-color:var(--green-line)}
+.chip.no{background:var(--red-bg);color:var(--red);border-color:var(--red-line)}
+.chip.nd{background:var(--neutral-bg);color:var(--neutral);font-weight:600}
+.chip.na{background:var(--navy-soft);color:var(--navy);font-weight:600;font-size:9.5px}
+
+.verdict{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;letter-spacing:0.02em}
+.verdict.creme{background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);color:#fff;box-shadow:0 2px 8px -3px var(--gold)}
+.verdict.near{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.verdict.out{background:var(--neutral-bg);color:var(--neutral);border:1px solid #C9C7BF}
+
+.score-cell{display:inline-flex;flex-direction:column;gap:4px;width:60px;align-items:flex-end}
+.score-num{font-weight:700;font-size:14px;font-feature-settings:'tnum';color:var(--ink)}
+.score-bar{width:60px;height:4px;background:var(--border-soft);border-radius:999px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--green-line) 0%,var(--green) 100%);border-radius:999px}
+tr.creme .score-fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gold) 100%)}
+
+.empty{padding:60px;text-align:center;color:var(--muted);font-size:13.5px}
+
+/* ── Detail panel ── */
+.overlay{position:fixed;inset:0;background:rgba(14,27,46,0.40);display:none;z-index:100;backdrop-filter:blur(4px)}
+.overlay.open{display:block;animation:fade 0.18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(800px,100vw);background:var(--bg);transform:translateX(100%);transition:transform 0.28s cubic-bezier(.22,1,.36,1);z-index:101;overflow-y:auto;padding:0;box-shadow:var(--shadow-lg)}
 .panel.open{transform:translateX(0)}
-.panel-h{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:0.5px solid var(--border)}
-.panel-h .logo{width:50px;height:50px;font-size:14px}
-.panel-h h2{margin:0;font-size:18px;font-weight:600}
-.panel-h .sec{font-size:12px;color:var(--muted);margin-top:2px}
-.panel-h .vr{margin-left:auto}
-.close{border:0;background:transparent;font-size:22px;cursor:pointer;color:var(--muted);padding:6px 10px;border-radius:6px;line-height:1}
-.close:hover{background:var(--border);color:var(--text)}
-.crit{list-style:none;padding:0;margin:0 0 16px;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;overflow:hidden}
-.crit li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:0.5px solid var(--border)}
+.panel-h{display:flex;align-items:center;gap:18px;padding:24px 30px 22px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5}
+.panel-h .logo{width:58px;height:58px;font-size:14.5px}
+.panel-h .tx{flex:1;min-width:0}
+.panel-h h2{margin:0;font-family:var(--font-serif);font-size:24px;font-weight:500;color:var(--ink);letter-spacing:-0.014em;display:inline-flex;align-items:center;gap:9px;line-height:1.15}
+.panel-h h2 .star{color:var(--gold)}
+.panel-h .meta{font-size:12.5px;color:var(--muted);margin-top:5px;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.panel-h .meta .pill{font-size:10.5px;padding:2px 8px;border-radius:5px;background:var(--bg-soft);color:var(--ink-3);font-weight:600;letter-spacing:0.04em}
+.panel-h .vr{flex-shrink:0}
+.close{border:0;background:transparent;font-size:24px;cursor:pointer;color:var(--muted);padding:6px 12px;border-radius:8px;line-height:1;flex-shrink:0}
+.close:hover{background:var(--bg-soft);color:var(--ink)}
+
+.panel-body{padding:24px 30px 36px}
+
+.note{font-size:13.5px;color:var(--ink);line-height:1.62;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;margin-bottom:22px;box-shadow:var(--shadow-sm)}
+.note .lbl{font-size:10.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.note .lbl .sc{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-0.01em;text-transform:none;font-feature-settings:'tnum'}
+.note .lbl .sc small{color:var(--muted);font-size:12px;font-weight:400}
+.note strong{color:var(--ink)}
+
+.crit{list-style:none;padding:0;margin:0 0 22px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.crit li{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--border-soft)}
 .crit li:last-child{border-bottom:0}
-.crit .c-txt{flex:1}
-.crit .c-name{font-size:13px;font-weight:600}
-.crit .c-detail{font-size:12px;color:var(--muted);margin-top:2px}
-.evo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
-.evo .cell{background:var(--surface);border:0.5px solid var(--border);border-radius:9px;padding:9px 12px}
-.evo .cell .l{font-size:10px;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted)}
-.evo .cell .v{font-size:15px;font-weight:600;margin-top:3px}
-.evo-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin:14px 0 6px}
-.note{font-size:13px;color:var(--text);line-height:1.55;padding:12px 14px;background:var(--gold-bg);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;margin-bottom:14px}
-.note .lbl{font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block}
-footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
+.crit .c-txt{flex:1;min-width:0}
+.crit .c-name{font-size:13.5px;font-weight:600;color:var(--ink)}
+.crit .c-detail{font-size:12.5px;color:var(--muted);margin-top:3px;font-feature-settings:'tnum'}
+
+.evo{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.evo .cell{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;box-shadow:var(--shadow-sm)}
+.evo .cell .l{font-size:10.5px;text-transform:uppercase;letter-spacing:0.10em;color:var(--muted);font-weight:600}
+.evo .cell .v{font-family:var(--font-serif);font-size:23px;font-weight:500;margin-top:6px;color:var(--ink);font-feature-settings:'tnum';letter-spacing:-0.014em;line-height:1.05}
+.evo .cell .traj{font-size:12px;color:var(--muted);margin-top:7px;font-feature-settings:'tnum'}
+.evo .cell .traj .delta{color:var(--green);font-weight:600;margin-left:6px}
+.evo .cell .traj .delta.neg{color:var(--red)}
+.evo .cell .raw{font-size:11px;color:var(--muted-2);margin-top:5px;font-feature-settings:'tnum';font-style:italic}
+.evo .cell .note-sub{font-size:11px;color:var(--muted-2);margin-top:5px;font-style:italic;line-height:1.4}
+.evo .cell.na .v{color:var(--muted);font-style:italic}
+.evo-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin:20px 0 8px}
+
+.ext-links{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.ext-links a{font-size:12.5px;color:var(--navy);text-decoration:none;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);transition:border-color .15s,color .15s,background .15s;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.ext-links a:hover{border-color:var(--navy);color:var(--navy-2);background:var(--surface-tint)}
+.ext-links a .arr{color:var(--muted-2);font-size:11px}
+
+footer{margin-top:36px;padding-top:24px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted);line-height:1.65}
+footer p{margin:0 0 8px;max-width:980px}
+footer strong{color:var(--ink-3);font-weight:600}
+footer em{color:var(--ink-3);font-style:italic}
+footer .sig{font-family:var(--font-serif);font-style:italic;font-size:14px;color:var(--ink-3);margin-top:14px;letter-spacing:0.01em}
+footer .brand-line{margin-top:14px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted-2)}
+footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14em}
+
+@media (max-width:760px){
+  .page{padding:24px 18px 60px}
+  h1{font-size:32px}
+  .lead{font-size:14.5px}
+  .panel{width:100vw}
+  .panel-h{padding:20px 22px 18px}
+  .panel-body{padding:20px 22px 32px}
+  .evo{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
+<div class="page">
+
 <header>
-  <div class="title-row">
-    <h1>⭐ Screener de Clément</h1>
-    <span class="disclaimer" id="updated"></span>
-  </div>
-  <p class="sub">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> : entreprises solides, en croissance durable, au dividende attractif et croissant — pour <strong>bâtir</strong> (accumulation, renforts, effet boule de neige) et non spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
-  <p class="disclaimer"><strong>Données réelles via Yahoo Finance.</strong> Univers Stoxx&nbsp;600 + SMI. Croissance évaluée sur les exercices réellement publiés (≈ 3 à 5 ans selon la source ; cours &amp; dividende sur ~5 ans). Seules les sociétés à données complètes sont affichées (aucune valeur inventée, aucun « n/d »). Information éducative, ne constitue pas un conseil en investissement.</p>
+  <div class="kicker">Léman Labs <span class="sep">·</span> outil dédié à <strong>Clément Brilland</strong></div>
+  <h1><span class="star">★</span> Screener de Clément</h1>
+  <p class="lead">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> — sociétés solides, en croissance durable, au dividende croissant. Conçu pour <strong>bâtir</strong>, non pour spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
+  <p class="aphorism">— Discipline · Vision · Constance —</p>
+  <p class="updated" id="updated"></p>
 </header>
 
 <div class="controls">
-  <input type="text" id="q" placeholder="Rechercher une société, un secteur, un pays…">
-  <span class="field">Rendement min
-    <input type="number" id="yld" value="3" step="0.25" min="0">%
-  </span>
-  <span class="field">Levier max (DetteNette/EBITDA)
-    <input type="number" id="lev" value="2" step="0.5" min="0">x
-  </span>
-  <span class="field">Cap. min
-    <input type="number" id="cap" value="3" step="1" min="0">Md€
-  </span>
+  <div class="search-wrap">
+    <input type="text" id="q" placeholder="Rechercher une société, un secteur, un pays…">
+  </div>
+  <span class="field"><span class="field-label">Rdt min</span><input type="number" id="yld" value="3" step="0.25" min="0">%</span>
+  <span class="field"><span class="field-label">Levier max</span><input type="number" id="lev" value="2" step="0.5" min="0">×</span>
+  <span class="field"><span class="field-label">Cap. min</span><input type="number" id="cap" value="3" step="1" min="0">Md€</span>
   <select id="sec"><option value="">Tous secteurs</option></select>
   <label class="toggle"><input type="checkbox" id="onlyCreme"> Crème uniquement</label>
 </div>
 
 <div class="summary" id="summary"></div>
 
+<div class="section-h">
+  <h2>Univers analysé</h2>
+  <p class="hint">Cliquez une ligne pour le détail · Triez par en-tête de colonne</p>
+</div>
+
 <div class="tbl-wrap">
   <table id="tbl">
     <thead><tr>
       <th data-k="name">Société</th>
-      <th class="num" data-k="mcap">Cap. (Md€)</th>
+      <th class="num" data-k="mcap">Cap. Md€</th>
       <th class="num" data-k="yield">Rdt %</th>
-      <th class="num" data-k="lev">Lev.</th>
-      <th title="Chiffre d'affaires en hausse sur l'horizon">CA↗</th>
-      <th title="EBITDA en hausse sur l'horizon">EBITDA↗</th>
-      <th title="Résultat net en hausse sur l'horizon">RN↗</th>
-      <th title="Dividende en hausse sur l'horizon">Div↗</th>
-      <th title="Rendement du dividende > seuil">Rdt&gt;seuil</th>
-      <th title="Levier ≤ max OU trésorerie nette positive">Dette OK</th>
-      <th title="Cours en hausse sur l'horizon">Cours↗</th>
+      <th class="num" data-k="lev">Levier</th>
+      <th title="Chiffre d'affaires en hausse">CA</th>
+      <th title="EBITDA en hausse">EBITDA</th>
+      <th title="Résultat net en hausse">RN</th>
+      <th title="Dividende en hausse">Div.</th>
+      <th title="Rendement > seuil">Rdt</th>
+      <th title="Levier ≤ max OU trésorerie nette positive">Dette</th>
+      <th title="Cours en hausse">Cours</th>
       <th class="num" data-k="score">Score</th>
       <th data-k="rank">Verdict</th>
     </tr></thead>
@@ -146,8 +240,13 @@ footer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
 <div class="empty" id="empty" style="display:none">Aucune société ne correspond aux critères actuels.</div>
 
 <footer>
-  Préalable : univers Stoxx&nbsp;600 + SMI, capitalisation &gt; seuil, données réelles complètes. Puis <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette/EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.
+  <p><strong>Méthodologie.</strong> Univers Stoxx 600 + SMI, données réelles Yahoo Finance vérifiées contre les comptes publiés (aucune valeur inventée, aucun « n/d »). <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
+  <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
+  <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
+  <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong></p>
 </footer>
+
+</div>
 
 <div class="overlay" id="ov"></div>
 <aside class="panel" id="panel"></aside>
@@ -277,13 +376,14 @@ function render(){
     const c=x.c,r=x.r,rk=rank(r);
     const chip=s=>'<td><span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':s==='na'?'na" title="non applicable (banque, assureur ou foncière)">n/a':'nd">–')+'</span></td>';
     const chips=r.bools.map(chip).join("");
+    const star = r.eligible ? '<span class="star" title="Crème de la crème">★</span>' : '';
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
-      +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+c.name+' <span style="color:var(--muted);font-weight:400">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
+      +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+star+c.name+' <span class="ctry">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
       +'<td class="num">'+(c.mcap==null?'—':c.mcap.toFixed(0))+'</td>'
       +'<td class="num">'+(c.yield==null?'—':c.yield.toFixed(2))+'</td>'
-      +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green-d)">net cash</span>':c.nd.toFixed(1)+'x'))+'</td>'
+      +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green);font-weight:600">net cash</span>':c.nd.toFixed(1)+'×'))+'</td>'
       +chips
-      +'<td class="num score">'+r.score+'</td>'
+      +'<td class="num"><div class="score-cell"><span class="score-num">'+r.score+'</span><span class="score-bar"><span class="score-fill" style="width:'+r.score+'%"></span></span></div></td>'
       +'<td><span class="verdict '+rk.c+'">'+rk.t+'</span></td>'
       +'</tr>';
   }).join("");
@@ -295,48 +395,82 @@ function renderSummary(rows){
   const all=DATA.map(c=>({c,r:evalCo(c)}));
   const creme=all.filter(x=>x.r.eligible);
   const avgYld=creme.length?(creme.reduce((s,x)=>s+x.c.yield,0)/creme.length):0;
+  const avgCap=creme.length?(creme.reduce((s,x)=>s+(x.c.mcap||0),0)/creme.length):0;
   const s=[
-    ["Sociétés analysées",DATA.length,""],
-    ["Crème de la crème",creme.length,"creme"],
-    ["Rdt moyen crème",avgYld.toFixed(2)+"%","creme"],
-    ["Affichées",rows.length,""],
-    ["Base de croissance","exercices publiés",""]
+    ["Univers analysé",DATA.length,"",  "Stoxx 600 + SMI"],
+    ["⭐ Crème de la crème",creme.length,"creme",  creme.length>0?"sociétés au 7/7":"—"],
+    ["Rendement médian",avgYld.toFixed(2)+"%","creme",  "des crème"],
+    ["Cap. moyenne",avgCap>=100?(avgCap/1).toFixed(0)+" Md€":avgCap.toFixed(1)+" Md€","",  "des crème"],
+    ["Affichées",rows.length,"",  "selon filtres"]
   ];
-  document.getElementById("summary").innerHTML=s.map(t=>'<div class="tile '+(t[2])+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+'</div></div>').join("");
+  document.getElementById("summary").innerHTML=s.map(t=>'<div class="tile '+(t[2])+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+'</div>'+(t[3]?'<div class="vsub">'+t[3]+'</div>':'')+'</div>').join("");
 }
 
 function openPanel(i){
   const c=DATA[i],r=evalCo(c),rk=rank(r);
   const p=document.getElementById("panel");
-  p.innerHTML='<div class="panel-h">'+logo(c).replace('class="logo"','class="logo" style="width:50px;height:50px;font-size:14px;background:'+c.color+'"')
-    +'<div><h2>'+c.name+'</h2><div class="sec">'+c.sec+' · '+c.ctry+' · '+c.tk+' · '+(c.mcap==null?'cap. n/d':c.mcap.toFixed(0)+' Md€')+'</div></div>'
+  const star = r.eligible ? '<span class="star" title="Crème de la crème">★</span>' : '';
+  const metaPills = [
+    '<span class="pill">'+c.sec+'</span>',
+    '<span class="pill">'+c.ctry+'</span>',
+    '<span class="pill">'+c.tk+'</span>',
+    (c.mcap!=null?'<span class="pill">'+c.mcap.toFixed(0)+' Md€</span>':'')
+  ].filter(Boolean).join('');
+  const verdictBody = r.eligible
+    ? 'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.'
+    : (r.fin && r.greens===r.applicable
+       ? 'Les <strong>'+r.applicable+' critères applicables</strong> sont au vert — mais le profil « crème » exige les 7 critères, dont EBITDA et levier qui ne s\'appliquent pas aux banques, assureurs et foncières. Société de qualité sur ses métriques pertinentes, mais <em>hors du périmètre « crème » par construction</em>.'
+       : '<strong>'+(r.applicable-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.');
+  // Liens externes pour vérification croisée (Zonebourse + Yahoo)
+  const yhSym = c.tk + (c.ctry==='CH'?'.SW':c.ctry==='FR'?'.PA':c.ctry==='DE'?'.DE':c.ctry==='GB'?'.L':c.ctry==='IT'?'.MI':c.ctry==='NL'?'.AS':c.ctry==='ES'?'.MC':c.ctry==='DK'?'.CO':c.ctry==='NO'?'.OL':c.ctry==='FI'?'.HE':c.ctry==='BE'?'.BR':c.ctry==='SE'?'.ST':c.ctry==='PL'?'.WA':c.ctry==='AT'?'.VI':c.ctry==='IE'?'.IR':c.ctry==='PT'?'.LS':'');
+  const yhLink = 'https://finance.yahoo.com/quote/'+encodeURIComponent(yhSym);
+  const zbLink = 'https://www.zonebourse.com/recherche/?mots='+encodeURIComponent(c.name);
+  p.innerHTML='<div class="panel-h">'+logo(c).replace('class="logo"','class="logo" style="width:58px;height:58px;font-size:14.5px;background:'+c.color+'"')
+    +'<div class="tx"><h2>'+star+c.name+'</h2><div class="meta">'+metaPills+'</div></div>'
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
-    +'<button class="close" onclick="closePanel()">×</button></div>'
-    +'<div class="note"><span class="lbl">Verdict — score '+r.score+'/100</span>'
-    +(r.eligible
-       ? 'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.'
-       : (r.fin && r.greens===r.applicable
-          ? 'Les <strong>'+r.applicable+' critères applicables</strong> sont au vert — mais le profil « crème » exige les 7 critères, dont EBITDA et levier qui ne s\'appliquent pas aux banques, assureurs et foncières. Société de qualité sur ses métriques pertinentes, mais hors du périmètre « crème » par construction.'
-          : '<strong>'+(r.applicable-r.greens)+' critère(s)</strong> non respecté(s) — ne remplit pas (encore) le profil recherché.'))+'</div>'
+    +'<button class="close" onclick="closePanel()" aria-label="Fermer">×</button></div>'
+    +'<div class="panel-body">'
+    +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
-    +'<div class="evo-h">Trajectoire ('+(c.fy?'exercices '+c.fy[0]+' → '+c.fy[1]:'derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA/EBITDA/RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+' · cours &amp; dividende sur ~5 ans)</div>'
-    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy,null,c.is_financial?"produits totaux (base Yahoo) — non comparable aux primes émises":null)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy,c.is_financial?"non pertinent — banque, assureur ou foncière":null)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
-    +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>';
+    +'<div class="evo-h">Trajectoire'+(c.fy?' · exercices '+c.fy[0]+' → '+c.fy[1]:' · derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA / EBITDA / RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+'</div>'
+    +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy,null,c.is_financial?"produits totaux Yahoo — non comparable aux primes émises":null)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy,c.is_financial?"non pertinent (banque, assureur ou foncière)":null)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
+    +'<div class="evo-h">Cours · dividende · rendement (sur ~5 ans)</div>'
+    +'<div class="evo">'+evoCell("Dividende / action",c.div,"")+evoCell("Cours",c.p,"")+evoCell("Rendement",[c.yield],"%")+'</div>'
+    +'<div class="ext-links">'
+    +'<a href="'+zbLink+'" target="_blank" rel="noopener">Vérifier sur Zonebourse <span class="arr">↗</span></a>'
+    +'<a href="'+yhLink+'" target="_blank" rel="noopener">Yahoo Finance ('+yhSym+') <span class="arr">↗</span></a>'
+    +'</div>'
+    +'</div>';
   p.classList.add("open");document.getElementById("ov").classList.add("open");
 }
 function evoCell(l,a,u,raw,ccy,na,note){
   const f=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   // na : métrique non pertinente pour le secteur (EBITDA d'une financière) →
   // « n/a » explicite plutôt qu'une valeur reconstruite absurde.
-  if(na) return '<div class="cell"><div class="l">'+l+'</div><div class="v" style="color:var(--muted)">n/a</div><div class="l" style="margin-top:4px;text-transform:none">'+na+'</div></div>';
+  if(na) return '<div class="cell na"><div class="l">'+l+'</div><div class="v">n/a</div><div class="note-sub">'+na+'</div></div>';
   a=a||[];
   const cur=a.length?a[a.length-1]:null;
+  // Trajectoire avec delta : x → y (+Δ%) en vert/rouge
+  let traj="";
+  if(a.length>1 && a[0]!=null && a[a.length-1]!=null){
+    const old=a[0], now=a[a.length-1];
+    const pct = old !== 0 ? ((now/old - 1) * 100) : null;
+    let deltaStr = "";
+    if(pct !== null && isFinite(pct)){
+      const sign = pct >= 0 ? '+' : '';
+      const cls = pct >= 0 ? 'delta' : 'delta neg';
+      const abs = Math.abs(pct);
+      const fmt = abs >= 100 ? abs.toFixed(0) : abs >= 10 ? abs.toFixed(1) : abs.toFixed(1);
+      deltaStr = '<span class="'+cls+'">'+sign+fmt+'%</span>';
+    }
+    traj = '<div class="traj">'+a.map(f).join(" → ")+deltaStr+'</div>';
+  }
   let extra="";
-  // Sous-ligne « publié : … » = montant en devise d'origine → vérifiable à la source.
-  if(raw&&raw.length&&ccy&&ccy!=="EUR"&&raw.some(v=>v!=null))
-    extra='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">publié : '+raw.map(f).join(" → ")+' Md '+ccy+'</div>';
-  if(note) extra+='<div class="l" style="margin-top:3px;text-transform:none;opacity:.6">'+note+'</div>';
-  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div><div class="l" style="margin-top:4px;text-transform:none">'+(a.length>1?a.map(f).join(" → "):"")+'</div>'+extra+'</div>';}
+  if(raw && raw.length && ccy && ccy!=="EUR" && raw.some(v=>v!=null))
+    extra='<div class="raw">publié : '+raw.map(f).join(" → ")+' Md '+ccy+'</div>';
+  if(note) extra+='<div class="note-sub">'+note+'</div>';
+  return '<div class="cell"><div class="l">'+l+'</div><div class="v">'+(cur!=null?f(cur)+(u?" "+u:""):"—")+'</div>'+traj+extra+'</div>';
+}
 function closePanel(){document.getElementById("panel").classList.remove("open");document.getElementById("ov").classList.remove("open");}
 document.getElementById("ov").onclick=closePanel;
 
