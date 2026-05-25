@@ -106,7 +106,9 @@ def main():
 
     t0 = time.time()
     in_tok = out_tok = ok = ko = 0
-    tk_to_co = {c["tk"]: c for c in cos}
+    # Clé unique : ticker + pays (les tickers courts comme SAN/BOL/UNI
+    # entrent en collision entre plusieurs places européennes)
+    key_to_co = {(c["tk"], c["ctry"]): c for c in cos}
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
         futs = {ex.submit(enrich_one, client, c): c for c in todo}
         for i, f in enumerate(as_completed(futs)):
@@ -117,7 +119,7 @@ def main():
                 if ko <= 5:
                     print(f"  ✗ {c['name']:20s} : {err}")
                 continue
-            tk_to_co[c["tk"]].update(out)
+            key_to_co[(c["tk"], c["ctry"])].update(out)
             if usage:
                 in_tok += usage.input_tokens
                 out_tok += usage.output_tokens
