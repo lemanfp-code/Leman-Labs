@@ -56,7 +56,10 @@ def _bn(v):
 def _num(v):
     try:
         v = float(v)
-        return None if v != v else v
+        # NaN ou Infinity → None (sinon JSON contient des littéraux invalides en JS)
+        if v != v or v == float("inf") or v == float("-inf"):
+            return None
+        return v
     except (TypeError, ValueError):
         return None
 
