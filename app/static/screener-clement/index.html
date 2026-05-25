@@ -521,15 +521,27 @@ async function loadData(){
   DATA=SAMPLE; buildSectors(); render();
   statusEl.textContent="⚠️ Données indisponibles — échantillon affiché";
 }
-const refreshBtn=document.createElement("button");
-refreshBtn.className="toggle"; refreshBtn.style.cursor="pointer"; refreshBtn.textContent="↻ Rafraîchir les données";
-refreshBtn.onclick=async()=>{ refreshBtn.disabled=true;
-  try{ const r=await fetch("/api/screener/clement/refresh",{method:"POST"});
-       if(r.status===403) statusEl.textContent="⚠️ Rafraîchissement réservé à l'opérateur (mode consultation)."; }
-  catch(e){}
-  setTimeout(()=>{ refreshBtn.disabled=false; loadData(); },1500);
-};
-document.querySelector(".controls").appendChild(refreshBtn);
+// Bouton de rafraîchissement — uniquement affiché si le backend FastAPI
+// est joignable (app locale). Sur le déploiement statique Vercel, l'endpoint
+// /refresh n'existe pas → on cache le bouton pour ne pas tromper l'utilisateur.
+// La maj des données du snapshot statique se fait alors manuellement
+// (rebuild local + copie + `vercel --prod`).
+fetch("/api/screener/clement",{method:"HEAD"}).then(r=>{
+  if(!r.ok) return;
+  const refreshBtn=document.createElement("button");
+  refreshBtn.className="toggle"; refreshBtn.style.cursor="pointer";
+  refreshBtn.innerHTML="↻ Rafraîchir les données";
+  refreshBtn.onclick=async()=>{
+    refreshBtn.disabled=true;
+    refreshBtn.innerHTML="↻ Rafraîchissement en cours… (~1-3 min)";
+    try{
+      const r=await fetch("/api/screener/clement/refresh",{method:"POST"});
+      if(r.status===403) statusEl.textContent="⚠️ Rafraîchissement réservé à l'opérateur (mode consultation).";
+    }catch(e){}
+    setTimeout(()=>{ refreshBtn.disabled=false; refreshBtn.innerHTML="↻ Rafraîchir les données"; loadData(); },2500);
+  };
+  document.querySelector(".controls").appendChild(refreshBtn);
+}).catch(()=>{/* mode statique → pas de bouton */});
 render();      // état vide (chargement) puis peuplé par loadData()
 loadData();
 </script>
