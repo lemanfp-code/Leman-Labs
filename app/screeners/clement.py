@@ -72,6 +72,9 @@ def _fetch_one(sym, name, country, sector):
         "ni": [None, None], "div": [None, None],
         "rev_raw": [None, None], "eb_raw": [None, None], "ni_raw": [None, None],
         "p": [None, None], "years": None, "fy": None, "ok": False,
+        # Enrichissement « fiche société » — métriques de qualité + descriptif.
+        "pe": None, "roe": None, "eb_margin": None,
+        "descr": None, "domain": None, "industry": None,
         "ccy": None, "fin_ccy": None, "err": None,
         # Secteurs où EBITDA & levier ne sont pas pertinents (banques sans EBITDA,
         # assureurs idem, foncières/REITs raisonnent en FFO).
@@ -97,6 +100,22 @@ def _fetch_one(sym, name, country, sector):
             # pence (GBp) : ne pas lui appliquer le facteur pence.
             cap_ccy = "GBP" if ccy == "GBp" else ccy
             rec["mcap"] = round(mc * FX_TO_EUR.get(cap_ccy, 1.0) / 1e9, 1)
+
+        # Métriques de qualité (fiche société type LDT)
+        pe = _num(info.get("trailingPE"))
+        rec["pe"] = round(pe, 1) if pe is not None and pe > 0 else None
+        roe = _num(info.get("returnOnEquity"))
+        rec["roe"] = round(roe * 100, 1) if roe is not None else None
+        ebm = _num(info.get("ebitdaMargins"))
+        rec["eb_margin"] = round(ebm * 100, 1) if ebm is not None else None
+        descr = info.get("longBusinessSummary") or ""
+        rec["descr"] = descr.strip()[:600] if descr else None
+        site = info.get("website") or ""
+        if site:
+            import re
+            m = re.match(r"https?://(?:www\.)?([^/]+)", site)
+            rec["domain"] = m.group(1).lower() if m else None
+        rec["industry"] = info.get("industry") or None
 
         # Cours : ~5 ans réels (plus ancien point ≤ 5 ans → aujourd'hui)
         try:

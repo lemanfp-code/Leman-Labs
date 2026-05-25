@@ -139,6 +139,40 @@ tr.creme .score-fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gol
 
 .panel-body{padding:24px 30px 36px}
 
+/* Logo image (Clearbit + fallback initiales) */
+.logo-img{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14.5px;font-weight:600;letter-spacing:-0.3px;flex-shrink:0;position:relative;overflow:hidden;box-shadow:inset 0 -1px 0 rgba(0,0,0,0.14)}
+.logo-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:9px;border-radius:50%}
+
+/* Grille de stats (fondamentaux type LDT) */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow-sm)}
+.stat .l{font-size:9.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font-family:var(--font-serif);font-size:23px;font-weight:500;color:var(--ink);margin-top:4px;font-feature-settings:'tnum';letter-spacing:-0.014em;line-height:1.05}
+.stat.na .v{color:var(--muted);font-style:italic;font-size:14px;font-family:var(--font-sans);font-weight:500}
+.stat.pos .v{color:var(--green)}
+.stat.neg .v{color:var(--red)}
+
+/* Bloc description / activité */
+.descr{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow-sm)}
+.descr .l{font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}
+.descr .l .ind{font-size:10.5px;font-weight:500;letter-spacing:0.04em;text-transform:none;color:var(--ink-3);background:var(--bg-soft);padding:2px 8px;border-radius:5px}
+.descr p{font-size:13.5px;line-height:1.62;color:var(--ink-2);margin:0}
+.descr .src{font-size:10.5px;color:var(--muted-2);margin-top:8px;font-style:italic}
+
+/* Drapeaux rouges / Points forts (auto-dérivés des données) */
+.flags{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.flag-list{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow-sm)}
+.flag-list .l{font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.flag-list.pos{border-left:3px solid var(--green)}
+.flag-list.pos .l{color:var(--green)}
+.flag-list.neg{border-left:3px solid var(--red)}
+.flag-list.neg .l{color:var(--red)}
+.flag-list ul{margin:0;padding-left:18px;list-style:disc}
+.flag-list li{font-size:12.5px;line-height:1.55;color:var(--ink-2);margin-bottom:5px}
+.flag-list.pos li::marker{color:var(--green)}
+.flag-list.neg li::marker{color:var(--red)}
+@media(max-width:760px){.flags{grid-template-columns:1fr}}
+
 .note{font-size:13.5px;color:var(--ink);line-height:1.62;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;margin-bottom:22px;box-shadow:var(--shadow-sm)}
 .note .lbl{font-size:10.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .note .lbl .sc{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-0.01em;text-transform:none;font-feature-settings:'tnum'}
@@ -367,6 +401,69 @@ function sortRows(rows){
 }
 
 function logo(c){return '<div class="logo" style="background:'+c.color+'">'+c.tk.slice(0,4)+'</div>';}
+function flag(cc){if(!cc||cc.length!==2)return'';return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));}
+function logoBig(c){
+  const init=c.tk.slice(0,4);
+  const img=c.domain?'<img src="https://logo.clearbit.com/'+c.domain+'" alt="" onerror="this.remove()">':'';
+  return '<div class="logo-img" style="background:'+c.color+'">'+init+img+'</div>';
+}
+function fmt(v,unit){if(v==null)return"n/d";const s=Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2);return s+(unit||"");}
+function statsHTML(c){
+  const fin=c.is_financial;
+  const cell=(l,v,cls)=>'<div class="stat'+(cls?' '+cls:'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';
+  const stats=[];
+  // P/E
+  stats.push(c.pe!=null?cell("P/E",c.pe+"×"):cell("P/E","n/d","na"));
+  // ROE — drapeau positif si ≥ 15%
+  stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":""):cell("ROE","n/d","na"));
+  // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25%
+  stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",c.eb_margin>=25?"pos":""):cell("Marge EBITDA","n/d","na")));
+  // Rendement
+  stats.push(c.yield!=null?cell("Dividende",c.yield.toFixed(2)+"%",c.yield>=4?"pos":""):cell("Dividende","n/d","na"));
+  // Dette/EBITDA — n/a pour financières
+  let ndStr;
+  if(fin){ndStr=cell("Dette/EBITDA","n/a","na");}
+  else if(c.nd==null){ndStr=cell("Dette/EBITDA","n/d","na");}
+  else if(c.nd<=0){ndStr=cell("Dette/EBITDA","net cash","pos");}
+  else{ndStr=cell("Dette/EBITDA",c.nd.toFixed(2)+"×",c.nd>3?"neg":(c.nd<=1.5?"pos":""));}
+  stats.push(ndStr);
+  // Capi
+  stats.push(c.mcap!=null?cell("Capitalisation",c.mcap.toFixed(0)+" Md€"):cell("Capitalisation","n/d","na"));
+  return '<div class="stats-grid">'+stats.join("")+'</div>';
+}
+function descrHTML(c){
+  if(!c.descr)return"";
+  return '<div class="descr"><div class="l"><span>Activité</span>'+(c.industry?'<span class="ind">'+c.industry+'</span>':'')+'</div><p>'+c.descr+'</p><div class="src">Source : Yahoo Finance · description en anglais</div></div>';
+}
+function autoFlags(c,r){
+  const reds=[],greens=[];
+  // Drapeaux rouges
+  if(r.bools[0]==='no')reds.push("Chiffre d'affaires en baisse sur la période publiée");
+  if(!c.is_financial&&r.bools[1]==='no')reds.push("EBITDA en baisse");
+  if(r.bools[2]==='no')reds.push("Résultat net en baisse");
+  if(c.ni[1]!=null&&c.ni[1]<0)reds.push("Perte nette sur le dernier exercice publié");
+  if(r.bools[3]==='no'&&c.div[0]>0)reds.push("Dividende en baisse ou supprimé");
+  if(!c.is_financial&&c.nd!=null&&c.nd>3)reds.push("Endettement élevé : "+c.nd.toFixed(1)+"× EBITDA");
+  if(r.bools[6]==='no')reds.push("Cours en baisse sur ~5 ans");
+  if(c.yield!=null&&c.yield<1&&c.div[1]>0===false)reds.push("Pas (ou très peu) de dividende versé");
+  if(c.pe!=null&&c.pe>40)reds.push("Valorisation élevée : P/E "+c.pe+"×");
+  // Points forts
+  if(r.eligible)greens.push("⭐ Profil « crème de la crème » : les 7 critères au vert");
+  if(c.rev[1]&&c.rev[0]&&(c.rev[1]/c.rev[0])>1.5)greens.push("Forte croissance du CA : +"+Math.round((c.rev[1]/c.rev[0]-1)*100)+"% sur la période");
+  if(c.eb_margin!=null&&c.eb_margin>=25)greens.push("Marge EBITDA premium : "+c.eb_margin+"%");
+  if(c.roe!=null&&c.roe>=20)greens.push("Rentabilité élevée des capitaux propres : ROE "+c.roe+"%");
+  if(!c.is_financial&&c.nd!=null&&c.nd<=0)greens.push("Trésorerie nette positive (net cash)");
+  if(c.yield!=null&&c.yield>=4&&c.div[1]>c.div[0])greens.push("Rendement élevé ("+c.yield.toFixed(2)+"%) et dividende en croissance");
+  if(c.pe!=null&&c.pe>0&&c.pe<12&&c.ni[1]>0)greens.push("Valorisation modérée : P/E "+c.pe+"×");
+  return {reds,greens};
+}
+function flagsHTML(c,r){
+  const af=autoFlags(c,r);
+  if(!af.reds.length&&!af.greens.length)return"";
+  const pos=af.greens.length?'<div class="flag-list pos"><div class="l">▲ Points forts</div><ul>'+af.greens.map(x=>'<li>'+x+'</li>').join("")+'</ul></div>':'';
+  const neg=af.reds.length?'<div class="flag-list neg"><div class="l">▼ Drapeaux rouges</div><ul>'+af.reds.map(x=>'<li>'+x+'</li>').join("")+'</ul></div>':'';
+  return '<div class="flags">'+pos+neg+'</div>';
+}
 
 function render(){
   let rows=sortRows(compute());
@@ -378,7 +475,7 @@ function render(){
     const chips=r.bools.map(chip).join("");
     const star = r.eligible ? '<span class="star" title="Crème de la crème">★</span>' : '';
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
-      +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+star+c.name+' <span class="ctry">'+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
+      +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+star+c.name+' <span class="ctry">'+flag(c.ctry)+' '+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
       +'<td class="num">'+(c.mcap==null?'—':c.mcap.toFixed(0))+'</td>'
       +'<td class="num">'+(c.yield==null?'—':c.yield.toFixed(2))+'</td>'
       +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green);font-weight:600">net cash</span>':c.nd.toFixed(1)+'×'))+'</td>'
@@ -411,10 +508,11 @@ function openPanel(i){
   const p=document.getElementById("panel");
   const star = r.eligible ? '<span class="star" title="Crème de la crème">★</span>' : '';
   const metaPills = [
+    '<span class="pill">'+flag(c.ctry)+' '+c.ctry+'</span>',
     '<span class="pill">'+c.sec+'</span>',
-    '<span class="pill">'+c.ctry+'</span>',
+    (c.industry && c.industry!==c.sec ? '<span class="pill">'+c.industry+'</span>' : ''),
     '<span class="pill">'+c.tk+'</span>',
-    (c.mcap!=null?'<span class="pill">'+c.mcap.toFixed(0)+' Md€</span>':'')
+    (c.mcap!=null?'<span class="pill"><strong>'+c.mcap.toFixed(0)+' Md€</strong></span>':'')
   ].filter(Boolean).join('');
   const verdictBody = r.eligible
     ? 'Les 7 critères sont au vert : profil <strong>« crème de la crème »</strong> — entreprise solide, en croissance durable et au dividende croissant attractif. Candidate à une stratégie d\'accumulation long terme.'
@@ -425,11 +523,14 @@ function openPanel(i){
   const yhSym = c.tk + (c.ctry==='CH'?'.SW':c.ctry==='FR'?'.PA':c.ctry==='DE'?'.DE':c.ctry==='GB'?'.L':c.ctry==='IT'?'.MI':c.ctry==='NL'?'.AS':c.ctry==='ES'?'.MC':c.ctry==='DK'?'.CO':c.ctry==='NO'?'.OL':c.ctry==='FI'?'.HE':c.ctry==='BE'?'.BR':c.ctry==='SE'?'.ST':c.ctry==='PL'?'.WA':c.ctry==='AT'?'.VI':c.ctry==='IE'?'.IR':c.ctry==='PT'?'.LS':'');
   const yhLink = 'https://finance.yahoo.com/quote/'+encodeURIComponent(yhSym);
   const zbLink = 'https://www.zonebourse.com/recherche/?mots='+encodeURIComponent(c.name);
-  p.innerHTML='<div class="panel-h">'+logo(c).replace('class="logo"','class="logo" style="width:58px;height:58px;font-size:14.5px;background:'+c.color+'"')
+  p.innerHTML='<div class="panel-h">'+logoBig(c)
     +'<div class="tx"><h2>'+star+c.name+'</h2><div class="meta">'+metaPills+'</div></div>'
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()" aria-label="Fermer">×</button></div>'
     +'<div class="panel-body">'
+    +descrHTML(c)
+    +statsHTML(c)
+    +flagsHTML(c,r)
     +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody+'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire'+(c.fy?' · exercices '+c.fy[0]+' → '+c.fy[1]:' · derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA / EBITDA / RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+'</div>'
