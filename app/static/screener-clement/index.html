@@ -59,7 +59,11 @@ h1 .star{color:var(--gold);font-weight:400;font-size:0.85em;vertical-align:0.06e
 .updated::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green-line)}
 
 /* ── Controls ── */
-.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.controls .divider{width:1px;height:22px;background:var(--border);margin:0 4px}
+.controls .reset{font:inherit;font-size:12px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;letter-spacing:0.02em;transition:all .15s}
+.controls .reset:hover{color:var(--navy);border-color:var(--navy)}
+.controls .reset.active{color:var(--gold);border-color:var(--gold);background:rgba(168,129,66,0.06)}
 .search-wrap{flex:1;min-width:240px;position:relative}
 .search-wrap::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:17px;pointer-events:none}
 .controls input[type=text],.controls select,.controls input[type=number]{font:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;font-feature-settings:'tnum'}
@@ -270,13 +274,18 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 
 <div class="controls">
   <div class="search-wrap">
-    <input type="text" id="q" placeholder="Rechercher une société, un secteur, un pays…">
+    <input type="text" id="q" placeholder="Rechercher une société, un ticker…">
   </div>
+  <select id="ctry" title="Filtrer par pays"><option value="">Tous pays</option></select>
+  <select id="sec" title="Filtrer par secteur"><option value="">Tous secteurs</option></select>
+  <span class="divider"></span>
+  <span class="field"><span class="field-label">Cap. min</span><input type="number" id="cap" value="3" step="1" min="0">Md€</span>
   <span class="field"><span class="field-label">Rdt min</span><input type="number" id="yld" value="3" step="0.25" min="0">%</span>
   <span class="field"><span class="field-label">Levier max</span><input type="number" id="lev" value="2" step="0.5" min="0">×</span>
-  <span class="field"><span class="field-label">Cap. min</span><input type="number" id="cap" value="3" step="1" min="0">Md€</span>
-  <select id="sec"><option value="">Tous secteurs</option></select>
+  <span class="field"><span class="field-label">CAGR min</span><input type="number" id="cagr" value="0" step="1" min="-10">%</span>
+  <span class="divider"></span>
   <label class="toggle"><input type="checkbox" id="onlyCreme"> Crème uniquement</label>
+  <button class="reset" id="resetBtn" title="Réinitialiser tous les filtres">↺ Reset</button>
 </div>
 
 <div class="summary" id="summary"></div>
@@ -364,7 +373,8 @@ const SAMPLE=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
 let DATA=[];      // peuplé par /api/screener/clement (données réelles)
 let META={};
 
-const state={yld:3,lev:2,cap:0,sec:"",q:"",onlyCreme:false,sort:"score",dir:-1};
+const DEFAULTS={yld:3,lev:2,cap:3,cagrMin:0,sec:"",ctry:"",q:"",onlyCreme:false};
+const state={...DEFAULTS,sort:"score",dir:-1};
 
 // Croissance = dernier point vs plus ancien (données réelles complètes).
 function gt(a){
@@ -432,6 +442,8 @@ function compute(){
     .filter(x=>{
       if(state.onlyCreme&&!x.r.eligible)return false;
       if(state.sec&&x.c.sec!==state.sec)return false;
+      if(state.ctry&&x.c.ctry!==state.ctry)return false;
+      if(state.cagrMin && (x.r.cagr==null || x.r.cagr*100 < state.cagrMin))return false;
       if(state.q){const s=(x.c.name+" "+x.c.sec+" "+x.c.ctry+" "+x.c.tk).toLowerCase();if(!s.includes(state.q.toLowerCase()))return false;}
       return true;
     });
@@ -649,26 +661,58 @@ function closePanel(){document.getElementById("panel").classList.remove("open");
 document.getElementById("ov").onclick=closePanel;
 
 // ── Contrôles ──
+const CTRY_NAMES={FR:"France",DE:"Allemagne",GB:"Royaume-Uni",CH:"Suisse",IT:"Italie",NL:"Pays-Bas",ES:"Espagne",SE:"Suède",DK:"Danemark",NO:"Norvège",FI:"Finlande",BE:"Belgique",IE:"Irlande",PT:"Portugal",AT:"Autriche",PL:"Pologne",LU:"Luxembourg",GR:"Grèce",CZ:"Tchéquie",HU:"Hongrie"};
 const secSel=document.getElementById("sec");
+const ctrySel=document.getElementById("ctry");
 function buildSectors(){
   const cur=secSel.value;
   secSel.innerHTML='<option value="">Tous secteurs</option>';
   [...new Set(DATA.map(c=>c.sec))].sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;secSel.appendChild(o);});
   secSel.value=cur;
 }
-document.getElementById("yld").oninput=e=>{state.yld=parseFloat(e.target.value)||0;render();};
-document.getElementById("lev").oninput=e=>{state.lev=parseFloat(e.target.value)||0;render();};
-document.getElementById("cap").oninput=e=>{state.cap=parseFloat(e.target.value)||0;render();};
-secSel.onchange=e=>{state.sec=e.target.value;render();};
-document.getElementById("q").oninput=e=>{state.q=e.target.value;render();};
-document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.checked;render();};
+function buildCountries(){
+  const cur=ctrySel.value;
+  const counts={};
+  DATA.forEach(c=>{counts[c.ctry]=(counts[c.ctry]||0)+1;});
+  ctrySel.innerHTML='<option value="">Tous pays</option>';
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([cc,n])=>{
+    const o=document.createElement("option");o.value=cc;
+    o.textContent=(CTRY_NAMES[cc]||cc)+" ("+n+")";
+    ctrySel.appendChild(o);
+  });
+  ctrySel.value=cur;
+}
+function updateResetBtn(){
+  const dirty=Object.keys(DEFAULTS).some(k=>state[k]!==DEFAULTS[k]);
+  document.getElementById("resetBtn").classList.toggle("active",dirty);
+}
+function resetFilters(){
+  Object.assign(state,DEFAULTS);
+  document.getElementById("yld").value=DEFAULTS.yld;
+  document.getElementById("lev").value=DEFAULTS.lev;
+  document.getElementById("cap").value=DEFAULTS.cap;
+  document.getElementById("cagr").value=DEFAULTS.cagrMin;
+  document.getElementById("q").value="";
+  ctrySel.value=""; secSel.value="";
+  document.getElementById("onlyCreme").checked=false;
+  render();updateResetBtn();
+}
+document.getElementById("yld").oninput=e=>{state.yld=parseFloat(e.target.value)||0;render();updateResetBtn();};
+document.getElementById("lev").oninput=e=>{state.lev=parseFloat(e.target.value)||0;render();updateResetBtn();};
+document.getElementById("cap").oninput=e=>{state.cap=parseFloat(e.target.value)||0;render();updateResetBtn();};
+document.getElementById("cagr").oninput=e=>{state.cagrMin=parseFloat(e.target.value)||0;render();updateResetBtn();};
+secSel.onchange=e=>{state.sec=e.target.value;render();updateResetBtn();};
+ctrySel.onchange=e=>{state.ctry=e.target.value;render();updateResetBtn();};
+document.getElementById("q").oninput=e=>{state.q=e.target.value;render();updateResetBtn();};
+document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.checked;render();updateResetBtn();};
+document.getElementById("resetBtn").onclick=resetFilters;
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
   const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
 
 const statusEl=document.getElementById("updated");
 function showData(j,prefix){
-  DATA=j.companies; META=j; buildSectors(); render();
+  DATA=j.companies; META=j; buildSectors(); buildCountries(); render();
   const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
   statusEl.textContent=(prefix||"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
 }
