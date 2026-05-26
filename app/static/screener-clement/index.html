@@ -395,7 +395,15 @@ function evalCo(c){
 function fmtEvo(a,u){const s=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   return a&&a.length?(a.map(s).join(" → ")+(u?" "+u:"")):"—";}
 
-function rank(r){if(r.eligible)return{c:"creme",t:"⭐ Crème",o:3};if(r.capOK&&r.greens>=5)return{c:"near",t:"Proche ("+r.greens+"/"+r.applicable+")",o:2};return{c:"out",t:"Recalé",o:1};}
+function rank(r){
+  if(r.eligible) return {c:"creme",t:"⭐ Crème",o:3};
+  // Financière (assureur/foncière) qui maximise ses critères applicables :
+  // EBITDA et Levier n'ont aucun sens sectoriellement → libellé dédié.
+  if(r.fin && r.capOK && r.greens===r.applicable)
+    return {c:"near",t:"Top sectoriel ("+r.greens+"/7, 2 n/a)",o:2};
+  if(r.capOK&&r.greens>=5) return {c:"near",t:"Proche ("+r.greens+"/7)",o:2};
+  return {c:"out",t:"Recalé ("+r.greens+"/7)",o:1};
+}
 
 function compute(){
   return DATA.map(c=>({c,r:evalCo(c)}))
