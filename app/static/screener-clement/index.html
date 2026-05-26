@@ -518,10 +518,10 @@ function statsHTML(c){
   stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",emCls,"TTM"):cell("Marge EBITDA","n/d","na")));
   // Rendement : forward Yahoo en principal, TTM en sous-info (même logique que P/E)
   let yMain, ySub, yCls="";
-  const fy = c.fwd_yield;
-  if(fy!=null){
-    yMain = fy.toFixed(2)+"%";
-    yCls = fy>=4?"pos":"";
+  const fwy = c.fwd_yield;
+  if(fwy!=null){
+    yMain = fwy.toFixed(2)+"%";
+    yCls = fwy>=4?"pos":"";
     ySub = c.yield!=null ? ("forward · TTM "+c.yield.toFixed(2)+"%") : "forward";
   } else if(c.yield!=null){
     yMain = c.yield.toFixed(2)+"%";
