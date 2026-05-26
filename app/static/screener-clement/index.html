@@ -159,6 +159,7 @@ tr.creme .score-fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gol
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow-sm)}
 .stat .l{font-size:9.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
 .stat .v{font-family:var(--font-serif);font-size:23px;font-weight:500;color:var(--ink);margin-top:4px;font-feature-settings:'tnum';letter-spacing:-0.014em;line-height:1.05}
+.stat .per{font-size:9.5px;color:var(--muted-2);margin-top:3px;letter-spacing:0.04em}
 .stat.na .v{color:var(--muted);font-style:italic;font-size:14px;font-family:var(--font-sans);font-weight:500}
 .stat.pos .v{color:var(--green)}
 .stat.neg .v{color:var(--red)}
@@ -320,6 +321,7 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 
 <footer>
   <p><strong>Méthodologie.</strong> Univers Stoxx 600 + SMI, données réelles Yahoo Finance vérifiées contre les comptes publiés (aucune valeur inventée, aucun « n/d »). <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
+  <p><strong>Périodes affichées.</strong> P/E, ROE, marge EBITDA et rendement = <strong>TTM</strong> (12 derniers mois publiés). Dette/EBITDA = clôture du dernier exercice annuel (excluant les locations IFRS 16 pour mesurer la dette financière nette). Les écarts avec d'autres sites (Zonebourse, Boursorama…) reflètent presque toujours une comparaison avec des <em>estimations forward analystes</em>, pas une erreur de données.</p>
   <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
   <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
   <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong> <span style="color:var(--border-strong)">·</span> Indépendance &amp; Capital</p>
@@ -481,22 +483,23 @@ function logoBig(c){
 function fmt(v,unit){if(v==null)return"n/d";const s=Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2);return s+(unit||"");}
 function statsHTML(c){
   const fin=c.is_financial;
-  const cell=(l,v,cls)=>'<div class="stat'+(cls?' '+cls:'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';
+  const fy=c.fy&&c.fy[1]?("FY "+c.fy[1]):"";
+  const cell=(l,v,cls,per)=>'<div class="stat'+(cls?' '+cls:'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(per?'<div class="per">'+per+'</div>':'')+'</div>';
   const stats=[];
-  // P/E
-  stats.push(c.pe!=null?cell("P/E",c.pe+"×"):cell("P/E","n/d","na"));
-  // ROE — drapeau positif si ≥ 15%
-  stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":""):cell("ROE","n/d","na"));
-  // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25%
-  stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",c.eb_margin>=25?"pos":""):cell("Marge EBITDA","n/d","na")));
-  // Rendement
-  stats.push(c.yield!=null?cell("Dividende",c.yield.toFixed(2)+"%",c.yield>=4?"pos":""):cell("Dividende","n/d","na"));
-  // Dette/EBITDA — n/a pour financières
+  // P/E (trailing TTM)
+  stats.push(c.pe!=null?cell("P/E",c.pe+"×","","TTM"):cell("P/E","n/d","na"));
+  // ROE — drapeau positif si ≥ 15% (TTM)
+  stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":"","TTM"):cell("ROE","n/d","na"));
+  // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25% (TTM)
+  stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",c.eb_margin>=25?"pos":"","TTM"):cell("Marge EBITDA","n/d","na")));
+  // Rendement (TTM)
+  stats.push(c.yield!=null?cell("Dividende",c.yield.toFixed(2)+"%",c.yield>=4?"pos":"","TTM"):cell("Dividende","n/d","na"));
+  // Dette/EBITDA — n/a pour financières (sur clôture FY)
   let ndStr;
   if(fin){ndStr=cell("Dette/EBITDA","n/a","na");}
   else if(c.nd==null){ndStr=cell("Dette/EBITDA","n/d","na");}
-  else if(c.nd<=0){ndStr=cell("Dette/EBITDA","net cash","pos");}
-  else{ndStr=cell("Dette/EBITDA",c.nd.toFixed(2)+"×",c.nd>3?"neg":(c.nd<=1.5?"pos":""));}
+  else if(c.nd<=0){ndStr=cell("Dette/EBITDA","net cash","pos",fy);}
+  else{ndStr=cell("Dette/EBITDA",c.nd.toFixed(2)+"×",c.nd>3?"neg":(c.nd<=1.5?"pos":""),fy);}
   stats.push(ndStr);
   // Capi
   stats.push(c.mcap!=null?cell("Capitalisation",c.mcap.toFixed(0)+" Md€"):cell("Capitalisation","n/d","na"));
