@@ -163,6 +163,8 @@ tr.creme .score-fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gol
 .stat.na .v{color:var(--muted);font-style:italic;font-size:14px;font-family:var(--font-sans);font-weight:500}
 .stat.pos .v{color:var(--green)}
 .stat.neg .v{color:var(--red)}
+.stat.warn .v{color:#B47A1B}
+.stat.warn .v::after{content:" ⚠";font-size:0.55em;vertical-align:0.4em;color:#B47A1B}
 
 /* Bloc description / activité */
 .descr{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow-sm)}
@@ -321,7 +323,7 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 
 <footer>
   <p><strong>Méthodologie.</strong> Univers Stoxx 600 + SMI, données réelles Yahoo Finance vérifiées contre les comptes publiés (aucune valeur inventée, aucun « n/d »). <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
-  <p><strong>Périodes affichées.</strong> P/E principal = <strong>forward</strong> (consensus analystes Yahoo, 12 prochains mois) avec le TTM en sous-info. ROE, marge EBITDA, rendement = <strong>TTM</strong>. Dette/EBITDA = clôture du dernier exercice (hors locations IFRS 16, pour mesurer la dette financière nette). Les petits écarts avec Zonebourse (typiquement ±10-15 % sur le forward) viennent de sources de consensus différentes — Yahoo agrège IBES, Zonebourse utilise FactSet/Reuters Europe. Tous les chiffres sont des données réelles publiées, pas inventées.</p>
+  <p><strong>Périodes affichées.</strong> P/E et Dividende principaux = <strong>forward</strong> (consensus analystes Yahoo, 12 prochains mois) avec le TTM en sous-info. ROE, marge EBITDA = <strong>TTM</strong>. Dette/EBITDA = clôture du dernier exercice (hors locations IFRS 16, pour mesurer la dette financière nette). Les petits écarts avec Zonebourse (typiquement ±10-15 % sur le forward) viennent de sources de consensus différentes — Yahoo agrège IBES, Zonebourse utilise FactSet/Reuters Europe. Tous les chiffres sont des données réelles publiées, pas inventées. Le pictogramme <span style="color:#B47A1B">⚠</span> signale les valeurs extrêmes contextuelles (P/E > 50× = bénéfice quasi-nul ; ROE > 50% = fonds propres réduits par rachats ; marge EBITDA > 60% = REIT ou pétrolier cyclique).</p>
   <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
   <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
   <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong> <span style="color:var(--border-strong)">·</span> Indépendance &amp; Capital</p>
@@ -488,7 +490,8 @@ function statsHTML(c){
   const stats=[];
   // P/E : forward (consensus analystes) en principal, TTM en sous-info.
   // Plus aligné avec la pratique pro (Zonebourse, FactSet…) qui affiche du forward.
-  let peMain, peSub;
+  let peMain, peSub, peCls="";
+  const peRef = c.fwd_pe!=null ? c.fwd_pe : c.pe;
   if(c.fwd_pe!=null){
     peMain = c.fwd_pe+"×";
     peSub  = "forward · TTM "+(c.pe!=null?c.pe+"×":"n/d");
@@ -496,15 +499,38 @@ function statsHTML(c){
     peMain = c.pe+"×";
     peSub  = "TTM (forward n/d)";
   } else {
-    peMain = "n/d"; peSub = "";
+    peMain = "n/d"; peSub = ""; peCls = "na";
   }
-  stats.push(cell("P/E",peMain,c.fwd_pe==null && c.pe==null?"na":"",peSub));
-  // ROE — drapeau positif si ≥ 15% (TTM)
-  stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":"","TTM"):cell("ROE","n/d","na"));
-  // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25% (TTM)
-  stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",c.eb_margin>=25?"pos":"","TTM"):cell("Marge EBITDA","n/d","na")));
-  // Rendement (TTM)
-  stats.push(c.yield!=null?cell("Dividende",c.yield.toFixed(2)+"%",c.yield>=4?"pos":"","TTM"):cell("Dividende","n/d","na"));
+  // Avertissement si P/E > 50 (bénéfice quasi-nul ou exceptionnel ponctuel)
+  if(peRef!=null && peRef>50) peCls = "warn";
+  stats.push(cell("P/E",peMain,peCls,peSub));
+  // ROE — drapeau positif si ≥ 15% (TTM), warn si >50% (rachats massifs, FP réduits)
+  let roeCls = "";
+  if(c.roe==null) roeCls = "na";
+  else if(c.roe>50) roeCls = "warn";
+  else if(c.roe>=15) roeCls = "pos";
+  stats.push(c.roe!=null?cell("ROE",c.roe+"%",roeCls,"TTM"):cell("ROE","n/d","na"));
+  // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25%, warn si >60% (REIT/cyclique)
+  let emCls = "";
+  if(c.eb_margin==null) emCls = "na";
+  else if(c.eb_margin>60) emCls = "warn";
+  else if(c.eb_margin>=25) emCls = "pos";
+  stats.push(fin?cell("Marge EBITDA","n/a","na"):(c.eb_margin!=null?cell("Marge EBITDA",c.eb_margin+"%",emCls,"TTM"):cell("Marge EBITDA","n/d","na")));
+  // Rendement : forward Yahoo en principal, TTM en sous-info (même logique que P/E)
+  let yMain, ySub, yCls="";
+  const fy = c.fwd_yield;
+  if(fy!=null){
+    yMain = fy.toFixed(2)+"%";
+    yCls = fy>=4?"pos":"";
+    ySub = c.yield!=null ? ("forward · TTM "+c.yield.toFixed(2)+"%") : "forward";
+  } else if(c.yield!=null){
+    yMain = c.yield.toFixed(2)+"%";
+    yCls = c.yield>=4?"pos":"";
+    ySub = "TTM (forward n/d)";
+  } else {
+    yMain="n/d"; yCls="na"; ySub="";
+  }
+  stats.push(cell("Dividende",yMain,yCls,ySub));
   // Dette/EBITDA — n/a pour financières (sur clôture FY)
   let ndStr;
   if(fin){ndStr=cell("Dette/EBITDA","n/a","na");}
