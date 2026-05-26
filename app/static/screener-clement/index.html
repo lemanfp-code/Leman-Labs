@@ -486,8 +486,11 @@ function statsHTML(c){
   const fy=c.fy&&c.fy[1]?("FY "+c.fy[1]):"";
   const cell=(l,v,cls,per)=>'<div class="stat'+(cls?' '+cls:'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(per?'<div class="per">'+per+'</div>':'')+'</div>';
   const stats=[];
-  // P/E (trailing TTM)
-  stats.push(c.pe!=null?cell("P/E",c.pe+"×","","TTM"):cell("P/E","n/d","na"));
+  // P/E (trailing TTM) — ajoute le forward en sous-info si disponible
+  const peVal = c.pe!=null ? c.pe+"×" : "n/d";
+  const peCls = c.pe!=null ? "" : "na";
+  const pePer = c.fwd_pe!=null ? ("TTM · fwd "+c.fwd_pe+"×") : "TTM";
+  stats.push(cell("P/E",peVal,peCls,c.pe!=null?pePer:""));
   // ROE — drapeau positif si ≥ 15% (TTM)
   stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":"","TTM"):cell("ROE","n/d","na"));
   // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25% (TTM)

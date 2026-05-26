@@ -107,6 +107,9 @@ def _fetch_one(sym, name, country, sector):
         # Métriques de qualité (fiche société type LDT)
         pe = _num(info.get("trailingPE"))
         rec["pe"] = round(pe, 1) if pe is not None and pe > 0 else None
+        # P/E forward (estimation analystes consensus, ex. ce que Zonebourse affiche)
+        fpe = _num(info.get("forwardPE"))
+        rec["fwd_pe"] = round(fpe, 1) if fpe is not None and fpe > 0 else None
         roe = _num(info.get("returnOnEquity"))
         rec["roe"] = round(roe * 100, 1) if roe is not None else None
         ebm = _num(info.get("ebitdaMargins"))
