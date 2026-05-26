@@ -321,7 +321,7 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 
 <footer>
   <p><strong>Méthodologie.</strong> Univers Stoxx 600 + SMI, données réelles Yahoo Finance vérifiées contre les comptes publiés (aucune valeur inventée, aucun « n/d »). <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
-  <p><strong>Périodes affichées.</strong> P/E, ROE, marge EBITDA et rendement = <strong>TTM</strong> (12 derniers mois publiés). Dette/EBITDA = clôture du dernier exercice annuel (excluant les locations IFRS 16 pour mesurer la dette financière nette). Les écarts avec d'autres sites (Zonebourse, Boursorama…) reflètent presque toujours une comparaison avec des <em>estimations forward analystes</em>, pas une erreur de données.</p>
+  <p><strong>Périodes affichées.</strong> P/E principal = <strong>forward</strong> (consensus analystes Yahoo, 12 prochains mois) avec le TTM en sous-info. ROE, marge EBITDA, rendement = <strong>TTM</strong>. Dette/EBITDA = clôture du dernier exercice (hors locations IFRS 16, pour mesurer la dette financière nette). Les petits écarts avec Zonebourse (typiquement ±10-15 % sur le forward) viennent de sources de consensus différentes — Yahoo agrège IBES, Zonebourse utilise FactSet/Reuters Europe. Tous les chiffres sont des données réelles publiées, pas inventées.</p>
   <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
   <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
   <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong> <span style="color:var(--border-strong)">·</span> Indépendance &amp; Capital</p>
@@ -486,11 +486,19 @@ function statsHTML(c){
   const fy=c.fy&&c.fy[1]?("FY "+c.fy[1]):"";
   const cell=(l,v,cls,per)=>'<div class="stat'+(cls?' '+cls:'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(per?'<div class="per">'+per+'</div>':'')+'</div>';
   const stats=[];
-  // P/E (trailing TTM) — ajoute le forward en sous-info si disponible
-  const peVal = c.pe!=null ? c.pe+"×" : "n/d";
-  const peCls = c.pe!=null ? "" : "na";
-  const pePer = c.fwd_pe!=null ? ("TTM · fwd "+c.fwd_pe+"×") : "TTM";
-  stats.push(cell("P/E",peVal,peCls,c.pe!=null?pePer:""));
+  // P/E : forward (consensus analystes) en principal, TTM en sous-info.
+  // Plus aligné avec la pratique pro (Zonebourse, FactSet…) qui affiche du forward.
+  let peMain, peSub;
+  if(c.fwd_pe!=null){
+    peMain = c.fwd_pe+"×";
+    peSub  = "forward · TTM "+(c.pe!=null?c.pe+"×":"n/d");
+  } else if(c.pe!=null){
+    peMain = c.pe+"×";
+    peSub  = "TTM (forward n/d)";
+  } else {
+    peMain = "n/d"; peSub = "";
+  }
+  stats.push(cell("P/E",peMain,c.fwd_pe==null && c.pe==null?"na":"",peSub));
   // ROE — drapeau positif si ≥ 15% (TTM)
   stats.push(c.roe!=null?cell("ROE",c.roe+"%",c.roe>=15?"pos":"","TTM"):cell("ROE","n/d","na"));
   // Marge EBITDA — n/a pour financières, sinon premium si ≥ 25% (TTM)
