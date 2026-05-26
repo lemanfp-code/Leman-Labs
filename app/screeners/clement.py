@@ -190,7 +190,11 @@ def _fetch_one(sym, name, country, sector):
         # Laissé à None → carte « n/a » côté affichage.
         eb_s = None
         if not rec["is_financial"]:
-            eb_s = series(fin, "EBITDA", "Normalized EBITDA")
+            # PRIORITÉ : Normalized EBITDA (hors exceptionnels, plus aligné avec
+            # la pratique analyste type Zonebourse / FactSet) → EBITDA brut en
+            # fallback. La différence peut atteindre 5-15% sur les sociétés ayant
+            # subi des charges de restructuration ou dépréciations exceptionnelles.
+            eb_s = series(fin, "Normalized EBITDA", "EBITDA")
             if eb_s is None and fin is not None:
                 ebit = series(fin, "EBIT", "Operating Income")
                 dep = series(fin, "Reconciled Depreciation",
