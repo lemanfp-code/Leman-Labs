@@ -40,6 +40,10 @@ body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);margin:0
 
 /* ── Hero ── */
 header{margin-bottom:30px;padding-bottom:26px;border-bottom:1px solid var(--border);position:relative}
+.hero{display:flex;align-items:flex-start;gap:22px}
+.hero .hero-tx{flex:1;min-width:0}
+.portrait{flex:0 0 auto;width:78px;height:78px;border-radius:50%;object-fit:cover;object-position:center 18%;border:2px solid var(--gold);box-shadow:0 4px 14px rgba(168,129,66,0.18);background:var(--navy)}
+@media (max-width:560px){.portrait{width:60px;height:60px}}
 .kicker{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
 .kicker .sep{color:var(--border-strong);margin:0 8px;font-weight:400}
 .kicker strong{color:var(--gold);font-weight:700}
@@ -223,6 +227,11 @@ footer strong{color:var(--ink-3);font-weight:600}
 footer em{color:var(--ink-3);font-style:italic}
 footer .sig{font-family:var(--font-serif);font-style:italic;font-size:14px;color:var(--ink-3);margin-top:14px;letter-spacing:0.01em}
 footer .brand-line{margin-top:14px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted-2)}
+.ic-mark{display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:18px;border-top:1px dashed var(--border)}
+.ic-mark img{width:46px;height:46px;object-fit:contain;border-radius:8px;background:#0E1B2E;padding:4px;box-shadow:0 2px 8px rgba(14,27,46,0.12)}
+.ic-mark .ic-tx{display:flex;flex-direction:column;line-height:1.3}
+.ic-mark .ic-tx .t{font-family:var(--font-serif);font-size:14px;color:var(--gold);letter-spacing:0.03em;font-weight:500}
+.ic-mark .ic-tx .s{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
 footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14em}
 
 @media (max-width:760px){
@@ -240,11 +249,16 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 <div class="page">
 
 <header>
-  <div class="kicker">Léman Labs <span class="sep">·</span> outil dédié à <strong>Clément Brilland</strong></div>
-  <h1><span class="star">★</span> Screener de Clément</h1>
-  <p class="lead">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> — sociétés solides, en croissance durable, au dividende croissant. Conçu pour <strong>bâtir</strong>, non pour spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
-  <p class="aphorism">— Discipline · Vision · Constance —</p>
-  <p class="updated" id="updated"></p>
+  <div class="hero">
+    <img class="portrait" src="clement.jpg" alt="Clément Brilland" loading="eager">
+    <div class="hero-tx">
+      <div class="kicker">Léman Labs <span class="sep">·</span> outil dédié à <strong>Clément Brilland</strong> <span class="sep">·</span> <strong>Indépendance &amp; Capital</strong></div>
+      <h1><span class="star">★</span> Screener de Clément</h1>
+      <p class="lead">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> — sociétés solides, en croissance durable, au dividende croissant. Conçu pour <strong>bâtir</strong>, non pour spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
+      <p class="aphorism">— Discipline · Vision · Constance —</p>
+      <p class="updated" id="updated"></p>
+    </div>
+  </div>
 </header>
 
 <div class="controls">
@@ -293,6 +307,13 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
   <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
   <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong></p>
+  <div class="ic-mark">
+    <img src="independance-capital.png" alt="Indépendance &amp; Capital">
+    <div class="ic-tx">
+      <span class="t">Indépendance &amp; Capital</span>
+      <span class="s">Une production Léman Labs</span>
+    </div>
+  </div>
 </footer>
 
 </div>
