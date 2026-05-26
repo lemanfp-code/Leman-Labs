@@ -318,6 +318,13 @@ def _build():
                 by_sym[u[0]] = rec
 
     companies = list(by_sym.values())
+    # Exclusion des banques (Buffett-style : modèle d'affaires opaque, levier
+    # de bilan extrême, sensibilité réglementaire). Les assureurs sont conservés.
+    before = len(companies)
+    companies = [c for c in companies
+                 if not (c.get("industry") or "").startswith("Banks")]
+    if before != len(companies):
+        logger.info(f"[CLEMENT] {before - len(companies)} banques exclues")
     ok = [c for c in companies if c.get("ok")]
     payload = {
         "as_of": datetime.now().isoformat(timespec="seconds"),
