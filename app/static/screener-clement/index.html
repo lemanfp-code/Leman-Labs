@@ -43,7 +43,10 @@ header{margin-bottom:30px;padding-bottom:26px;border-bottom:1px solid var(--bord
 .hero{display:flex;align-items:flex-start;gap:22px}
 .hero .hero-tx{flex:1;min-width:0}
 .portrait{flex:0 0 auto;width:78px;height:78px;border-radius:50%;object-fit:cover;object-position:center 18%;border:2px solid var(--gold);box-shadow:0 4px 14px rgba(168,129,66,0.18);background:var(--navy)}
-@media (max-width:560px){.portrait{width:60px;height:60px}}
+.hero .ic-top{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none}
+.hero .ic-top img{width:64px;height:64px;object-fit:contain;border-radius:10px;background:#0E1B2E;padding:5px;box-shadow:0 3px 10px rgba(14,27,46,0.18)}
+.hero .ic-top .ic-cap{font-family:var(--font-serif);font-size:10.5px;color:var(--gold);letter-spacing:0.08em;text-align:center;line-height:1.15;font-weight:500}
+@media (max-width:560px){.portrait{width:60px;height:60px}.hero .ic-top img{width:50px;height:50px}}
 .kicker{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
 .kicker .sep{color:var(--border-strong);margin:0 8px;font-weight:400}
 .kicker strong{color:var(--gold);font-weight:700}
@@ -252,11 +255,15 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   <div class="hero">
     <img class="portrait" src="clement.jpg" alt="Clément Brilland" loading="eager">
     <div class="hero-tx">
-      <div class="kicker">Léman Labs <span class="sep">·</span> outil dédié à <strong>Clément Brilland</strong> <span class="sep">·</span> <strong>Indépendance &amp; Capital</strong></div>
+      <div class="kicker">Léman Labs <span class="sep">·</span> outil de recherche de <strong>Clément Brilland</strong></div>
       <h1><span class="star">★</span> Screener de Clément</h1>
       <p class="lead">La <strong>crème de la crème</strong> des actions <strong>européennes &amp; suisses</strong> — sociétés solides, en croissance durable, au dividende croissant. Conçu pour <strong>bâtir</strong>, non pour spéculer. <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
       <p class="aphorism">— Discipline · Vision · Constance —</p>
       <p class="updated" id="updated"></p>
+    </div>
+    <div class="ic-top" title="Indépendance & Capital">
+      <img src="independance-capital.png" alt="Indépendance & Capital">
+      <span class="ic-cap">Indépendance<br>&amp; Capital</span>
     </div>
   </div>
 </header>
@@ -306,14 +313,7 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   <p><strong>Méthodologie.</strong> Univers Stoxx 600 + SMI, données réelles Yahoo Finance vérifiées contre les comptes publiés (aucune valeur inventée, aucun « n/d »). <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
   <p>Pour les banques, assureurs et foncières, EBITDA et levier ne s'appliquent pas — ces sociétés sont notées sur leurs 5 critères pertinents mais restent <em>hors du périmètre « crème » par construction</em>. Information éducative — ne constitue pas un conseil en investissement.</p>
   <p class="sig">— Bâtir avec discipline, vision, constance. Ne plus spéculer, mais bâtir.</p>
-  <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong></p>
-  <div class="ic-mark">
-    <img src="independance-capital.png" alt="Indépendance &amp; Capital">
-    <div class="ic-tx">
-      <span class="t">Indépendance &amp; Capital</span>
-      <span class="s">Une production Léman Labs</span>
-    </div>
-  </div>
+  <p class="brand-line">Léman Labs <span style="color:var(--border-strong)">·</span> <strong>Clément Brilland</strong> <span style="color:var(--border-strong)">·</span> Indépendance &amp; Capital</p>
 </footer>
 
 </div>
