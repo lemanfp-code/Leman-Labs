@@ -279,7 +279,8 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
       <th title="Rendement > seuil">Rdt</th>
       <th title="Levier ≤ max OU trésorerie nette positive">Dette</th>
       <th title="Cours en hausse">Cours</th>
-      <th class="num" data-k="score">Score</th>
+      <th class="num" data-k="cagr" title="Croissance annualisée du CA (CAGR)">CAGR</th>
+      <th class="num" data-k="score" title="Score composite : 80% critères Buffett + 20% croissance CA">Score</th>
       <th data-k="rank">Verdict</th>
     </tr></thead>
     <tbody id="rows"></tbody>
@@ -373,14 +374,23 @@ function evalCo(c){
     {k:"Cours en hausse",s:sPr,d:fmtEvo(c.p,"")}
   ];
   // 'na' (non applicable au secteur) N'EST PAS comptabilisé comme satisfait :
-  // les financières plafonnent à 5/5 critères applicables (= score 100%) mais
+  // les financières plafonnent à 5/5 critères applicables (= base 100%) mais
   // ne peuvent jamais être crème, leurs 2 critères 'na' (EBITDA, levier)
   // empêchant le tableau « 7 critères au vert » par construction.
   const greens=states.filter(s=>s==='ok').length;
   const applicable=states.filter(s=>s!=='na').length;
   const eligible=capOK && states.every(s=>s==='ok');
-  const score=Math.round((greens/applicable)*100);
-  return {crit,greens,applicable,eligible,score,capOK,bools:states,fin};
+  const baseScore=(greens/applicable)*100;   // 0..100 (critères binaires)
+  // CAGR du CA sur la fenêtre FY[0]→FY[1] (typiquement 3-5 ans)
+  let cagr=null;
+  if(c.rev && c.rev[0]>0 && c.rev[1]>0 && c.fy && c.fy[1]>c.fy[0]){
+    cagr=Math.pow(c.rev[1]/c.rev[0], 1/(c.fy[1]-c.fy[0]))-1;
+  }
+  // Bonus croissance : 0% CAGR → 0 pt, 20%+ CAGR → 20 pts (linéaire, clampé)
+  const growthBonus = cagr==null ? 0 : Math.max(0, Math.min(20, cagr*100));
+  // Score composite : 80% critères + 20% croissance (sur 100)
+  const score = Math.round(baseScore*0.8 + growthBonus);
+  return {crit,greens,applicable,eligible,score,baseScore:Math.round(baseScore),cagr,growthBonus:Math.round(growthBonus),capOK,bools:states,fin};
 }
 function fmtEvo(a,u){const s=v=>v==null?"—":(Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2));
   return a&&a.length?(a.map(s).join(" → ")+(u?" "+u:"")):"—";}
@@ -406,8 +416,14 @@ function sortRows(rows){
     if(k==="mcap"){a=A.c.mcap;b=B.c.mcap;}
     else if(k==="yield"){a=A.c.yield;b=B.c.yield;}
     else if(k==="lev"){a=A.c.nd;b=B.c.nd;}
+    else if(k==="cagr"){a=A.r.cagr==null?-9:A.r.cagr;b=B.r.cagr==null?-9:B.r.cagr;}
     else if(k==="rank"){a=rank(A.r).o;b=rank(B.r).o;}
     else {a=A.r.score;b=B.r.score;}
+    // Tiebreaker : à score égal, croissance descendante (pondération CAGR)
+    if(a===b && k==="score"){
+      const ca=A.r.cagr==null?-9:A.r.cagr, cb=B.r.cagr==null?-9:B.r.cagr;
+      return (ca-cb)*d;
+    }
     return (a-b)*d;
   });
   // crème toujours en tête à score égal
@@ -505,7 +521,8 @@ function render(){
       +'<td class="num">'+(c.yield==null?'—':c.yield.toFixed(2))+'</td>'
       +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green);font-weight:600">net cash</span>':c.nd.toFixed(1)+'×'))+'</td>'
       +chips
-      +'<td class="num"><div class="score-cell"><span class="score-num">'+r.score+'</span><span class="score-bar"><span class="score-fill" style="width:'+r.score+'%"></span></span></div></td>'
+      +'<td class="num">'+(r.cagr==null?'—':'<span style="color:'+(r.cagr>=0.1?'var(--green)':r.cagr<0?'var(--red)':'var(--ink-3)')+';font-weight:600">'+(r.cagr*100).toFixed(1)+'%</span>')+'</td>'
+      +'<td class="num"><div class="score-cell" title="Critères '+r.baseScore+'/100 · Bonus croissance +'+r.growthBonus+'"><span class="score-num">'+r.score+'</span><span class="score-bar"><span class="score-fill" style="width:'+r.score+'%"></span></span></div></td>'
       +'<td><span class="verdict '+rk.c+'">'+rk.t+'</span></td>'
       +'</tr>';
   }).join("");
@@ -556,7 +573,9 @@ function openPanel(i){
     +statsHTML(c)
     +(c.fiche_activite?ficheHTML(c):descrHTML(c))
     +flagsHTML(c,r)
-    +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody+'</div>'
+    +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody
+    +' <em style="display:block;margin-top:8px;font-size:12.5px;color:var(--muted)">Score composite : <strong>'+r.baseScore+'</strong> pts (critères, pondération 80%) + <strong>'+r.growthBonus+'</strong> pts (croissance CA, '+(r.cagr==null?'n/d':((r.cagr*100).toFixed(1)+'%/an'))+', pondération 20%).</em>'
+    +'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire'+(c.fy?' · exercices '+c.fy[0]+' → '+c.fy[1]:' · derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA / EBITDA / RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+'</div>'
     +'<div class="evo">'+evoCell("Chiffre d\'affaires",c.rev,"Md€",c.rev_raw,c.fin_ccy,null,c.is_financial?"produits totaux Yahoo — non comparable aux primes émises":null)+evoCell("EBITDA",c.eb,"Md€",c.eb_raw,c.fin_ccy,c.is_financial?"non pertinent (banque, assureur ou foncière)":null)+evoCell("Résultat net",c.ni,"Md€",c.ni_raw,c.fin_ccy)+'</div>'
