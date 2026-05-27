@@ -72,46 +72,82 @@ def build_user(c):
     return "\n".join(p for p in parts if p)
 
 
+def _extract_json_object(text):
+    """Extrait le premier objet JSON d'un texte (tolère le markdown / verbiage)."""
+    text = text.strip()
+    # Strip markdown fences
+    if "```" in text:
+        parts = text.split("```")
+        for p in parts:
+            p = p.strip()
+            if p.lower().startswith("json"):
+                p = p[4:].strip()
+            if p.startswith("{"):
+                text = p
+                break
+    # Trouve le premier { et match le } correspondant
+    start = text.find("{")
+    if start < 0:
+        return None
+    depth = 0
+    in_str = False
+    esc = False
+    for i, ch in enumerate(text[start:], start):
+        if in_str:
+            if esc: esc = False
+            elif ch == "\\": esc = True
+            elif ch == '"': in_str = False
+        else:
+            if ch == '"': in_str = True
+            elif ch == "{": depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start:i+1]
+    return None
+
+
 def enrich_one(c):
-    """Appelle `claude -p` avec un schéma JSON pour générer la fiche."""
+    """Appelle `claude -p` pour générer la fiche via l'abonnement (pas l'API)."""
     user = build_user(c)
-    full_prompt = SYSTEM + "\n\n---\n\n" + user
+    full_prompt = SYSTEM + "\n\n---\n\nDonnées société :\n" + user + "\n\nRetourne UNIQUEMENT le JSON, rien d'autre."
     env = dict(os.environ)
     # Force l'utilisation de l'abonnement, pas de l'API
     env.pop("ANTHROPIC_API_KEY", None)
     try:
         proc = subprocess.run(
-            [
-                "claude", "-p", full_prompt,
-                "--output-format", "json",
-                "--json-schema", json.dumps(SCHEMA),
-                "--no-session-persistence",
-            ],
-            env=env,
-            capture_output=True, text=True, timeout=120,
+            ["claude", "-p", full_prompt,
+             "--output-format", "json",
+             "--no-session-persistence"],
+            env=env, capture_output=True, text=True, timeout=180,
         )
         if proc.returncode != 0:
-            return None, f"claude exit {proc.returncode}: {proc.stderr.strip()[:160]}"
+            return None, f"claude exit {proc.returncode}: {(proc.stderr or proc.stdout).strip()[:200]}"
         if not proc.stdout.strip():
             return None, f"stdout vide (stderr: {proc.stderr.strip()[:160]})"
         try:
             envelope = json.loads(proc.stdout)
-        except json.JSONDecodeError as e:
-            return None, f"envelope non-JSON: {proc.stdout[:160]!r}"
+        except json.JSONDecodeError:
+            return None, f"envelope non-JSON: {proc.stdout[:200]!r}"
         if envelope.get("is_error"):
-            return None, envelope.get("result", "unknown error")[:160]
+            return None, str(envelope.get("result", "unknown"))[:200]
         result_str = envelope.get("result", "")
-        # Le résultat peut être encadré de ```json ... ```
-        if "```" in result_str:
-            result_str = result_str.split("```")[1]
-            if result_str.lower().startswith("json"):
-                result_str = result_str[4:]
-            result_str = result_str.strip().rstrip("`").strip()
-        fiche = json.loads(result_str)
+        # Extrait l'objet JSON, même au milieu de texte ou de markdown
+        json_str = _extract_json_object(result_str)
+        if not json_str:
+            return None, f"no JSON object in result: {result_str[:200]!r}"
+        try:
+            fiche = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            return None, f"JSON parse: {e} | {json_str[:200]!r}"
         keys = ["activite", "contexte", "chiffres_decodes", "catalyseurs", "particulier"]
-        return {f"fiche_{k}": fiche.get(k) for k in keys}, None
+        out = {f"fiche_{k}": fiche.get(k) for k in keys}
+        # Au moins activite doit être présent
+        if not out.get("fiche_activite"):
+            return None, f"fiche_activite manquante : keys={list(fiche.keys())}"
+        return out, None
     except subprocess.TimeoutExpired:
-        return None, "timeout 120s"
+        return None, "timeout 180s"
     except Exception as e:
         return None, f"{type(e).__name__}: {str(e)[:160]}"
 
