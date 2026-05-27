@@ -244,14 +244,88 @@ footer .brand-line{margin-top:14px;font-size:11px;letter-spacing:0.14em;text-tra
 .ic-mark .ic-tx .s{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
 footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14em}
 
+/* ─── Mode d'emploi (parcours) ─── */
+.howto{background:linear-gradient(135deg,#FFFCF6 0%,#FBF7EC 100%);border:1px solid var(--border);border-radius:14px;padding:22px 26px;margin:0 0 22px;box-shadow:var(--shadow-sm);position:relative}
+.howto-h{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--navy);margin:0 0 4px;letter-spacing:-0.005em}
+.howto-h .ico{color:var(--gold);font-size:0.85em;margin-right:6px}
+.howto-sub{font-size:13.5px;color:var(--ink-3);margin:0 0 18px;line-height:1.55}
+.howto-sub em{color:var(--gold);font-style:italic}
+.howto-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+.howto-step{display:flex;flex-direction:column;gap:6px}
+.howto-step .n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;font-family:var(--font-serif);font-size:13px;font-weight:600;flex-shrink:0}
+.howto-step .ttl{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:0.01em}
+.howto-step .txt{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+.howto-criteria{font-size:12px;color:var(--muted);padding-top:14px;border-top:1px dashed var(--border);line-height:1.6}
+.howto-criteria strong{color:var(--ink-2);font-weight:600}
+.howto-criteria .crit-chip{display:inline-block;padding:1px 8px;margin:2px 4px 2px 0;background:#fff;border:1px solid var(--border);border-radius:6px;color:var(--ink-3);font-size:11.5px;letter-spacing:0.01em}
+.howto-toggle{position:absolute;top:18px;right:18px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;font-weight:600;padding:4px 8px;border-radius:6px;transition:background .15s}
+.howto-toggle:hover{background:rgba(168,129,66,0.08);color:var(--gold)}
+.howto.collapsed .howto-sub,.howto.collapsed .howto-steps,.howto.collapsed .howto-criteria{display:none}
+.howto.collapsed{padding-bottom:18px}
+
+/* ─── Mobile ─── */
 @media (max-width:760px){
-  .page{padding:24px 18px 60px}
-  h1{font-size:32px}
-  .lead{font-size:14.5px}
+  .page{padding:20px 14px 50px}
+  h1{font-size:30px;line-height:1.05}
+  .lead{font-size:14px;line-height:1.55}
+  .aphorism{font-size:13px}
+  .hero{flex-direction:row;flex-wrap:wrap;gap:14px;align-items:center}
+  .portrait{width:54px;height:54px}
+  .hero .ic-top{order:2}
+  .hero .ic-top img{width:48px;height:48px}
+  .hero .ic-top .ic-cap{font-size:9.5px}
+  .hero .hero-tx{flex:1 1 100%;order:3;min-width:0}
+  .kicker{font-size:10px;letter-spacing:0.13em;margin-bottom:10px}
+  .controls{padding:12px;gap:8px 10px;border-radius:12px}
+  .controls .divider{display:none}
+  .controls .search-wrap{flex:1 1 100%}
+  .controls .search-wrap input{padding-left:34px}
+  .controls select,.controls .field{flex:1 1 calc(50% - 5px);font-size:12px}
+  .controls .field input[type=number]{width:50px;flex-shrink:0}
+  .controls .toggle{flex:1 1 auto;font-size:12px}
+  .controls .reset{flex:0 0 auto}
+  .summary{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}
+  .tile{padding:12px 14px!important}
+  .tile .v{font-size:22px!important}
+  .tile .l{font-size:9.5px!important}
+  /* Table : scroll horizontal avec colonne Société sticky */
+  .tbl-wrap{margin:0 -14px;border-radius:0;border-left:0;border-right:0}
+  table{font-size:12.5px}
+  th,td{padding:10px 8px}
+  th:first-child,td:first-child{position:sticky;left:0;background:#fff;z-index:1;box-shadow:2px 0 4px rgba(0,0,0,0.04)}
+  tr.creme td:first-child{background:#FBF7EC}
+  .co{gap:8px}
+  .logo{width:28px;height:28px;font-size:10px}
+  .nm{font-size:13px}
+  .sec{font-size:11px}
+  .ctry{display:none}
+  /* Panel détail */
   .panel{width:100vw}
-  .panel-h{padding:20px 22px 18px}
-  .panel-body{padding:20px 22px 32px}
+  .panel-h{padding:18px 18px 14px;flex-wrap:wrap;gap:10px}
+  .panel-h h2{font-size:22px}
+  .panel-body{padding:18px 18px 32px}
+  .logo-img{width:48px;height:48px;font-size:14px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px}
+  .stat{padding:12px 14px}
+  .stat .v{font-size:20px}
   .evo{grid-template-columns:1fr 1fr}
+  /* Mode d'emploi */
+  .howto{padding:18px 16px;margin-bottom:18px}
+  .howto-h{font-size:16px}
+  .howto-sub{font-size:13px;margin-bottom:14px}
+  .howto-steps{grid-template-columns:1fr;gap:12px}
+  .howto-step{flex-direction:row;align-items:flex-start;gap:10px}
+  .howto-step .n{margin-top:2px}
+  .howto-step .ttl{font-size:13px}
+  .howto-step .txt{font-size:12px}
+  .howto-toggle{top:14px;right:14px;font-size:10px}
+  footer{font-size:12px}
+}
+@media (max-width:420px){
+  h1{font-size:26px}
+  .portrait{width:46px;height:46px}
+  .hero .ic-top img{width:42px;height:42px}
+  .summary{grid-template-columns:1fr!important}
 }
 </style>
 </head>
@@ -274,6 +348,31 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
     </div>
   </div>
 </header>
+
+<div class="howto" id="howto">
+  <button class="howto-toggle" id="howtoToggle" title="Replier / déplier">Masquer</button>
+  <h2 class="howto-h"><span class="ico">★</span>Comment utiliser le screener</h2>
+  <p class="howto-sub">Le but : trouver, en Europe &amp; Suisse, ce que Clément appelle <em>« la crème de la crème »</em> — des sociétés solides, en croissance durable, au dividende croissant. <strong>Pour bâtir, non pour spéculer.</strong> Toutes les sociétés sont déjà scorées sur 7 critères. Vous pouvez « jouer » avec les filtres pour faire votre propre tri.</p>
+  <div class="howto-steps">
+    <div class="howto-step">
+      <div style="display:flex;align-items:center;gap:8px"><span class="n">1</span><span class="ttl">Parcourez la liste</span></div>
+      <div class="txt">Les <strong><span id="howtoCount">408</span> sociétés européennes &amp; suisses</strong> sont triées par score décroissant. Les lignes dorées sont les <strong>crèmes</strong> (7 critères au vert). Cliquez sur les en-têtes pour trier par capi, rendement, CAGR…</div>
+    </div>
+    <div class="howto-step">
+      <div style="display:flex;align-items:center;gap:8px"><span class="n">2</span><span class="ttl">Affinez avec les filtres</span></div>
+      <div class="txt">Pays, secteur, capi minimale, rendement, levier, croissance… Ajustez les seuils selon votre stratégie. Cochez « <strong>Crème uniquement</strong> » pour ne voir que les sociétés au tableau parfait.</div>
+    </div>
+    <div class="howto-step">
+      <div style="display:flex;align-items:center;gap:8px"><span class="n">3</span><span class="ttl">Cliquez sur une société</span></div>
+      <div class="txt">Ouvre la <strong>fiche détaillée</strong> en français : activité, contexte, chiffres décodés, catalyseurs et verdict pour le particulier. Avec liens externes vers Zonebourse et Yahoo Finance pour vérification croisée.</div>
+    </div>
+  </div>
+  <div class="howto-criteria">
+    <strong>Les 7 critères « crème »</strong> appliqués automatiquement :
+    <span class="crit-chip">CA en hausse</span><span class="crit-chip">EBITDA en hausse</span><span class="crit-chip">Résultat net en hausse</span><span class="crit-chip">Dividende en hausse</span><span class="crit-chip">Rendement &gt; 3 %</span><span class="crit-chip">Levier ≤ 2× ou trésorerie nette</span><span class="crit-chip">Cours en hausse</span>
+    sur les derniers exercices publiés.
+  </div>
+</div>
 
 <div class="controls">
   <div class="search-wrap">
@@ -753,6 +852,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
 const statusEl=document.getElementById("updated");
 function showData(j,prefix){
   DATA=j.companies; META=j; buildSectors(); buildCountries(); render();
+  const hc = document.getElementById("howtoCount"); if(hc) hc.textContent = j.companies.length;
   const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
   statusEl.textContent=(prefix||"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
 }
@@ -809,6 +909,20 @@ fetch("/api/screener/clement",{method:"HEAD"}).then(r=>{
   };
   document.querySelector(".controls").appendChild(refreshBtn);
 }).catch(()=>{/* mode statique → pas de bouton */});
+// Toggle Mode d'emploi (persisté dans localStorage)
+const howto = document.getElementById("howto");
+const howtoBtn = document.getElementById("howtoToggle");
+function applyHowto(collapsed){
+  howto.classList.toggle("collapsed", collapsed);
+  howtoBtn.textContent = collapsed ? "Afficher l'aide" : "Masquer";
+}
+applyHowto(localStorage.getItem("howto_collapsed")==="1");
+howtoBtn.onclick = ()=>{
+  const collapsed = !howto.classList.contains("collapsed");
+  applyHowto(collapsed);
+  localStorage.setItem("howto_collapsed", collapsed?"1":"0");
+};
+
 render();      // état vide (chargement) puis peuplé par loadData()
 loadData();
 </script>
