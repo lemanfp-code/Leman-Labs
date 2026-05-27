@@ -123,7 +123,10 @@ def _fetch_one(sym, name, country, sector):
             rec["domain"] = m.group(1).lower() if m else None
         rec["industry"] = info.get("industry") or None
 
-        # Cours : ~5 ans réels (plus ancien point ≤ 5 ans → aujourd'hui)
+        # Cours : ~5 ans réels (plus ancien point ≤ 5 ans → aujourd'hui).
+        # Pour les sociétés à historique tronqué (URW post-recap, spin-offs,
+        # IPO récentes…) on retombe sur le point le plus ancien disponible si
+        # ≥ 3 ans, sinon on accepte le minimum dispo (mieux que rec.ok=False).
         try:
             h = t.history(period="6y", interval="1mo")["Close"].dropna()
         except Exception:
@@ -131,8 +134,16 @@ def _fetch_one(sym, name, country, sector):
         if h is not None and len(h):
             now_dt = h.index[-1]
             pnow = float(h.iloc[-1])
-            p5s = h[h.index <= now_dt - timedelta(days=365 * 5)]
-            rec["p"] = [round(float(p5s.iloc[-1]), 2) if len(p5s) else None,
+            p_old = None
+            for years_back in (5, 4, 3, 2):
+                hist = h[h.index <= now_dt - timedelta(days=365 * years_back)]
+                if len(hist):
+                    p_old = float(hist.iloc[-1])
+                    break
+            # Dernier recours : plus ancien point dispo même si < 2 ans
+            if p_old is None and len(h) >= 2:
+                p_old = float(h.iloc[0])
+            rec["p"] = [round(p_old, 2) if p_old is not None else None,
                         round(pnow, 2)]
 
         # Dividendes : rendement TTM réel + dividende il y a ~5 ans
