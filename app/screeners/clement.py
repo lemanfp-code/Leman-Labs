@@ -343,6 +343,12 @@ def _build():
                  if not (c.get("industry") or "").startswith("Banks")]
     if before != len(companies):
         logger.info(f"[CLEMENT] {before - len(companies)} banques exclues")
+    # Exclusion du Royaume-Uni : périmètre Eurozone + Suisse uniquement
+    # (post-Brexit, fiscalité dividendes UK différente pour les particuliers FR).
+    before = len(companies)
+    companies = [c for c in companies if c.get("ctry") != "GB"]
+    if before != len(companies):
+        logger.info(f"[CLEMENT] {before - len(companies)} sociétés UK exclues")
     ok = [c for c in companies if c.get("ok")]
     payload = {
         "as_of": datetime.now().isoformat(timespec="seconds"),
