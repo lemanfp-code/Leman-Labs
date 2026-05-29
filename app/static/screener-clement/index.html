@@ -327,9 +327,160 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   .hero .ic-top img{width:42px;height:42px}
   .summary{grid-template-columns:1fr!important}
 }
+
+/* ─── Gate Premium (login + onboarding) ─── */
+.gate{position:fixed;inset:0;background:radial-gradient(ellipse at 30% 20%,#1A2F52 0%,#122846 40%,#0A1424 100%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;animation:gateFade .45s ease}
+.gate.closing{animation:gateFadeOut .55s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes gateFade{from{opacity:0}to{opacity:1}}
+@keyframes gateFadeOut{from{opacity:1}to{opacity:0;pointer-events:none}}
+.gate::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at top,rgba(168,129,66,0.18) 0%,transparent 60%),radial-gradient(ellipse 400px 300px at bottom right,rgba(168,129,66,0.10) 0%,transparent 60%);pointer-events:none}
+.gate::after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;opacity:.5}
+.gate-card{position:relative;background:linear-gradient(180deg,#FDFAF3 0%,#FAF6E9 100%);border:1px solid var(--gold-line);border-radius:18px;padding:42px 44px 36px;width:min(440px,100%);box-shadow:0 50px 130px -25px rgba(0,0,0,0.65),0 0 0 1px rgba(168,129,66,0.18),inset 0 1px 0 rgba(255,255,255,0.4);animation:gateCardIn .55s cubic-bezier(.22,1,.36,1) .12s both}
+@keyframes gateCardIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.gate-logo{display:flex;justify-content:center;margin-bottom:18px}
+.gate-logo img{width:72px;height:72px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(18,40,70,0.22))}
+.gate-brand{text-align:center;font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:14px}
+.gate-brand .sep{color:var(--border-strong);margin:0 7px;font-weight:400}
+.gate-title{font-family:var(--font-serif);font-size:30px;font-weight:500;color:var(--ink);text-align:center;margin:0 0 10px;letter-spacing:-0.018em;line-height:1.1}
+.gate-title .star{color:var(--gold);font-size:.72em;vertical-align:0.16em}
+.gate-sub{text-align:center;font-size:13.5px;color:var(--ink-3);margin:0 0 26px;line-height:1.55;font-family:var(--font-serif);font-style:italic}
+.gate-label{display:block;font-size:10.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.gate-input{width:100%;font:inherit;font-size:15px;padding:13px 16px;border:1.5px solid var(--border-strong);border-radius:11px;background:#fff;color:var(--ink);outline:none;letter-spacing:0.04em;transition:border-color .15s,box-shadow .15s;font-feature-settings:'tnum'}
+.gate-input::placeholder{color:var(--muted-2);letter-spacing:0.4em;font-size:18px;line-height:1}
+.gate-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(168,129,66,0.18)}
+.gate-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(150,56,56,0.12);animation:shake .38s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.gate-error{font-size:12px;color:var(--red);margin-top:8px;text-align:center;font-weight:500;min-height:16px;letter-spacing:0.01em}
+.gate-btn{display:block;width:100%;font:inherit;font-size:14px;font-weight:600;letter-spacing:0.10em;text-transform:uppercase;padding:14px 22px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;cursor:pointer;margin-top:18px;transition:transform .12s,box-shadow .15s;box-shadow:0 10px 24px -10px rgba(18,40,70,0.55)}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px -10px rgba(18,40,70,0.6)}
+.gate-btn:active{transform:translateY(0)}
+.gate-foot{text-align:center;font-size:10.5px;color:var(--muted);margin-top:20px;letter-spacing:0.10em}
+.gate-foot strong{color:var(--gold);letter-spacing:0.18em;font-weight:700}
+
+/* Profil onboarding */
+.gate-card.profile{width:min(540px,100%);padding:36px 40px 28px}
+.gate-progress{display:flex;gap:6px;justify-content:center;margin-bottom:24px}
+.gate-progress .dot{width:30px;height:4px;border-radius:99px;background:var(--border-strong);transition:background .25s,width .25s}
+.gate-progress .dot.done{background:var(--gold-2)}
+.gate-progress .dot.active{background:var(--gold);width:44px}
+.profile-q{font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--ink);margin:0 0 6px;text-align:center;letter-spacing:-0.014em;line-height:1.25}
+.profile-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:0 0 22px;font-style:italic;line-height:1.45}
+.profile-options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.profile-opt{display:flex;align-items:center;gap:14px;padding:13px 16px;border:1.5px solid var(--border);border-radius:11px;background:#fff;cursor:pointer;transition:all .15s;text-align:left;font:inherit;width:100%}
+.profile-opt:hover{border-color:var(--gold-line);background:var(--surface-tint);transform:translateX(3px)}
+.profile-opt.selected{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 0 3px rgba(168,129,66,0.14)}
+.profile-opt .ico{font-size:22px;line-height:1;flex-shrink:0;width:30px;text-align:center}
+.profile-opt .tx{flex:1;min-width:0}
+.profile-opt .ttl{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:2px;letter-spacing:0.005em}
+.profile-opt .dsc{font-size:11.5px;color:var(--muted);line-height:1.45}
+.profile-nav{display:flex;gap:10px;margin-top:4px}
+.profile-back{font:inherit;font-size:12px;padding:10px 16px;border:1.5px solid var(--border-strong);border-radius:11px;background:transparent;color:var(--ink-3);cursor:pointer;font-weight:600;letter-spacing:0.05em;transition:all .15s}
+.profile-back:hover{border-color:var(--ink-3);color:var(--ink)}
+.profile-skip{font:inherit;font-size:11px;background:transparent;border:0;color:var(--muted);cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;padding:8px;margin-top:8px;display:block;width:100%;text-align:center;transition:color .15s}
+.profile-skip:hover{color:var(--gold)}
+
+/* Profil bouton dans contrôles */
+.controls .profile-btn{font:inherit;font-size:12px;padding:8px 13px;border:1px solid var(--gold-line);border-radius:9px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);color:var(--gold);cursor:pointer;letter-spacing:0.04em;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.controls .profile-btn:hover{background:var(--gold-soft);border-color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 12px -4px rgba(168,129,66,0.32)}
+.controls .profile-btn .ico{font-size:13px;line-height:1}
+
+/* ─── Vidéo de présentation (CTA + lightbox) ─── */
+.video-cta{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:14px 18px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);border:1px solid var(--gold-line);border-radius:11px;cursor:pointer;transition:all .15s;text-align:left;width:100%;font:inherit}
+.video-cta:hover{transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(168,129,66,0.3);border-color:var(--gold)}
+.video-cta .play{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;box-shadow:0 4px 12px -3px rgba(168,129,66,0.45)}
+.video-cta .play::before{content:'▶';margin-left:3px;font-size:14px}
+.video-cta .tx{flex:1;min-width:0}
+.video-cta .ttl{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:0.01em;margin-bottom:2px}
+.video-cta .dsc{font-size:12px;color:var(--ink-3);line-height:1.4}
+.video-cta .dur{font-size:10.5px;color:var(--gold);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;background:#fff;padding:4px 9px;border-radius:6px;border:1px solid var(--gold-line)}
+
+.video-modal{position:fixed;inset:0;background:rgba(10,20,36,0.92);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;backdrop-filter:blur(8px);animation:fade 0.25s ease}
+.video-modal.open{display:flex}
+.video-modal video{width:min(1280px,calc(100vw - 40px));max-height:calc(100vh - 80px);border-radius:12px;box-shadow:0 40px 90px -20px rgba(0,0,0,0.7);outline:none;background:#000}
+.video-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,0.10);color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s,transform .15s;line-height:1}
+.video-close:hover{background:rgba(255,255,255,0.20);transform:scale(1.05)}
+.video-caption{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:11.5px;color:rgba(255,255,255,0.65);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;text-align:center}
+.video-caption strong{color:var(--gold-2);font-weight:600}
+
+@media (max-width:560px){
+  .video-cta{padding:12px 14px;gap:11px;flex-wrap:wrap}
+  .video-cta .play{width:36px;height:36px}
+  .video-cta .ttl{font-size:13px}
+  .video-cta .dsc{font-size:11.5px}
+  .video-cta .dur{font-size:10px;padding:3px 7px}
+  .video-modal{padding:0}
+  .video-modal video{width:100vw;max-height:100vh;border-radius:0}
+  .video-close{top:12px;right:14px;width:38px;height:38px;font-size:20px}
+  .video-caption{display:none}
+}
+
+/* Welcome toast après onboarding */
+.welcome-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-140%);background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;padding:14px 26px;border-radius:12px;box-shadow:0 14px 36px -10px rgba(0,0,0,0.45);font-size:13.5px;z-index:200;font-weight:500;letter-spacing:0.01em;border:1px solid rgba(168,129,66,0.4);transition:transform .55s cubic-bezier(.22,1,.36,1);max-width:calc(100vw - 32px);text-align:center}
+.welcome-toast.show{transform:translateX(-50%) translateY(0)}
+.welcome-toast strong{color:var(--gold-2);font-weight:600}
+
+/* Polish : fade-in subtil sur les rows + tiles */
+tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
+@keyframes rowIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.tile{animation:tileIn .4s ease both}
+.tile:nth-child(1){animation-delay:0ms}.tile:nth-child(2){animation-delay:50ms}.tile:nth-child(3){animation-delay:100ms}.tile:nth-child(4){animation-delay:150ms}.tile:nth-child(5){animation-delay:200ms}
+@keyframes tileIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:560px){
+  .gate-card{padding:32px 24px 28px;border-radius:14px}
+  .gate-card.profile{padding:28px 22px 24px}
+  .gate-title{font-size:24px}
+  .gate-sub{font-size:12.5px;margin-bottom:22px}
+  .gate-input{font-size:14px;padding:12px 14px}
+  .gate-input::placeholder{font-size:16px;letter-spacing:0.3em}
+  .profile-q{font-size:18px}
+  .profile-hint{font-size:11.5px;margin-bottom:18px}
+  .profile-opt{padding:11px 13px;gap:11px}
+  .profile-opt .ttl{font-size:12.5px}
+  .profile-opt .dsc{font-size:11px}
+  .profile-opt .ico{font-size:19px;width:26px}
+  .welcome-toast{font-size:12.5px;padding:12px 18px;top:14px}
+}
 </style>
 </head>
 <body>
+
+<!-- ─── Gate Premium (login + onboarding) ─── -->
+<div class="gate" id="gate" style="display:none">
+  <div class="gate-card" id="gateLogin">
+    <div class="gate-logo"><img src="independance-capital.png" alt=""></div>
+    <div class="gate-brand">Léman Labs</div>
+    <h1 class="gate-title"><span class="star">★</span> Accès Membres</h1>
+    <p class="gate-sub">Un espace réservé aux membres.<br>Entrez votre code d'accès pour continuer.</p>
+    <label class="gate-label" for="gatePwd">Code membre</label>
+    <input type="password" id="gatePwd" class="gate-input" placeholder="••••••••" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <div class="gate-error" id="gateErr"></div>
+    <button class="gate-btn" id="gateBtn">Accéder au screener</button>
+    <p class="gate-foot"><strong>Indépendance &amp; Capital</strong></p>
+  </div>
+  <div class="gate-card profile" id="gateProfile" style="display:none">
+    <div class="gate-progress">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div id="profileStep"></div>
+    <button class="profile-skip" id="profileSkip">Passer cette étape</button>
+  </div>
+</div>
+
+<div class="welcome-toast" id="welcomeToast"></div>
+
+<!-- ─── Lightbox vidéo de présentation ─── -->
+<div class="video-modal" id="videoModal" role="dialog" aria-label="Présentation du screener par Clément">
+  <button type="button" class="video-close" id="videoClose" aria-label="Fermer la vidéo">×</button>
+  <video id="videoPlayer" controls playsinline preload="metadata">
+    <source src="clement-presentation.mp4" type="video/mp4">
+    Votre navigateur ne prend pas en charge la lecture vidéo.
+  </video>
+  <div class="video-caption">Présentation par <strong>Clément Brilland</strong> · Léman Labs</div>
+</div>
+
 <div class="page">
 
 <header>
@@ -353,6 +504,14 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   <button class="howto-toggle" id="howtoToggle" title="Replier / déplier">Masquer</button>
   <h2 class="howto-h"><span class="ico">★</span>Comment utiliser mon screener</h2>
   <p class="howto-sub">J'ai conçu cet outil pour analyser facilement des actions selon de nombreux critères financiers et construire des recherches ultra personnalisées. Tout est automatique, mais à vous de <em>« jouer »</em> avec les filtres et les paramètres — <strong>plus vous testez de combinaisons, plus vous découvrez la richesse de l'outil.</strong></p>
+  <button type="button" class="video-cta" id="videoCta">
+    <span class="play" aria-hidden="true"></span>
+    <span class="tx">
+      <span class="ttl">Première visite ? Je vous présente l'outil en vidéo</span>
+      <span class="dsc">Je vous montre comment j'utilise concrètement mon screener et ce que je cherche dans chaque société.</span>
+    </span>
+    <span class="dur">31 min</span>
+  </button>
   <div class="howto-steps">
     <div class="howto-step">
       <div style="display:flex;align-items:center;gap:8px"><span class="n">1</span><span class="ttl">Parcourez la liste</span></div>
@@ -925,6 +1084,207 @@ howtoBtn.onclick = ()=>{
 
 render();      // état vide (chargement) puis peuplé par loadData()
 loadData();
+
+// ═══════════════════════════════════════════════════════════
+// Gate Premium : login + onboarding profil investisseur
+// ═══════════════════════════════════════════════════════════
+const GATE_ENABLED  = false;                 // ← passer à true pour activer l'écran de login membre
+const GATE_PASSWORD = "membre_vip_87_289";   // ← mot de passe membre (modifiable ici)
+const PROFILE_KEY   = "leman_profile";
+const AUTH_KEY      = "leman_auth";
+
+const PROFILE_QUESTIONS = [
+  {
+    q: "Quel est votre horizon d'investissement ?",
+    hint: "Cette information m'aide à présenter le screener selon votre logique.",
+    key: "horizon",
+    opts: [
+      {v:"court", ico:"⚡", t:"Court terme (< 3 ans)",    d:"Je cherche du rendement immédiat et de la liquidité."},
+      {v:"moyen", ico:"📈", t:"Moyen terme (3 à 7 ans)",  d:"J'équilibre croissance et revenus stables."},
+      {v:"long",  ico:"🏛", t:"Long terme (> 7 ans)",     d:"Je bâtis un patrimoine durable, je ne spécule pas."}
+    ]
+  },
+  {
+    q: "Quel est votre profil de risque ?",
+    hint: "Votre choix influence mon tri par défaut et les seuils filtrés.",
+    key: "risque",
+    opts: [
+      {v:"prudent",   ico:"🛡", t:"Prudent",   d:"Sociétés solides, peu endettées, dividende croissant."},
+      {v:"equilibre", ico:"⚖", t:"Équilibré", d:"Profil par défaut — qualité, croissance et revenus."},
+      {v:"offensif",  ico:"🚀", t:"Offensif",  d:"J'accepte la volatilité pour viser une forte croissance."}
+    ]
+  },
+  {
+    q: "Quelle tranche de capital investissez-vous ?",
+    hint: "Information indicative — stockée uniquement dans votre navigateur.",
+    key: "capital",
+    opts: [
+      {v:"s",  ico:"🌱", t:"Moins de 25 000 €",      d:"Je débute ou j'investis progressivement."},
+      {v:"m",  ico:"🌿", t:"25 000 € → 100 000 €",   d:"J'ai une base solide en construction."},
+      {v:"l",  ico:"🌳", t:"100 000 € → 500 000 €",  d:"Mon portefeuille a une vraie maturité."},
+      {v:"xl", ico:"🏛", t:"Plus de 500 000 €",      d:"Patrimoine structuré, optimisation fine."}
+    ]
+  }
+];
+
+let profileState = {step:0, answers:{}};
+
+function openGate(){
+  const g = document.getElementById("gate");
+  g.style.display = "flex";
+  document.body.style.overflow = "hidden";
+  setTimeout(()=>{const i=document.getElementById("gatePwd");if(i&&document.getElementById("gateLogin").style.display!=="none")i.focus();}, 220);
+}
+function closeGate(){
+  const g = document.getElementById("gate");
+  g.classList.add("closing");
+  document.body.style.overflow = "";
+  setTimeout(()=>{g.style.display="none";g.classList.remove("closing");}, 540);
+}
+function showProfileScreen(){
+  document.getElementById("gateLogin").style.display = "none";
+  document.getElementById("gateProfile").style.display = "";
+  profileState = {step:0, answers:{}};
+  renderProfileStep();
+}
+function renderProfileStep(){
+  const Q = PROFILE_QUESTIONS[profileState.step];
+  const dots = document.querySelectorAll("#gateProfile .gate-progress .dot");
+  dots.forEach((d,i)=>{d.classList.toggle("done", i<profileState.step);d.classList.toggle("active", i===profileState.step);});
+  const optsHTML = Q.opts.map(o =>
+    '<button type="button" class="profile-opt" data-v="'+o.v+'"><span class="ico">'+o.ico+'</span><div class="tx"><div class="ttl">'+o.t+'</div><div class="dsc">'+o.d+'</div></div></button>'
+  ).join("");
+  const back = profileState.step>0 ? '<button type="button" class="profile-back" id="profileBack">← Retour</button>' : '';
+  document.getElementById("profileStep").innerHTML =
+    '<h2 class="profile-q">'+Q.q+'</h2>'+
+    '<p class="profile-hint">'+Q.hint+'</p>'+
+    '<div class="profile-options">'+optsHTML+'</div>'+
+    (back ? '<div class="profile-nav">'+back+'</div>' : '');
+  document.querySelectorAll("#profileStep .profile-opt").forEach(b => b.onclick = ()=>{
+    document.querySelectorAll("#profileStep .profile-opt").forEach(x=>x.classList.remove("selected"));
+    b.classList.add("selected");
+    profileState.answers[Q.key] = b.dataset.v;
+    setTimeout(nextProfileStep, 240);
+  });
+  const bk = document.getElementById("profileBack");
+  if(bk) bk.onclick = ()=>{profileState.step--;renderProfileStep();};
+}
+function nextProfileStep(){
+  profileState.step++;
+  if(profileState.step >= PROFILE_QUESTIONS.length) finishProfile();
+  else renderProfileStep();
+}
+function finishProfile(){
+  const profile = profileState.answers;
+  profile.completed_at = new Date().toISOString();
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  applyProfileToFilters(profile);
+  closeGate();
+  showWelcomeToast(profile);
+}
+function applyProfileToFilters(p){
+  if(!p || p.skipped) return;
+  if(p.risque === "prudent"){
+    state.sort = "yield"; state.dir = -1;
+    state.lev = 1.5; const lv=document.getElementById("lev"); if(lv) lv.value = 1.5;
+    state.yld = 3.5; const yl=document.getElementById("yld"); if(yl) yl.value = 3.5;
+  } else if(p.risque === "offensif"){
+    state.sort = "cagr"; state.dir = -1;
+    state.yld = 0;       const yl=document.getElementById("yld"); if(yl) yl.value = 0;
+    state.cagrMin = 5;   const cg=document.getElementById("cagr"); if(cg) cg.value = 5;
+  } else if(p.risque === "equilibre"){
+    state.sort = "score"; state.dir = -1;
+  }
+  if(typeof updateResetBtn==="function") updateResetBtn();
+  if(DATA.length && typeof render==="function") render();
+}
+function showWelcomeToast(p){
+  const toast = document.getElementById("welcomeToast");
+  if(!toast) return;
+  let msg = "Bienvenue, profil enregistré.";
+  if(p && p.risque){
+    const label = p.risque === "prudent" ? "prudent" : p.risque === "offensif" ? "offensif" : "équilibré";
+    msg = 'Profil <strong>'+label+'</strong> activé — j\'ai pré-trié le screener pour vous.';
+  }
+  toast.innerHTML = msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 4800);
+}
+function tryLogin(){
+  const inp = document.getElementById("gatePwd");
+  const err = document.getElementById("gateErr");
+  const pwd = (inp.value || "").trim().toLowerCase();
+  if(pwd === GATE_PASSWORD.toLowerCase()){
+    err.textContent = "";
+    localStorage.setItem(AUTH_KEY, "1");
+    const existing = localStorage.getItem(PROFILE_KEY);
+    if(existing){
+      try { applyProfileToFilters(JSON.parse(existing)); } catch(e){}
+      closeGate();
+    } else {
+      showProfileScreen();
+    }
+  } else {
+    err.textContent = "Code incorrect. Vérifiez votre code membre.";
+    inp.classList.add("error");
+    inp.value = "";
+    setTimeout(()=>inp.classList.remove("error"), 400);
+    inp.focus();
+  }
+}
+document.getElementById("gateBtn").onclick = tryLogin;
+document.getElementById("gatePwd").addEventListener("keydown", e => {if(e.key === "Enter") tryLogin();});
+document.getElementById("profileSkip").onclick = ()=>{
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({skipped:true, completed_at:new Date().toISOString()}));
+  closeGate();
+};
+
+// Bouton "Mon profil" dans les contrôles
+const _profileBtn = document.createElement("button");
+_profileBtn.className = "profile-btn"; _profileBtn.type = "button"; _profileBtn.title = "Voir ou modifier mon profil d'investisseur";
+_profileBtn.innerHTML = '<span class="ico">⚙</span>Mon profil';
+_profileBtn.onclick = ()=>{
+  document.getElementById("gateLogin").style.display = "none";
+  document.getElementById("gateProfile").style.display = "";
+  openGate();
+  profileState = {step:0, answers:{}};
+  renderProfileStep();
+};
+document.querySelector(".controls").appendChild(_profileBtn);
+
+// ─── Lightbox vidéo (CTA howto) ───
+(function initVideoModal(){
+  const cta = document.getElementById("videoCta");
+  const modal = document.getElementById("videoModal");
+  const closeBtn = document.getElementById("videoClose");
+  const player = document.getElementById("videoPlayer");
+  if(!cta || !modal || !player) return;
+  const open = ()=>{
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    player.currentTime = 0;
+    player.play().catch(()=>{});
+  };
+  const close = ()=>{
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+    player.pause();
+  };
+  cta.onclick = open;
+  closeBtn.onclick = close;
+  modal.onclick = e => { if(e.target === modal) close(); };
+  document.addEventListener("keydown", e => {if(e.key === "Escape" && modal.classList.contains("open")) close();});
+})();
+
+// Démarrage du gate au chargement
+(function initGate(){
+  // Applique toujours le profil s'il existe (le bouton "Mon profil" reste accessible)
+  const p = localStorage.getItem(PROFILE_KEY);
+  if(p){ try { applyProfileToFilters(JSON.parse(p)); } catch(e){} }
+  if(!GATE_ENABLED) return;                 // gate désactivé → pas d'écran de login
+  if(localStorage.getItem(AUTH_KEY) === "1") return; // déjà authentifié
+  openGate();
+})();
 </script>
 </body>
 </html>
