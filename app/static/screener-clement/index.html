@@ -310,15 +310,17 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   .stat .v{font-size:20px}
   .evo{grid-template-columns:1fr 1fr}
   /* Mode d'emploi */
-  .howto{padding:18px 16px;margin-bottom:18px}
-  .howto-h{font-size:16px}
+  .howto{padding:18px 16px 16px;margin-bottom:18px}
+  .howto-h{font-size:16px;padding-right:74px;line-height:1.3}
   .howto-sub{font-size:13px;margin-bottom:14px}
+  .howto-criteria{font-size:11.5px}
+  .howto-criteria .crit-chip{font-size:11px;padding:1px 7px}
   .howto-steps{grid-template-columns:1fr;gap:12px}
   .howto-step{flex-direction:row;align-items:flex-start;gap:10px}
   .howto-step .n{margin-top:2px}
   .howto-step .ttl{font-size:13px}
   .howto-step .txt{font-size:12px}
-  .howto-toggle{top:14px;right:14px;font-size:10px}
+  .howto-toggle{top:14px;right:12px;font-size:10px;padding:5px 9px;background:rgba(255,255,255,0.55);border:1px solid var(--border)}
   footer{font-size:12px}
 }
 @media (max-width:420px){
@@ -326,6 +328,20 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
   .portrait{width:46px;height:46px}
   .hero .ic-top img{width:42px;height:42px}
   .summary{grid-template-columns:1fr!important}
+  /* Mode d'emploi : titre + bouton sur 2 lignes plutôt qu'overlap */
+  .howto{padding-top:16px}
+  .howto-toggle{position:static;display:inline-flex;margin:0 0 10px;font-size:10px;background:transparent;border:0;padding:2px 0;color:var(--gold);float:right}
+  .howto-h{padding-right:0;clear:none}
+  .howto-h .ico{font-size:0.9em}
+  .howto-criteria .crit-chip{margin:2px 3px 2px 0}
+  /* Vidéo : titre plus court sur très petits écrans */
+  .video-tx .ttl{font-size:12.5px}
+  .video-tx .dsc{font-size:11px}
+  /* Contrôles : champs numériques plus compacts */
+  .controls .field input[type=number]{width:46px}
+  .controls .field-label{font-size:11px}
+  /* Footer : padding réduit */
+  footer p{font-size:11.5px;line-height:1.6}
 }
 
 /* ─── Gate Premium (login + onboarding) ─── */
@@ -456,6 +472,46 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   .profile-opt .ico{font-size:19px;width:26px}
   .welcome-toast{font-size:12.5px;padding:12px 18px;top:14px}
 }
+
+/* ─── Vue cartes mobile (remplace le tableau sur petits écrans) ─── */
+.m-cards{display:none}
+@media (max-width:760px){
+  .tbl-wrap{display:none}
+  .m-cards{display:flex;flex-direction:column;gap:10px;margin:0 -4px}
+  .m-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .12s,box-shadow .15s,border-color .15s;animation:rowIn .35s ease both;-webkit-tap-highlight-color:transparent}
+  .m-card:active{transform:scale(.985);background:var(--surface-tint)}
+  .m-card.creme{background:linear-gradient(135deg,var(--gold-soft) 0%,#FAF1D7 100%);border-color:var(--gold-line);border-left:3px solid var(--gold)}
+  .m-card-top{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .m-card .logo{width:34px;height:34px;font-size:10.5px;flex-shrink:0}
+  .m-card-tx{flex:1;min-width:0;overflow:hidden}
+  .m-card-nm{font-size:13.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px;line-height:1.2;letter-spacing:0.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-card-nm .star{color:var(--gold);font-size:11px;flex-shrink:0}
+  .m-card-nm .ctry{font-size:10px;font-weight:600;color:var(--muted);padding:2px 5px;border-radius:4px;background:var(--bg-soft);letter-spacing:0.04em;flex-shrink:0}
+  .m-card-sec{font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-card .verdict{font-size:10.5px;padding:4px 9px;flex-shrink:0}
+  .m-card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+  .m-stat{background:rgba(0,0,0,0.02);border-radius:7px;padding:7px 6px;text-align:center}
+  .m-card.creme .m-stat{background:rgba(255,255,255,0.45)}
+  .m-stat .l{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+  .m-stat .v{font-family:var(--font-serif);font-size:15px;font-weight:500;color:var(--ink);font-feature-settings:'tnum';line-height:1.05;letter-spacing:-0.012em}
+  .m-stat .v.pos{color:var(--green)}
+  .m-stat .v.neg{color:var(--red)}
+  .m-stat .v.small{font-size:13px}
+  .m-card-chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center;border-top:1px dashed var(--border-soft);padding-top:9px}
+  .m-card-chips .lbl{font-size:9px;letter-spacing:0.10em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px}
+  .m-card-chips .chip{width:22px;height:22px;font-size:11px;border-radius:5px}
+  .m-card-chips .chip-tag{font-size:8.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:1px}
+  .m-card-score{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .m-card-score .sn{font-size:13.5px;font-weight:700;color:var(--ink);font-feature-settings:'tnum'}
+  .m-card-score .bar{width:54px;height:4px;background:var(--border-soft);border-radius:99px;overflow:hidden}
+  .m-card-score .fill{height:100%;background:linear-gradient(90deg,var(--green-line) 0%,var(--green) 100%);border-radius:99px}
+  .m-card.creme .m-card-score .fill{background:linear-gradient(90deg,var(--gold-2) 0%,var(--gold) 100%)}
+  /* Section header sur mobile : hint plus court */
+  .section-h{margin:6px 4px 10px}
+  .section-h h2{font-size:18px}
+  .section-h .hint{font-size:11.5px}
+  .section-h .hint::before{content:'👆 '}
+}
 </style>
 </head>
 <body>
@@ -574,6 +630,8 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   <h2>Mon univers analysé</h2>
   <p class="hint">Cliquez une ligne pour ouvrir ma fiche détaillée · Triez par en-tête de colonne</p>
 </div>
+
+<div class="m-cards" id="cards"></div>
 
 <div class="tbl-wrap">
   <table id="tbl">
@@ -885,7 +943,52 @@ function render(){
       +'</tr>';
   }).join("");
   tb.querySelectorAll("tr").forEach(tr=>tr.onclick=()=>openPanel(+tr.dataset.i));
+  renderCards(rows);
   renderSummary(rows);
+}
+
+// Vue cartes mobile (rendue en parallèle, basculée via CSS)
+function renderCards(rows){
+  const cont=document.getElementById("cards");
+  if(!cont) return;
+  const chipMobile=s=>'<span class="chip '+(s==='ok'?'ok">✓':s==='no'?'no">✗':s==='na'?'na" title="non applicable">n/a':'nd">–')+'</span>';
+  const fmtVal=(v,unit,small)=>{
+    if(v==null) return '<span class="v small" style="color:var(--muted);font-style:italic">n/d</span>';
+    const abs=Math.abs(v), s=abs>=100?v.toFixed(0):abs>=10?v.toFixed(1):v.toFixed(2);
+    return '<span class="v'+(small?' small':'')+'">'+s+(unit||'')+'</span>';
+  };
+  cont.innerHTML=rows.map(x=>{
+    const c=x.c, r=x.r, rk=rank(r);
+    const star=r.eligible?'<span class="star">★</span>':'';
+    const yldHTML=c.yield==null?'<span class="v small" style="color:var(--muted);font-style:italic">n/d</span>':'<span class="v'+(c.yield>=4?' pos':'')+'">'+c.yield.toFixed(1)+'%</span>';
+    const cagrHTML=r.cagr==null?'<span class="v small" style="color:var(--muted);font-style:italic">n/d</span>':'<span class="v'+(r.cagr>=0.10?' pos':r.cagr<0?' neg':'')+'">'+(r.cagr*100).toFixed(0)+'%</span>';
+    let levHTML;
+    if(c.nd==null) levHTML='<span class="v small" style="color:var(--muted);font-style:italic">n/a</span>';
+    else if(c.nd<=0) levHTML='<span class="v pos small">net cash</span>';
+    else levHTML='<span class="v'+(c.nd>3?' neg':'')+'">'+c.nd.toFixed(1)+'×</span>';
+    return '<div class="m-card '+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
+      +'<div class="m-card-top">'
+        +logo(c)
+        +'<div class="m-card-tx">'
+          +'<div class="m-card-nm">'+star+c.name+' <span class="ctry">'+flag(c.ctry)+' '+c.ctry+'</span></div>'
+          +'<div class="m-card-sec">'+c.sec+' · '+c.tk+'</div>'
+        +'</div>'
+        +'<span class="verdict '+rk.c+'">'+rk.t+'</span>'
+      +'</div>'
+      +'<div class="m-card-stats">'
+        +'<div class="m-stat"><div class="l">Cap.</div>'+(c.mcap==null?'<span class="v small" style="color:var(--muted)">n/d</span>':'<span class="v">'+c.mcap.toFixed(0)+'</span>')+'</div>'
+        +'<div class="m-stat"><div class="l">Rdt</div>'+yldHTML+'</div>'
+        +'<div class="m-stat"><div class="l">CAGR</div>'+cagrHTML+'</div>'
+        +'<div class="m-stat"><div class="l">Levier</div>'+levHTML+'</div>'
+      +'</div>'
+      +'<div class="m-card-chips">'
+        +'<span class="lbl">Critères</span>'
+        +r.bools.map(chipMobile).join("")
+        +'<div class="m-card-score" title="Score composite '+r.score+'/100"><span class="sn">'+r.score+'</span><span class="bar"><span class="fill" style="width:'+r.score+'%"></span></span></div>'
+      +'</div>'
+      +'</div>';
+  }).join("");
+  cont.querySelectorAll(".m-card").forEach(el=>el.onclick=()=>openPanel(+el.dataset.i));
 }
 
 function renderSummary(rows){
