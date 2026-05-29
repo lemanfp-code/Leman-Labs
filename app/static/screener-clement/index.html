@@ -385,14 +385,21 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 .controls .profile-btn .ico{font-size:13px;line-height:1}
 
 /* ─── Vidéo de présentation (CTA + lightbox) ─── */
-.video-cta{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:14px 18px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);border:1px solid var(--gold-line);border-radius:11px;cursor:pointer;transition:all .15s;text-align:left;width:100%;font:inherit}
-.video-cta:hover{transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(168,129,66,0.3);border-color:var(--gold)}
-.video-cta .play{flex-shrink:0;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;box-shadow:0 4px 12px -3px rgba(168,129,66,0.45)}
-.video-cta .play::before{content:'▶';margin-left:3px;font-size:14px}
-.video-cta .tx{flex:1;min-width:0}
-.video-cta .ttl{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:0.01em;margin-bottom:2px}
-.video-cta .dsc{font-size:12px;color:var(--ink-3);line-height:1.4}
-.video-cta .dur{font-size:10.5px;color:var(--gold);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;background:#fff;padding:4px 9px;border-radius:6px;border:1px solid var(--gold-line)}
+.video-cta{display:flex;align-items:center;gap:16px;margin:0 0 18px;padding:14px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);border:1px solid var(--gold-line);border-radius:12px;cursor:pointer;transition:all .18s;text-align:left;width:100%;font:inherit;overflow:hidden;position:relative}
+.video-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px -8px rgba(168,129,66,0.35);border-color:var(--gold)}
+.video-thumb{position:relative;flex-shrink:0;width:168px;height:96px;border-radius:9px;overflow:hidden;background:#0E1B2E;box-shadow:0 6px 16px -6px rgba(14,27,46,0.4),inset 0 0 0 1px rgba(168,129,66,0.25)}
+.video-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.video-cta:hover .video-thumb img{transform:scale(1.06)}
+.video-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.20) 65%,rgba(0,0,0,0.45) 100%);pointer-events:none}
+.video-thumb .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 18px -2px rgba(0,0,0,0.45),0 0 0 6px rgba(255,255,255,0.12);transition:transform .18s ease;z-index:2}
+.video-cta:hover .video-thumb .play{transform:translate(-50%,-50%) scale(1.08)}
+.video-thumb .play::before{content:'';display:block;width:0;height:0;margin-left:3px;border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent}
+.video-thumb .dur{position:absolute;bottom:7px;right:8px;font-size:10.5px;color:#fff;font-weight:600;letter-spacing:0.04em;background:rgba(0,0,0,0.78);padding:3px 7px;border-radius:4px;font-feature-settings:'tnum';z-index:2;backdrop-filter:blur(4px)}
+.video-tx{flex:1;min-width:0;padding-right:6px}
+.video-tx .ttl{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:0.01em;margin-bottom:4px;line-height:1.3}
+.video-tx .dsc{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+.video-tx .by{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.video-tx .by::before{content:'★';font-size:9px}
 
 .video-modal{position:fixed;inset:0;background:rgba(10,20,36,0.92);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;backdrop-filter:blur(8px);animation:fade 0.25s ease}
 .video-modal.open{display:flex}
@@ -403,15 +410,23 @@ footer .brand-line strong{color:var(--gold);font-weight:700;letter-spacing:0.14e
 .video-caption strong{color:var(--gold-2);font-weight:600}
 
 @media (max-width:560px){
-  .video-cta{padding:12px 14px;gap:11px;flex-wrap:wrap}
-  .video-cta .play{width:36px;height:36px}
-  .video-cta .ttl{font-size:13px}
-  .video-cta .dsc{font-size:11.5px}
-  .video-cta .dur{font-size:10px;padding:3px 7px}
+  .video-cta{padding:12px;gap:12px}
+  .video-thumb{width:124px;height:72px;border-radius:8px}
+  .video-thumb .play{width:38px;height:38px}
+  .video-thumb .play::before{border-left-width:10px;border-top-width:6px;border-bottom-width:6px;margin-left:2px}
+  .video-thumb .dur{font-size:9.5px;padding:2px 6px;bottom:5px;right:6px}
+  .video-tx .ttl{font-size:13px}
+  .video-tx .dsc{font-size:11.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .video-tx .by{font-size:9.5px;margin-top:5px}
   .video-modal{padding:0}
   .video-modal video{width:100vw;max-height:100vh;border-radius:0}
   .video-close{top:12px;right:14px;width:38px;height:38px;font-size:20px}
   .video-caption{display:none}
+}
+@media (max-width:380px){
+  .video-cta{flex-direction:column;align-items:stretch}
+  .video-thumb{width:100%;height:auto;aspect-ratio:16/9}
+  .video-tx{padding:0}
 }
 
 /* Welcome toast après onboarding */
@@ -505,12 +520,16 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   <h2 class="howto-h"><span class="ico">★</span>Comment utiliser mon screener</h2>
   <p class="howto-sub">J'ai conçu cet outil pour analyser facilement des actions selon de nombreux critères financiers et construire des recherches ultra personnalisées. Tout est automatique, mais à vous de <em>« jouer »</em> avec les filtres et les paramètres — <strong>plus vous testez de combinaisons, plus vous découvrez la richesse de l'outil.</strong></p>
   <button type="button" class="video-cta" id="videoCta">
-    <span class="play" aria-hidden="true"></span>
-    <span class="tx">
-      <span class="ttl">Première visite ? Je vous présente l'outil en vidéo</span>
-      <span class="dsc">Je vous montre comment j'utilise concrètement mon screener et ce que je cherche dans chaque société.</span>
+    <span class="video-thumb" aria-hidden="true">
+      <img src="clement-video-thumb.jpg" alt="" loading="lazy">
+      <span class="play"></span>
+      <span class="dur">31 min</span>
     </span>
-    <span class="dur">31 min</span>
+    <span class="video-tx">
+      <span class="ttl">Première visite ? Je vous présente l'outil en vidéo</span>
+      <span class="dsc">Je vous montre concrètement comment j'utilise mon screener et ce que je recherche dans chaque société.</span>
+      <span class="by">Présenté par Clément Brilland</span>
+    </span>
   </button>
   <div class="howto-steps">
     <div class="howto-step">
