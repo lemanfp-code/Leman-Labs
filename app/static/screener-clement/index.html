@@ -1252,6 +1252,7 @@ const GATE_ENABLED  = false;                 // ← passer à true pour activer 
 const GATE_PASSWORD = "membre_vip_87_289";   // ← mot de passe membre (modifiable ici)
 const PROFILE_KEY   = "leman_profile";
 const AUTH_KEY      = "leman_auth";
+const ONBOARDED_KEY = "leman_onboarded";   // pose une seule fois, ne s'efface jamais
 
 const PROFILE_QUESTIONS = [
   {
@@ -1338,6 +1339,7 @@ function finishProfile(){
   const profile = profileState.answers;
   profile.completed_at = new Date().toISOString();
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  localStorage.setItem(ONBOARDED_KEY, "1");
   applyProfileToFilters(profile);
   closeGate();
   showWelcomeToast(profile);
@@ -1377,9 +1379,11 @@ function tryLogin(){
   if(pwd === GATE_PASSWORD.toLowerCase()){
     err.textContent = "";
     localStorage.setItem(AUTH_KEY, "1");
-    const existing = localStorage.getItem(PROFILE_KEY);
-    if(existing){
-      try { applyProfileToFilters(JSON.parse(existing)); } catch(e){}
+    // L'onboarding n'apparaît qu'à la 1ʳᵉ connexion (flag permanent ONBOARDED_KEY).
+    // Au-delà : accès direct au screener, même si le profil a été effacé entre-temps.
+    if(localStorage.getItem(ONBOARDED_KEY) === "1"){
+      const existing = localStorage.getItem(PROFILE_KEY);
+      if(existing){ try { applyProfileToFilters(JSON.parse(existing)); } catch(e){} }
       closeGate();
     } else {
       showProfileScreen();
@@ -1396,6 +1400,7 @@ document.getElementById("gateBtn").onclick = tryLogin;
 document.getElementById("gatePwd").addEventListener("keydown", e => {if(e.key === "Enter") tryLogin();});
 document.getElementById("profileSkip").onclick = ()=>{
   localStorage.setItem(PROFILE_KEY, JSON.stringify({skipped:true, completed_at:new Date().toISOString()}));
+  localStorage.setItem(ONBOARDED_KEY, "1");   // skip compte aussi comme onboarding fait
   closeGate();
 };
 
