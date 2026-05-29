@@ -475,6 +475,16 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
 
 /* ─── Vue cartes mobile (remplace le tableau sur petits écrans) ─── */
 .m-cards{display:none}
+.m-sort{display:none}
+@media (max-width:760px){
+  .m-sort{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:8px 10px 8px 12px;margin:0 -4px 10px;box-shadow:var(--shadow-sm)}
+  .m-sort-label{font-size:10.5px;letter-spacing:0.10em;text-transform:uppercase;color:var(--muted);font-weight:700;flex-shrink:0}
+  .m-sort select{flex:1;font:inherit;font-size:13px;font-weight:600;color:var(--ink);background:transparent;border:0;outline:none;padding:4px 0;cursor:pointer;font-feature-settings:'tnum';min-width:0}
+  .m-sort-dir{flex-shrink:0;font:inherit;font-size:14px;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-3);font-weight:600;transition:all .15s;-webkit-tap-highlight-color:transparent}
+  .m-sort-dir:active{background:var(--surface-tint);transform:scale(.94)}
+  .m-sort-dir.asc::before{content:'↑'}
+  .m-sort-dir.desc::before{content:'↓';color:var(--gold)}
+}
 @media (max-width:760px){
   .tbl-wrap{display:none}
   .m-cards{display:flex;flex-direction:column;gap:10px;margin:0 -4px}
@@ -629,6 +639,20 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
 <div class="section-h">
   <h2>Mon univers analysé</h2>
   <p class="hint">Cliquez une ligne pour ouvrir ma fiche détaillée · Triez par en-tête de colonne</p>
+</div>
+
+<div class="m-sort">
+  <span class="m-sort-label">Trier par</span>
+  <select id="mSort">
+    <option value="score">Score composite</option>
+    <option value="cagr">Croissance (CAGR)</option>
+    <option value="yield">Rendement</option>
+    <option value="mcap">Capitalisation</option>
+    <option value="lev">Levier</option>
+    <option value="rank">Verdict</option>
+    <option value="name">Nom (A→Z)</option>
+  </select>
+  <button type="button" class="m-sort-dir desc" id="mSortDir" title="Changer le sens du tri" aria-label="Sens du tri"></button>
 </div>
 
 <div class="m-cards" id="cards"></div>
@@ -1127,7 +1151,21 @@ document.getElementById("q").oninput=e=>{state.q=e.target.value;render();updateR
 document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.checked;render();updateResetBtn();};
 document.getElementById("resetBtn").onclick=resetFilters;
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
-  const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();});
+  const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();syncMobileSort();});
+// Tri mobile : sélecteur + bouton de sens, synchro bidirectionnelle avec l'état global
+function syncMobileSort(){
+  const sel=document.getElementById("mSort"), dir=document.getElementById("mSortDir");
+  if(!sel||!dir) return;
+  sel.value=state.sort;
+  dir.classList.toggle("desc", state.dir===-1);
+  dir.classList.toggle("asc",  state.dir=== 1);
+}
+const mSortEl=document.getElementById("mSort"), mDirEl=document.getElementById("mSortDir");
+if(mSortEl){
+  mSortEl.onchange=e=>{state.sort=e.target.value;state.dir=(e.target.value==="name"?1:-1);render();syncMobileSort();};
+  mDirEl.onclick =()=>{state.dir=-state.dir;render();syncMobileSort();};
+  syncMobileSort();
+}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
 
 const statusEl=document.getElementById("updated");
