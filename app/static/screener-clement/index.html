@@ -12,7 +12,7 @@
 <title>Swiss Private Screener — La crème de la crème · Léman Labs</title>
 <meta name="description" content="Swiss Private Screener par Clément Brilland. La sélection privée des plus belles entreprises d'Europe & Suisse : sociétés solides, en croissance durable, au dividende croissant. Discipline, vision, constance.">
 <meta name="theme-color" content="#122846">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='80' font-family='serif' fill='%23A88142'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23A88142' d='M9.6 3h4.8v6.6H21v4.8h-6.6V21H9.6v-6.6H3V9.6h6.6z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -473,6 +473,12 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   .welcome-toast{font-size:12.5px;padding:12px 18px;top:14px}
 }
 
+/* ─── Croix suisse signature (gold) — remplace l'étoile dans les titres ─── */
+.swiss-mark{display:inline-flex;align-items:center;justify-content:center;color:var(--gold);width:0.86em;height:0.86em;vertical-align:-0.04em;margin-right:0.26em}
+.swiss-mark svg{width:100%;height:100%;display:block;fill:currentColor;filter:drop-shadow(0 1px 2px rgba(168,129,66,0.30))}
+.gate-title .swiss-mark{width:0.78em;height:0.78em;margin-right:0.22em}
+.gate-title .swiss-mark svg{filter:drop-shadow(0 2px 4px rgba(168,129,66,0.35))}
+
 /* ─── Radar signature 5 axes (signature) ─── */
 .radar-block{display:flex;align-items:center;gap:22px;background:linear-gradient(135deg,#FFFCF6 0%,var(--surface) 100%);border:1px solid var(--gold-line);border-radius:14px;padding:20px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
 .radar-block::before{content:'';position:absolute;top:-40%;right:-10%;width:60%;height:160%;background:radial-gradient(ellipse,rgba(168,129,66,0.06) 0%,transparent 65%);pointer-events:none}
@@ -695,7 +701,7 @@ header > .hero > * { animation: heroFadeIn .6s cubic-bezier(.22,1,.36,1) both }
   <div class="gate-card" id="gateLogin">
     <div class="gate-logo"><img src="independance-capital.png" alt=""></div>
     <div class="gate-brand">Léman Labs</div>
-    <h1 class="gate-title"><span class="star">★</span> Accès Membres</h1>
+    <h1 class="gate-title"><span class="swiss-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.6 3h4.8v6.6H21v4.8h-6.6V21H9.6v-6.6H3V9.6h6.6z"/></svg></span>Accès Membres</h1>
     <p class="gate-sub">Un espace réservé aux membres.<br>Entrez votre code d'accès pour continuer.</p>
     <label class="gate-label" for="gatePwd">Code membre</label>
     <input type="password" id="gatePwd" class="gate-input" placeholder="••••••••" autocomplete="off" spellcheck="false" autocapitalize="off">
@@ -748,7 +754,7 @@ header > .hero > * { animation: heroFadeIn .6s cubic-bezier(.22,1,.36,1) both }
     <img class="portrait" src="clement.jpg" alt="Clément Brilland" loading="eager">
     <div class="hero-tx">
       <div class="kicker">Léman Labs <span class="sep">·</span> par <strong>Clément Brilland</strong></div>
-      <h1><span class="star">★</span> Swiss Private Screener</h1>
+      <h1><span class="swiss-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.6 3h4.8v6.6H21v4.8h-6.6V21H9.6v-6.6H3V9.6h6.6z"/></svg></span>Swiss Private Screener</h1>
       <p class="lead">Ma <strong>sélection privée</strong> des plus belles entreprises d'<strong>Europe &amp; Suisse</strong> — celles que j'appelle la <strong>crème de la crème</strong>. Sociétés solides, en croissance durable, au dividende croissant, choisies avec la rigueur du standard suisse. <strong>Pour bâtir, non pour spéculer.</strong> <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
       <p class="aphorism">— Discipline · Vision · Constance —</p>
       <div class="cred" id="cred">
@@ -768,7 +774,7 @@ header > .hero > * { animation: heroFadeIn .6s cubic-bezier(.22,1,.36,1) both }
 
 <div class="howto" id="howto">
   <button class="howto-toggle" id="howtoToggle" title="Replier / déplier">Masquer</button>
-  <h2 class="howto-h"><span class="ico">★</span>Comment utiliser le Swiss Private Screener</h2>
+  <h2 class="howto-h"><span class="swiss-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.6 3h4.8v6.6H21v4.8h-6.6V21H9.6v-6.6H3V9.6h6.6z"/></svg></span>Comment utiliser le Swiss Private Screener</h2>
   <p class="howto-sub">J'ai conçu cet outil pour parcourir ma sélection des plus belles entreprises selon de nombreux critères financiers et construire des recherches ultra personnalisées. Tout est automatique, mais à vous de <em>« jouer »</em> avec les filtres et les paramètres — <strong>plus vous testez de combinaisons, plus vous découvrez la richesse de la sélection.</strong></p>
   <button type="button" class="video-cta" id="videoCta">
     <span class="video-thumb" aria-hidden="true">
@@ -871,7 +877,7 @@ header > .hero > * { animation: heroFadeIn .6s cubic-bezier(.22,1,.36,1) both }
 
 <section class="lex">
   <div class="lex-h">
-    <h2><span class="ico">★</span>Comprendre ma méthode</h2>
+    <h2><span class="swiss-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.6 3h4.8v6.6H21v4.8h-6.6V21H9.6v-6.6H3V9.6h6.6z"/></svg></span>Comprendre ma méthode</h2>
     <p class="lex-sub">Tout en un coup d'œil — chiffres réels, pondérations explicites, aucune boîte noire.</p>
   </div>
   <div class="lex-grid">
