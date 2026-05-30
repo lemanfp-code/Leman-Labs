@@ -1,6 +1,6 @@
 <!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
 {
-  "name": "Screener de Clément",
+  "name": "Swiss Private Screener",
   "schemaVersion": 1,
   "description": "Screener qualité + croissance + dividende façon Buffett. Univers Stoxx 600 + SMI, large/mid cap. Filtres : croissance CA/EBITDA/RN/dividende sur 5 ou 10 ans, rendement > 3 %, levier dette ≤ 2x ou trésorerie nette positive, cours en hausse. Données illustratives à des fins éducatives."
 }
@@ -9,8 +9,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Screener de Clément — Crème de la crème · Léman Labs</title>
-<meta name="description" content="Le screener boursier de Clément Brilland. La crème de la crème des actions européennes & suisses : sociétés solides, en croissance durable, au dividende croissant. Bâtir avec discipline, vision, constance.">
+<title>Swiss Private Screener — La crème de la crème · Léman Labs</title>
+<meta name="description" content="Swiss Private Screener par Clément Brilland. La sélection privée des plus belles entreprises d'Europe & Suisse : sociétés solides, en croissance durable, au dividende croissant. Discipline, vision, constance.">
 <meta name="theme-color" content="#122846">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='80' font-family='serif' fill='%23A88142'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -473,6 +473,170 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   .welcome-toast{font-size:12.5px;padding:12px 18px;top:14px}
 }
 
+/* ─── Radar signature 5 axes (signature) ─── */
+.radar-block{display:flex;align-items:center;gap:22px;background:linear-gradient(135deg,#FFFCF6 0%,var(--surface) 100%);border:1px solid var(--gold-line);border-radius:14px;padding:20px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
+.radar-block::before{content:'';position:absolute;top:-40%;right:-10%;width:60%;height:160%;background:radial-gradient(ellipse,rgba(168,129,66,0.06) 0%,transparent 65%);pointer-events:none}
+.radar-svg{flex-shrink:0;display:block;position:relative;z-index:1}
+.radar-svg .polygon-data{transition:opacity .5s ease;animation:radarIn .8s cubic-bezier(.22,1,.36,1) both}
+@keyframes radarIn{from{opacity:0;transform:scale(.6);transform-origin:center}to{opacity:1;transform:scale(1)}}
+.radar-tx{flex:1;min-width:0;position:relative;z-index:1}
+.radar-l{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:5px;display:inline-flex;align-items:center;gap:6px}
+.radar-l::before{content:'◆';font-size:9px}
+.radar-summary{font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--ink);margin:0 0 12px;letter-spacing:-0.014em;line-height:1.3}
+.radar-bars{display:flex;flex-direction:column;gap:7px}
+.radar-bar{display:flex;align-items:center;gap:10px;font-size:11.5px}
+.radar-bar .bl{flex-shrink:0;width:90px;color:var(--ink-3);font-weight:600;letter-spacing:0.03em;font-size:11px}
+.radar-bar .bb{flex:1;height:6px;background:var(--bg-soft);border-radius:99px;overflow:hidden;display:block;border:1px solid var(--border-soft)}
+.radar-bar .bf{display:block;height:100%;background:linear-gradient(90deg,var(--gold-2) 0%,var(--gold) 100%);border-radius:99px;min-width:2px;transition:width 1s cubic-bezier(.22,1,.36,1);box-shadow:0 0 0 1px rgba(168,129,66,0.2)}
+.radar-bar .bf.low{background:linear-gradient(90deg,#D9BC7E 0%,#B47A1B 100%)}
+.radar-bar .bv{flex-shrink:0;width:30px;text-align:right;font-weight:700;color:var(--ink);font-feature-settings:'tnum';font-size:12px}
+@media (max-width:560px){
+  .radar-block{flex-direction:column;align-items:center;gap:14px;padding:16px}
+  .radar-tx{width:100%;text-align:center}
+  .radar-summary{font-size:16px}
+  .radar-bar .bl{width:78px;font-size:10.5px}
+  .radar-bar .bv{font-size:11.5px}
+}
+
+/* ─── Lexique méthodologie ─── */
+.lex{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px 22px;margin:30px 0 20px;box-shadow:var(--shadow-sm)}
+.lex-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+.lex-h h2{font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--ink);margin:0;letter-spacing:-0.014em}
+.lex-h h2 .ico{color:var(--gold);font-size:.8em;margin-right:6px}
+.lex-h .lex-sub{font-size:12px;color:var(--muted);font-style:italic;margin:0}
+.lex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.lex-col{display:flex;flex-direction:column;gap:11px}
+.lex-col-h{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:flex;align-items:center;gap:6px;padding-bottom:9px;border-bottom:1px solid var(--gold-line)}
+.lex-col-h .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-family:var(--font-serif);font-size:12px;font-weight:600}
+.lex-item{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.45}
+.lex-item .lex-k{font-weight:700;color:var(--ink);min-width:0;flex-shrink:0;letter-spacing:0.005em}
+.lex-item .lex-v{color:var(--ink-3)}
+.lex-item .lex-ic{flex-shrink:0;font-size:14px;line-height:1.2;width:16px;text-align:center}
+.lex-foot{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);font-size:11.5px;color:var(--muted);line-height:1.55;font-style:italic;display:flex;flex-wrap:wrap;gap:6px 16px}
+.lex-foot strong{color:var(--ink-2);font-style:normal;font-weight:600}
+@media (max-width:760px){
+  .lex{padding:18px 18px 16px}
+  .lex-h h2{font-size:18px}
+  .lex-grid{grid-template-columns:1fr;gap:18px}
+  .lex-item{font-size:12px}
+}
+
+/* ─── Strip crédibilité méthodologie ─── */
+.cred{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 0;font-size:11.5px;color:var(--ink-3)}
+.cred-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:99px;font-weight:600;letter-spacing:0.005em;font-size:11px}
+.cred-badge .dot{width:5px;height:5px;border-radius:50%;background:var(--green-line)}
+.cred-badge strong{color:var(--ink);font-weight:700;font-feature-settings:'tnum'}
+
+/* ─── Fair Value strip (panel détail) ─── */
+.fv{display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);border:1px solid var(--gold-line);border-radius:11px;margin-bottom:22px;position:relative}
+.fv-ico{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.fv-tx{flex:1;min-width:0}
+.fv-l{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:3px}
+.fv-v{font-family:var(--font-serif);font-size:16px;font-weight:500;color:var(--ink);letter-spacing:-0.01em;line-height:1.3}
+.fv-v strong{color:var(--ink);font-weight:700}
+.fv-v .up{color:var(--green);font-weight:700;font-family:var(--font-sans)}
+.fv-v .down{color:var(--red);font-weight:700;font-family:var(--font-sans)}
+.fv-d{font-size:10.5px;color:var(--muted);margin-top:3px;font-style:italic;line-height:1.4}
+.fv-pill{flex-shrink:0;font-size:10.5px;font-weight:700;letter-spacing:0.04em;padding:5px 10px;border-radius:6px;background:#fff;color:var(--gold);border:1px solid var(--gold-line);font-feature-settings:'tnum'}
+@media (max-width:560px){
+  .fv{padding:12px 14px;flex-wrap:wrap}
+  .fv-v{font-size:14.5px}
+}
+
+/* ─── Idées du jour (shortcuts personnalisés) ─── */
+.ideas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 22px}
+.idea{position:relative;background:linear-gradient(135deg,#FFFCF6 0%,var(--surface) 100%);border:1px solid var(--border);border-radius:14px;padding:18px 18px 16px;cursor:pointer;transition:all .25s cubic-bezier(.22,1,.36,1);overflow:hidden;animation:ideaIn .55s cubic-bezier(.22,1,.36,1) both;text-align:left;font:inherit;width:100%;display:block}
+.idea:nth-child(1){animation-delay:.05s}.idea:nth-child(2){animation-delay:.10s}.idea:nth-child(3){animation-delay:.15s}.idea:nth-child(4){animation-delay:.20s}.idea:nth-child(5){animation-delay:.25s}.idea:nth-child(6){animation-delay:.30s}
+@keyframes ideaIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.idea:hover{transform:translateY(-3px);box-shadow:0 14px 30px -10px rgba(168,129,66,0.22);border-color:var(--gold-line)}
+.idea:active{transform:translateY(-1px)}
+.idea.gold{background:linear-gradient(135deg,var(--gold-soft) 0%,#FAF1D7 100%);border-color:var(--gold-line)}
+.idea.gold:hover{box-shadow:0 18px 36px -10px rgba(168,129,66,0.35);border-color:var(--gold)}
+.idea.active{background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);border-color:var(--gold);color:#fff;box-shadow:0 12px 26px -10px rgba(168,129,66,0.5)}
+.idea.active .idea-ttl,.idea.active .idea-dsc,.idea.active .idea-num,.idea.active .idea-num small{color:#fff}
+.idea.active .idea-ico{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.25)}
+.idea.active .idea-arrow{color:rgba(255,255,255,0.95);opacity:1;background:rgba(255,255,255,0.18);padding:3px 9px;border-radius:6px;font-weight:700}
+
+/* ─── Preset pill (controls) ─── */
+.preset-pill{font:inherit;font-size:12px;padding:7px 9px 7px 12px;border:1px solid var(--gold);border-radius:9px;background:linear-gradient(135deg,var(--gold) 0%,#C8A75A 100%);color:#fff;cursor:pointer;letter-spacing:0.02em;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px -4px rgba(168,129,66,0.4);animation:pillIn .25s cubic-bezier(.22,1,.36,1)}
+@keyframes pillIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.preset-pill:hover{box-shadow:0 6px 16px -4px rgba(168,129,66,0.5);transform:translateY(-1px)}
+.preset-pill .ico{font-size:14px;line-height:1}
+.preset-pill .lbl{letter-spacing:0.01em}
+.preset-pill .lbl strong{font-weight:700}
+.preset-pill .x{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.25);font-size:13px;font-weight:600;line-height:1;margin-left:2px;transition:background .15s}
+.preset-pill:hover .x{background:rgba(255,255,255,0.4)}
+.idea-ico{font-size:24px;line-height:1;margin-bottom:10px;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:#fff;border:1px solid var(--border-soft);box-shadow:var(--shadow-sm)}
+.idea.gold .idea-ico{background:rgba(255,255,255,0.75);border-color:var(--gold-line)}
+.idea-ttl{font-family:var(--font-serif);font-size:17px;font-weight:500;color:var(--ink);letter-spacing:-0.012em;line-height:1.18;margin-bottom:4px}
+.idea-dsc{font-size:12px;color:var(--ink-3);line-height:1.45;letter-spacing:0.005em}
+.idea-num{position:absolute;top:18px;right:18px;font-family:var(--font-serif);font-size:30px;font-weight:500;color:var(--gold);font-feature-settings:'tnum';letter-spacing:-0.018em;line-height:1}
+.idea-num small{font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--muted);display:block;font-family:var(--font-sans);font-weight:600;margin-top:2px;text-align:right}
+.idea-arrow{position:absolute;bottom:14px;right:16px;font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.10em;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px;opacity:0;transition:opacity .2s,transform .2s}
+.idea:hover .idea-arrow{opacity:1;transform:translateX(2px)}
+
+/* ─── Compteur animé (chiffres tiles) ─── */
+.tile .v.counting{font-variant-numeric:tabular-nums}
+
+/* ─── Watchlist (étoile + filtre + bouton flottant) ─── */
+.fav{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:0;background:transparent;cursor:pointer;color:var(--border-strong);font-size:17px;line-height:1;flex-shrink:0;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.fav:hover{color:var(--gold);background:rgba(168,129,66,0.08);transform:scale(1.1)}
+.fav.on{color:var(--gold)}
+.fav.on::before{content:'★'}
+.fav:not(.on)::before{content:'☆'}
+.controls .fav-toggle{font:inherit;font-size:12px;padding:8px 13px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--ink-3);cursor:pointer;letter-spacing:0.02em;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px;position:relative}
+.controls .fav-toggle.active{color:var(--gold);border-color:var(--gold);background:rgba(168,129,66,0.06)}
+.controls .fav-toggle .count{font-size:10px;font-weight:700;background:var(--gold);color:#fff;padding:2px 6px;border-radius:99px;min-width:18px;text-align:center;letter-spacing:0.02em}
+.controls .fav-toggle:not(.active) .count{background:var(--border-strong)}
+.controls .fav-toggle:hover{border-color:var(--gold-line)}
+
+/* ─── Command palette (⌘K) ─── */
+.cmdk{position:fixed;inset:0;background:rgba(10,20,36,0.55);display:none;z-index:600;backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:14vh 20px 20px;animation:fade .18s ease}
+.cmdk.open{display:flex}
+.cmdk-box{width:min(640px,100%);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 40px 100px -30px rgba(0,0,0,0.5),0 0 0 1px rgba(168,129,66,0.10);overflow:hidden;animation:cmdkIn .25s cubic-bezier(.22,1,.36,1)}
+@keyframes cmdkIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cmdk-input{position:relative;padding:18px 22px 16px;border-bottom:1px solid var(--border-soft)}
+.cmdk-input input{width:100%;font:inherit;font-size:16px;border:0;outline:none;background:transparent;color:var(--ink);padding-left:30px;letter-spacing:0.005em}
+.cmdk-input::before{content:'⌕';position:absolute;left:22px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:20px;pointer-events:none}
+.cmdk-list{max-height:50vh;overflow-y:auto;padding:8px 0}
+.cmdk-section{padding:8px 22px 4px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cmdk-item{display:flex;align-items:center;gap:14px;padding:10px 22px;cursor:pointer;border:0;background:transparent;width:100%;font:inherit;text-align:left;color:var(--ink);transition:background .12s}
+.cmdk-item:hover,.cmdk-item.active{background:var(--gold-soft)}
+.cmdk-item .ico{font-size:16px;line-height:1;width:24px;flex-shrink:0;color:var(--gold)}
+.cmdk-item .ico.co-logo{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9.5px;font-weight:600;letter-spacing:-0.3px}
+.cmdk-item .tx{flex:1;min-width:0}
+.cmdk-item .ttl{font-size:13.5px;font-weight:500;color:var(--ink);letter-spacing:0.005em}
+.cmdk-item .ttl mark{background:transparent;color:var(--gold);font-weight:700}
+.cmdk-item .dsc{font-size:11.5px;color:var(--muted);margin-top:1px}
+.cmdk-item .kbd{font-size:10px;letter-spacing:0.08em;color:var(--muted);font-weight:600;padding:3px 7px;border:1px solid var(--border);border-radius:5px;background:var(--bg)}
+.cmdk-empty{padding:32px 24px;text-align:center;color:var(--muted);font-size:13px;font-style:italic}
+.cmdk-foot{display:flex;align-items:center;gap:14px;padding:10px 22px;border-top:1px solid var(--border-soft);background:var(--bg-soft);font-size:10.5px;color:var(--muted);letter-spacing:0.04em}
+.cmdk-foot .kbd{font-size:10px;padding:2px 6px;border:1px solid var(--border-strong);border-radius:4px;background:#fff;color:var(--ink-3);font-weight:600}
+.cmdk-cta{font:inherit;font-size:11px;padding:6px 11px;border:1px solid var(--gold-line);border-radius:9px;background:linear-gradient(135deg,#FFFCF6 0%,var(--gold-soft) 100%);color:var(--gold);cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.controls .cmdk-cta:hover{background:var(--gold-soft);border-color:var(--gold);box-shadow:0 4px 12px -4px rgba(168,129,66,0.3)}
+.cmdk-cta .kbd-inline{font-size:9.5px;padding:1px 5px;border:1px solid var(--gold-line);border-radius:4px;background:#fff;color:var(--gold);font-weight:700;letter-spacing:0;font-family:var(--font-sans)}
+
+/* Hero entrance animation */
+header > .hero > * { animation: heroFadeIn .6s cubic-bezier(.22,1,.36,1) both }
+.hero .hero-tx .kicker{animation-delay:.05s}
+.hero .hero-tx h1{animation-delay:.12s}
+.hero .hero-tx .lead{animation-delay:.22s}
+.hero .hero-tx .aphorism{animation-delay:.32s}
+.hero .hero-tx .updated{animation-delay:.40s}
+.hero .portrait,.hero .ic-top{animation-delay:.0s}
+@keyframes heroFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:760px){
+  .ideas{grid-template-columns:1fr;gap:10px;margin-bottom:18px}
+  .idea{padding:15px 16px 14px}
+  .idea-ttl{font-size:15.5px}
+  .idea-num{font-size:24px;top:15px;right:15px}
+  .idea-arrow{display:none}
+  .controls .fav-toggle{padding:7px 11px;font-size:11.5px}
+  .cmdk{padding:8vh 12px 20px}
+  .cmdk-input input{font-size:15px}
+}
+
 /* ─── Vue cartes mobile (remplace le tableau sur petits écrans) ─── */
 .m-cards{display:none}
 .m-sort{display:none}
@@ -552,8 +716,23 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
 
 <div class="welcome-toast" id="welcomeToast"></div>
 
+<!-- ─── Command Palette (⌘K) ─── -->
+<div class="cmdk" id="cmdk" role="dialog" aria-label="Recherche rapide">
+  <div class="cmdk-box">
+    <div class="cmdk-input">
+      <input type="text" id="cmdkInput" placeholder="Rechercher une société, un secteur, une action…" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="cmdk-list" id="cmdkList"></div>
+    <div class="cmdk-foot">
+      <span><span class="kbd">↑↓</span> naviguer</span>
+      <span><span class="kbd">↵</span> ouvrir</span>
+      <span><span class="kbd">esc</span> fermer</span>
+    </div>
+  </div>
+</div>
+
 <!-- ─── Lightbox vidéo de présentation ─── -->
-<div class="video-modal" id="videoModal" role="dialog" aria-label="Présentation du screener par Clément">
+<div class="video-modal" id="videoModal" role="dialog" aria-label="Présentation du Swiss Private Screener par Clément">
   <button type="button" class="video-close" id="videoClose" aria-label="Fermer la vidéo">×</button>
   <video id="videoPlayer" controls playsinline preload="metadata">
     <source src="clement-presentation.mp4" type="video/mp4">
@@ -568,10 +747,16 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   <div class="hero">
     <img class="portrait" src="clement.jpg" alt="Clément Brilland" loading="eager">
     <div class="hero-tx">
-      <div class="kicker">Léman Labs <span class="sep">·</span> outil de recherche de <strong>Clément Brilland</strong></div>
-      <h1><span class="star">★</span> Screener de Clément</h1>
-      <p class="lead">J'ai conçu ce screener pour identifier en <strong>Europe &amp; Suisse</strong> ce que j'appelle la <strong>crème de la crème</strong> — des sociétés solides, en croissance durable, au dividende croissant. <strong>Pour bâtir, non pour spéculer.</strong> <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
+      <div class="kicker">Léman Labs <span class="sep">·</span> par <strong>Clément Brilland</strong></div>
+      <h1><span class="star">★</span> Swiss Private Screener</h1>
+      <p class="lead">Ma <strong>sélection privée</strong> des plus belles entreprises d'<strong>Europe &amp; Suisse</strong> — celles que j'appelle la <strong>crème de la crème</strong>. Sociétés solides, en croissance durable, au dividende croissant, choisies avec la rigueur du standard suisse. <strong>Pour bâtir, non pour spéculer.</strong> <em>« Une société sur laquelle je pourrais poser un million sans sourciller. »</em></p>
       <p class="aphorism">— Discipline · Vision · Constance —</p>
+      <div class="cred" id="cred">
+        <span class="cred-badge"><span class="dot"></span><strong>7</strong> critères Buffett</span>
+        <span class="cred-badge"><span class="dot"></span><strong>5</strong> axes d'analyse</span>
+        <span class="cred-badge"><span class="dot"></span><strong>408</strong> sociétés vérifiées</span>
+        <span class="cred-badge"><span class="dot"></span>Données réelles Yahoo Finance</span>
+      </div>
       <p class="updated" id="updated"></p>
     </div>
     <div class="ic-top" title="Indépendance & Capital">
@@ -583,8 +768,8 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
 
 <div class="howto" id="howto">
   <button class="howto-toggle" id="howtoToggle" title="Replier / déplier">Masquer</button>
-  <h2 class="howto-h"><span class="ico">★</span>Comment utiliser mon screener</h2>
-  <p class="howto-sub">J'ai conçu cet outil pour analyser facilement des actions selon de nombreux critères financiers et construire des recherches ultra personnalisées. Tout est automatique, mais à vous de <em>« jouer »</em> avec les filtres et les paramètres — <strong>plus vous testez de combinaisons, plus vous découvrez la richesse de l'outil.</strong></p>
+  <h2 class="howto-h"><span class="ico">★</span>Comment utiliser le Swiss Private Screener</h2>
+  <p class="howto-sub">J'ai conçu cet outil pour parcourir ma sélection des plus belles entreprises selon de nombreux critères financiers et construire des recherches ultra personnalisées. Tout est automatique, mais à vous de <em>« jouer »</em> avec les filtres et les paramètres — <strong>plus vous testez de combinaisons, plus vous découvrez la richesse de la sélection.</strong></p>
   <button type="button" class="video-cta" id="videoCta">
     <span class="video-thumb" aria-hidden="true">
       <img src="clement-video-thumb.jpg" alt="" loading="lazy">
@@ -592,8 +777,8 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
       <span class="dur">31 min</span>
     </span>
     <span class="video-tx">
-      <span class="ttl">Première visite ? Je vous présente l'outil en vidéo</span>
-      <span class="dsc">Je vous montre concrètement comment j'utilise mon screener et ce que je recherche dans chaque société.</span>
+      <span class="ttl">Première visite ? Je vous présente le screener en vidéo</span>
+      <span class="dsc">Je vous montre concrètement comment je l'utilise et ce que je recherche dans chaque société.</span>
       <span class="by">Présenté par Clément Brilland</span>
     </span>
   </button>
@@ -631,10 +816,14 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
   <span class="field"><span class="field-label">CAGR min</span><input type="number" id="cagr" value="0" step="1" min="-10">%</span>
   <span class="divider"></span>
   <label class="toggle"><input type="checkbox" id="onlyCreme"> Crème uniquement</label>
+  <button class="fav-toggle" id="favToggle" type="button" title="Voir uniquement ma watchlist">★ Watchlist <span class="count" id="favCount">0</span></button>
+  <button class="cmdk-cta" type="button" id="cmdkBtn" title="Recherche rapide (⌘K)">⌕ Recherche <span class="kbd-inline">⌘K</span></button>
   <button class="reset" id="resetBtn" title="Réinitialiser tous les filtres">↺ Reset</button>
 </div>
 
 <div class="summary" id="summary"></div>
+
+<div class="ideas" id="ideas"></div>
 
 <div class="section-h">
   <h2>Mon univers analysé</h2>
@@ -644,7 +833,7 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
 <div class="m-sort">
   <span class="m-sort-label">Trier par</span>
   <select id="mSort">
-    <option value="score">Score composite</option>
+    <option value="score">Swiss Private Score</option>
     <option value="cagr">Croissance (CAGR)</option>
     <option value="yield">Rendement</option>
     <option value="mcap">Capitalisation</option>
@@ -672,13 +861,61 @@ tbody tr{animation:rowIn .35s ease both;animation-delay:calc(var(--i,0) * 8ms)}
       <th title="Levier ≤ max OU trésorerie nette positive">Dette</th>
       <th title="Cours en hausse">Cours</th>
       <th class="num" data-k="cagr" title="Croissance annualisée du CA (CAGR)">CAGR</th>
-      <th class="num" data-k="score" title="Score composite : 80% critères Buffett + 20% croissance CA">Score</th>
+      <th class="num" data-k="score" title="Swiss Private Score : 80% critères Buffett + 20% croissance CA">SPS</th>
       <th data-k="rank">Verdict</th>
     </tr></thead>
     <tbody id="rows"></tbody>
   </table>
 </div>
 <div class="empty" id="empty" style="display:none">Aucune société ne correspond aux critères actuels.</div>
+
+<section class="lex">
+  <div class="lex-h">
+    <h2><span class="ico">★</span>Comprendre ma méthode</h2>
+    <p class="lex-sub">Tout en un coup d'œil — chiffres réels, pondérations explicites, aucune boîte noire.</p>
+  </div>
+  <div class="lex-grid">
+
+    <div class="lex-col">
+      <div class="lex-col-h"><span class="n">1</span>Les 7 critères Buffett</div>
+      <div class="lex-item"><span class="lex-ic">📈</span><div><span class="lex-k">CA en hausse</span> <span class="lex-v">— chiffre d'affaires aujourd'hui &gt; il y a ~5 ans</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📊</span><div><span class="lex-k">EBITDA en hausse</span> <span class="lex-v">— rentabilité opérationnelle qui progresse</span></div></div>
+      <div class="lex-item"><span class="lex-ic">💼</span><div><span class="lex-k">Résultat net en hausse</span> <span class="lex-v">— bénéfice net qui progresse après impôts</span></div></div>
+      <div class="lex-item"><span class="lex-ic">💸</span><div><span class="lex-k">Dividende en hausse</span> <span class="lex-v">— engagement durable envers l'actionnaire</span></div></div>
+      <div class="lex-item"><span class="lex-ic">🪙</span><div><span class="lex-k">Rendement &gt; 3 %</span> <span class="lex-v">— revenu cash significatif chaque année</span></div></div>
+      <div class="lex-item"><span class="lex-ic">🛡</span><div><span class="lex-k">Levier ≤ 2× ou net cash</span> <span class="lex-v">— bilan capable de résister à une crise</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📈</span><div><span class="lex-k">Cours en hausse</span> <span class="lex-v">— marché qui valide la création de valeur</span></div></div>
+    </div>
+
+    <div class="lex-col">
+      <div class="lex-col-h"><span class="n">2</span>Le radar Profil Swiss Private</div>
+      <div class="lex-item"><span class="lex-ic">🏆</span><div><span class="lex-k">Qualité</span> <span class="lex-v">— rentabilité &amp; efficacité (ROE 45 pts + marge EBITDA 35 pts + bonus critères 20 pts)</span></div></div>
+      <div class="lex-item"><span class="lex-ic">🚀</span><div><span class="lex-k">Croissance</span> <span class="lex-v">— vitesse annualisée du CA (CAGR : 0 % = 0 pt, 25 %+ = 100 pts)</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📊</span><div><span class="lex-k">Valorisation</span> <span class="lex-v">— P/E forward <strong>relativisé au secteur</strong>. 100 pts si P/E ≤ moitié de la fourchette basse · 80 pts à la borne basse · 50 pts au centre · 20 pts à la borne haute · 0 pt au-delà</span></div></div>
+      <div class="lex-item"><span class="lex-ic">💰</span><div><span class="lex-k">Dividende</span> <span class="lex-v">— yield jusqu'à 70 pts + bonus 30 pts si dividende croissant</span></div></div>
+      <div class="lex-item"><span class="lex-ic">🏛</span><div><span class="lex-k">Solidité</span> <span class="lex-v">— inverse du levier (net cash = 100 pts, 4× EBITDA = 0 pt)</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📌</span><div><span class="lex-v" style="font-style:italic">Chaque axe est noté 0-100, lisible en 2 secondes sur le radar.</span></div></div>
+    </div>
+
+    <div class="lex-col">
+      <div class="lex-col-h"><span class="n">3</span>Le Swiss Private Score</div>
+      <div class="lex-item"><span class="lex-ic">⚖</span><div><span class="lex-k">80 % critères</span> <span class="lex-v">— ratio greens / applicables × 100 (le cœur de ma méthode)</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📈</span><div><span class="lex-k">20 % croissance</span> <span class="lex-v">— bonus linéaire selon le CAGR du CA, plafonné à 25 %</span></div></div>
+      <div class="lex-item"><span class="lex-ic">⭐</span><div><span class="lex-k">Verdict « Crème »</span> <span class="lex-v">— attribué uniquement si les 7 critères sont au vert ET capi &gt; seuil</span></div></div>
+      <div class="lex-item"><span class="lex-ic">💎</span><div><span class="lex-k">Verdict « Proche »</span> <span class="lex-v">— 5 ou 6 critères au vert, à surveiller pour basculer dans la crème</span></div></div>
+      <div class="lex-item"><span class="lex-ic">🏦</span><div><span class="lex-k">Cas spécial financières</span> <span class="lex-v">— assureurs, banques, foncières : 5 critères applicables (EBITDA &amp; levier exclus). Plafond « Top sectoriel 5/5 ».</span></div></div>
+      <div class="lex-item"><span class="lex-ic">📉</span><div><span class="lex-k">Fair Value (panel détail)</span> <span class="lex-v">— P/E forward vs fourchette historique du secteur. Heuristique, pas un objectif de cours.</span></div></div>
+    </div>
+
+  </div>
+  <div class="lex-foot">
+    <span><strong>Sources :</strong> Yahoo Finance (yfinance), comptes IFRS publiés</span>
+    <span><strong>Périmètre :</strong> Stoxx 600 + SMI, hors banques traditionnelles et hors Royaume-Uni</span>
+    <span><strong>Période :</strong> derniers exercices fiscaux publiés (typ. 2020 → 2025)</span>
+    <span><strong>P/E &amp; Yield :</strong> forward (consensus 12 mois) en principal, TTM en sous-info</span>
+    <span><strong>Information éducative :</strong> ne constitue pas un conseil en investissement</span>
+  </div>
+</section>
 
 <footer>
   <p><strong>Ma méthodologie.</strong> Je m'appuie sur l'univers Stoxx 600 + SMI, avec des données réelles Yahoo Finance que je vérifie contre les comptes publiés (aucune valeur inventée, aucun « n/d »). Mes <strong>7 critères</strong> : CA, EBITDA, résultat net et dividende en hausse sur les derniers exercices publiés · rendement &gt; seuil · DetteNette / EBITDA ≤ max <em>ou</em> trésorerie nette positive · cours en hausse sur ~5 ans. La <strong>crème de la crème</strong> = les 7 critères au vert.</p>
@@ -731,13 +968,150 @@ const RAW = [
   ["Deutsche Börse","DB1","DE","Finance",42,[2.0,2.9,5.4],[1.2,1.7,3.0],[0.8,1.1,1.8],[2.10,2.90,3.80],2.0,-0.4,[60,110,210],"#003366"]
 ];
 const COLS=["name","tk","ctry","sec","mcap","rev","eb","ni","div","yield","nd","p","color"];
+
+// ─── Dictionnaire FR pour les sous-secteurs Yahoo (industry) ───
+const INDUSTRY_FR = {
+  "Specialty Industrial Machinery":"Machines industrielles spécialisées",
+  "Engineering & Construction":"Ingénierie & construction",
+  "Specialty Chemicals":"Chimie de spécialité",
+  "Aerospace & Defense":"Aéronautique & défense",
+  "Insurance - Diversified":"Assurance diversifiée",
+  "Telecom Services":"Services de télécommunications",
+  "Asset Management":"Gestion d'actifs",
+  "Real Estate Services":"Services immobiliers",
+  "Drug Manufacturers - General":"Pharmacie (laboratoires)",
+  "Luxury Goods":"Produits de luxe",
+  "Packaged Foods":"Alimentation conditionnée",
+  "Farm & Heavy Construction Machinery":"Machines agricoles & BTP",
+  "Biotechnology":"Biotechnologies",
+  "Medical Devices":"Dispositifs médicaux",
+  "Oil & Gas Integrated":"Pétrole & gaz intégré",
+  "Utilities - Diversified":"Services aux collectivités diversifiés",
+  "Auto Manufacturers":"Constructeurs automobiles",
+  "Medical Instruments & Supplies":"Instruments médicaux",
+  "Building Products & Equipment":"Produits & équipements du bâtiment",
+  "Electrical Equipment & Parts":"Équipements électriques",
+  "Information Technology Services":"Services informatiques",
+  "Grocery Stores":"Distribution alimentaire",
+  "Utilities - Renewable":"Énergies renouvelables",
+  "Packaging & Containers":"Emballage & contenants",
+  "Conglomerates":"Conglomérats",
+  "Oil & Gas Equipment & Services":"Équipements & services pétroliers",
+  "Software - Application":"Logiciels applicatifs",
+  "Specialty Business Services":"Services aux entreprises spécialisés",
+  "Drug Manufacturers - Specialty & Generic":"Pharmacie spécialisée & générique",
+  "Beverages - Brewers":"Brasseries",
+  "Building Materials":"Matériaux de construction",
+  "Insurance - Reinsurance":"Réassurance",
+  "Integrated Freight & Logistics":"Fret & logistique intégrée",
+  "Household & Personal Products":"Produits ménagers & d'hygiène",
+  "Chemicals":"Chimie",
+  "Semiconductor Equipment & Materials":"Équipements semi-conducteurs",
+  "Internet Retail":"Distribution en ligne",
+  "Utilities - Regulated Gas":"Gaz régulé",
+  "Utilities - Regulated Electric":"Électricité régulée",
+  "Airports & Air Services":"Aéroports & services aériens",
+  "Auto Parts":"Équipementiers automobiles",
+  "Diagnostics & Research":"Diagnostic & recherche médicale",
+  "Consulting Services":"Conseil",
+  "Waste Management":"Gestion des déchets",
+  "Semiconductors":"Semi-conducteurs",
+  "Apparel Manufacturing":"Habillement (fabrication)",
+  "Security & Protection Services":"Sécurité & protection",
+  "Communication Equipment":"Équipements de communication",
+  "Gambling":"Jeux & paris",
+  "Paper & Paper Products":"Papier & produits dérivés",
+  "Farm Products":"Produits agricoles",
+  "Airlines":"Compagnies aériennes",
+  "Real Estate - Diversified":"Immobilier diversifié",
+  "Insurance - Property & Casualty":"Assurance dommages",
+  "Industrial Distribution":"Distribution industrielle",
+  "Capital Markets":"Marchés de capitaux",
+  "Steel":"Sidérurgie",
+  "Entertainment":"Divertissement",
+  "Beverages - Wineries & Distilleries":"Vins & spiritueux",
+  "Footwear & Accessories":"Chaussures & accessoires",
+  "Financial Data & Stock Exchanges":"Données financières & Bourses",
+  "Medical Care Facilities":"Établissements de santé",
+  "Software - Infrastructure":"Logiciels d'infrastructure",
+  "Staffing & Employment Services":"Services de recrutement & intérim",
+  "Oil & Gas Refining & Marketing":"Raffinage & distribution pétrolière",
+  "Oil & Gas E&P":"Exploration & production pétrolière",
+  "Confectioners":"Confiserie",
+  "Agricultural Inputs":"Intrants agricoles",
+  "REIT - Retail":"Foncière commerciale",
+  "Tools & Accessories":"Outillage & accessoires",
+  "Railroads":"Transport ferroviaire",
+  "REIT - Office":"Foncière de bureaux",
+  "Internet Content & Information":"Contenus & médias internet",
+  "Oil & Gas Midstream":"Pétrole & gaz midstream",
+  "Auto & Truck Dealerships":"Concessionnaires auto & camions",
+  "Leisure":"Loisirs",
+  "Computer Hardware":"Matériel informatique",
+  "Advertising Agencies":"Agences de publicité",
+  "Apparel Retail":"Distribution de prêt-à-porter",
+  "Scientific & Technical Instruments":"Instruments scientifiques & techniques",
+  "Marine Shipping":"Transport maritime",
+  "Aluminum":"Aluminium",
+  "Food Distribution":"Distribution alimentaire B2B",
+  "Other Industrial Metals & Mining":"Métaux industriels divers",
+  "Copper":"Cuivre",
+  "Lodging":"Hôtellerie",
+  "Electronics & Computer Distribution":"Distribution électronique & informatique",
+  "REIT - Healthcare Facilities":"Foncière de santé",
+  "Credit Services":"Services de crédit",
+  "Specialty Retail":"Distribution spécialisée",
+  "Metal Fabrication":"Métallurgie & fabrication",
+  "Real Estate - Development":"Promotion immobilière",
+  "Medical Distribution":"Distribution médicale",
+  "REIT - Industrial":"Foncière logistique",
+  "Rental & Leasing Services":"Location & leasing",
+  "Electronic Gaming & Multimedia":"Jeux vidéo & multimédia",
+  "REIT - Diversified":"Foncière diversifiée",
+  "Furnishings, Fixtures & Appliances":"Mobilier & électroménager",
+  "Banks - Diversified":"Banque diversifiée",
+  "Banks - Regional":"Banque régionale",
+  "Insurance - Life":"Assurance vie",
+  "Healthcare Plans":"Assurance santé",
+  "REIT - Residential":"Foncière résidentielle",
+  "REIT - Hotel & Motel":"Foncière hôtelière",
+  "REIT - Specialty":"Foncière spécialisée",
+  "Discount Stores":"Magasins discount",
+  "Department Stores":"Grands magasins",
+  "Restaurants":"Restauration",
+  "Tobacco":"Tabac",
+  "Beverages - Non-Alcoholic":"Boissons non alcoolisées"
+};
+function indFR(en){ return en ? (INDUSTRY_FR[en] || en) : ""; }
 // Échantillon illustratif (repli si l'API est indisponible).
 const SAMPLE=RAW.map(r=>{const o={};COLS.forEach((c,i)=>o[c]=r[i]);return o;});
 let DATA=[];      // peuplé par /api/screener/clement (données réelles)
 let META={};
 
-const DEFAULTS={yld:3,lev:2,cap:3,cagrMin:0,sec:"",ctry:"",q:"",onlyCreme:false};
+const DEFAULTS={yld:3,lev:2,cap:3,cagrMin:0,sec:"",ctry:"",q:"",onlyCreme:false,onlyFav:false,presetKey:null};
 const state={...DEFAULTS,sort:"score",dir:-1};
+let PRESET_FILTER = null;  // fonction (x => bool) appliquée dans compute() quand un preset est actif
+
+// ─── Watchlist (étoile + filtre) ───
+const FAV_KEY = "leman_watchlist";
+let FAV = new Set();
+try { FAV = new Set(JSON.parse(localStorage.getItem(FAV_KEY)||"[]")); } catch(e){}
+function favKey(c){ return c.tk+"|"+c.ctry; }
+function isFav(c){ return FAV.has(favKey(c)); }
+function toggleFav(c){
+  const k=favKey(c);
+  if(FAV.has(k)) FAV.delete(k); else FAV.add(k);
+  localStorage.setItem(FAV_KEY, JSON.stringify([...FAV]));
+  updateFavBtn();
+  render();
+}
+function updateFavBtn(){
+  const btn=document.getElementById("favToggle");
+  const cnt=document.getElementById("favCount");
+  if(!btn) return;
+  if(cnt) cnt.textContent = FAV.size;
+  btn.classList.toggle("active", state.onlyFav);
+}
 
 // Croissance = dernier point vs plus ancien (données réelles complètes).
 function gt(a){
@@ -803,7 +1177,9 @@ function compute(){
   return DATA.map(c=>({c,r:evalCo(c)}))
     .filter(x=>x.r.capOK || state.cap<=0 ? true : false)
     .filter(x=>{
+      if(PRESET_FILTER && !PRESET_FILTER(x))return false;
       if(state.onlyCreme&&!x.r.eligible)return false;
+      if(state.onlyFav&&!isFav(x.c))return false;
       if(state.sec&&x.c.sec!==state.sec)return false;
       if(state.ctry&&x.c.ctry!==state.ctry)return false;
       if(state.cagrMin && (x.r.cagr==null || x.r.cagr*100 < state.cagrMin))return false;
@@ -903,7 +1279,7 @@ function statsHTML(c){
 }
 function descrHTML(c){
   if(!c.descr)return"";
-  return '<div class="descr"><div class="l"><span>Activité</span>'+(c.industry?'<span class="ind">'+c.industry+'</span>':'')+'</div><p>'+c.descr+'</p><div class="src">Source : Yahoo Finance · description en anglais</div></div>';
+  return '<div class="descr"><div class="l"><span>Activité</span>'+(c.industry?'<span class="ind">'+indFR(c.industry)+'</span>':'')+'</div><p>'+c.descr+'</p><div class="src">Source : Yahoo Finance · description en anglais</div></div>';
 }
 function ficheHTML(c){
   if(!c.fiche_activite)return"";
@@ -916,6 +1292,189 @@ function ficheHTML(c){
     +row('particulier','Pour un particulier',c.fiche_particulier)
     +'</div>';
 }
+// ─── Radar 5 axes (Profil Swiss Private — signature visuelle) ───
+function computeRadar(c, r){
+  const fin = !!c.is_financial;
+  // 1. Qualité : ROE + marge EBITDA + ratio critères satisfaits
+  let qual = 0;
+  if(c.roe != null) qual += Math.min(45, Math.max(0, c.roe * 1.5));   // ROE 30%→45pts
+  if(c.eb_margin != null) qual += Math.min(35, c.eb_margin * 0.6);    // 60%→35pts
+  qual += Math.round((r.greens / Math.max(1, r.applicable)) * 20);     // bonus critères 20pts
+  qual = Math.min(100, Math.round(qual));
+  // 2. Croissance : CAGR clamped
+  let croissance = 0;
+  if(r.cagr != null){
+    if(r.cagr <= 0) croissance = Math.max(0, Math.round((r.cagr + 0.05) * 200));
+    else if(r.cagr >= 0.25) croissance = 100;
+    else croissance = Math.round((r.cagr / 0.25) * 100);
+  } else if(c.rev && c.rev[0]>0 && c.rev[c.rev.length-1]>0){
+    const ratio = c.rev[c.rev.length-1] / c.rev[0];
+    croissance = Math.min(100, Math.max(0, Math.round((ratio - 1) * 50)));
+  }
+  // 3. Valorisation : P/E forward RELATIVISÉ au secteur (10× n'a pas le même sens pour
+  // une Tech que pour une banque). Utilise la fourchette historique du secteur (FAIR_PE).
+  let val = 50;
+  const pe = c.fwd_pe != null ? c.fwd_pe : c.pe;
+  const range = typeof FAIR_PE !== 'undefined' ? FAIR_PE[c.sec] : null;
+  if(pe != null && pe > 0 && range){
+    const [lo, hi] = range, mid = (lo + hi) / 2, half = lo * 0.5;
+    if(pe <= half)        val = 100;
+    else if(pe <= lo)     val = Math.round(100 - ((pe - half) / (lo - half)) * 20);   // 100 → 80
+    else if(pe <= mid)    val = Math.round( 80 - ((pe - lo)   / (mid - lo))  * 30);    // 80  → 50
+    else if(pe <= hi)     val = Math.round( 50 - ((pe - mid)  / (hi - mid))  * 30);    // 50  → 20
+    else if(pe <= hi*1.5) val = Math.round( 20 - ((pe - hi)   / (hi * 0.5))  * 20);    // 20  → 0
+    else                  val = 0;
+  } else if(pe != null && pe > 0){
+    // Fallback secteur inconnu : barème absolu adouci
+    if(pe <= 8) val = 100;
+    else if(pe >= 50) val = 0;
+    else val = Math.round(100 - ((pe - 8) / 42) * 100);
+  }
+  // 4. Dividende : yield + croissance dividende
+  let div = 0;
+  const yld = c.fwd_yield != null ? c.fwd_yield : c.yield;
+  if(yld != null) div += Math.min(70, Math.round(yld * 14));    // 5% yield → 70pts
+  if(c.div && c.div[c.div.length-1] > c.div[0]) div += 30;       // bonus croissance div
+  div = Math.min(100, Math.round(div));
+  // 5. Solidité : levier inversé (net cash=100, 4x=0)
+  let sol = 50;
+  if(fin) sol = 50;
+  else if(c.nd == null) sol = 50;
+  else if(c.nd <= 0) sol = 100;
+  else if(c.nd >= 4) sol = 0;
+  else sol = Math.round(100 - (c.nd / 4) * 100);
+  return [
+    {label:"Qualité",      value:qual},
+    {label:"Croissance",   value:croissance},
+    {label:"Valorisation", value:val},
+    {label:"Dividende",    value:div},
+    {label:"Solidité",     value:sol}
+  ];
+}
+function radarSVG(data){
+  // viewBox large pour accueillir les labels en entier (12 caractères max : "VALORISATION")
+  const W=320, H=230, cx=160, cy=115, r=70;
+  const labelR = r + 14;
+  const n = data.length;
+  const pt = (radius, i) => {
+    const a = -Math.PI/2 + (i * 2*Math.PI / n);
+    return [cx + Math.cos(a)*radius, cy + Math.sin(a)*radius, a];
+  };
+  // 4 anneaux de fond
+  let grid = '';
+  for(let i=1; i<=4; i++){
+    const ringPts = data.map((_, j) => { const [x,y] = pt(r*(i/4), j); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    grid += '<polygon points="'+ringPts+'" fill="'+(i===4?'rgba(255,252,246,0.55)':'none')+'" stroke="#E8E3D6" stroke-width="0.8" opacity="0.85"/>';
+  }
+  // axes
+  let axes = '';
+  data.forEach((_, i) => {
+    const [x, y] = pt(r, i);
+    axes += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#E8E3D6" stroke-width="0.8" opacity="0.7"/>';
+  });
+  // polygone data
+  const dpts = data.map((d, i) => { const [x,y] = pt(r * (d.value/100), i); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+  const polygon = '<polygon class="polygon-data" points="'+dpts+'" fill="rgba(168,129,66,0.25)" stroke="#A88142" stroke-width="2" stroke-linejoin="round"/>';
+  // points
+  let dots = '';
+  data.forEach((d, i) => { const [x,y] = pt(r * (d.value/100), i); dots += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="#A88142" stroke="#fff" stroke-width="1.2"/>'; });
+  // labels autour : anchor=middle au top/bottom, start à droite, end à gauche
+  let labels = '';
+  data.forEach((d, i) => {
+    const [lx, ly] = pt(labelR, i);
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const cosV = Math.cos(a);
+    const anchor = Math.abs(cosV) < 0.15 ? 'middle' : (cosV > 0 ? 'start' : 'end');
+    // décale légèrement le baseline pour éviter le chevauchement avec les points
+    labels += '<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="'+anchor+'" dominant-baseline="middle" font-size="10" fill="#4A5468" font-weight="700" letter-spacing="0.06em" font-family="Inter,sans-serif">'+d.label.toUpperCase()+'</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="240" height="172" class="radar-svg" role="img" aria-label="Profil Swiss Private">'+grid+axes+polygon+dots+labels+'</svg>';
+}
+function radarSummary(data){
+  const ADJ = {
+    "Qualité":      {high:"qualité premium",       low:"rentabilité fragile"},
+    "Croissance":   {high:"croissance dynamique",  low:"croissance limitée"},
+    "Valorisation": {high:"valorisation attractive",low:"valorisation tendue"},
+    "Dividende":    {high:"dividende généreux",    low:"peu de revenus"},
+    "Solidité":     {high:"bilan en béton",        low:"endettement notable"}
+  };
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const sorted = [...data].sort((a,b)=>b.value-a.value);
+  const tops = sorted.filter(d=>d.value>=65).slice(0,2);
+  const bots = sorted.filter(d=>d.value<35).slice(-1);
+  let main;
+  if(tops.length >= 2) main = cap(ADJ[tops[0].label].high) + " et " + ADJ[tops[1].label].high;
+  else if(tops.length === 1) main = cap(ADJ[tops[0].label].high);
+  else main = "Profil équilibré sur les 5 axes";
+  if(bots.length) main += ", mais " + ADJ[bots[0].label].low;
+  return main + ".";
+}
+// ─── Fair Value heuristique (P/E sectoriel) ───
+// Heuristique : P/E forward médian observé par secteur en Europe sur la dernière décennie.
+// Sert de REPÈRE — ce n'est pas un DCF, ne remplace aucune analyse fondamentale.
+const FAIR_PE = {
+  "Tech":            [22, 30],
+  "Luxe":            [25, 32],
+  "Santé":           [18, 24],
+  "Conso. déf.":     [18, 22],
+  "Conso. cycl.":    [12, 18],
+  "Industrie":       [14, 18],
+  "Énergie":         [8,  12],
+  "Finance":         [9,  13],
+  "Assurance":       [9,  12],
+  "Banque":          [8,  11],
+  "Matériaux":       [12, 16],
+  "Foncier":         [14, 18],
+  "Immobilier":      [14, 18],
+  "Services":        [16, 20],
+  "Télécoms":        [10, 14],
+  "Médias":          [12, 18],
+  "Utilities":       [12, 16]
+};
+function fairValueHTML(c){
+  const pe = c.fwd_pe != null ? c.fwd_pe : c.pe;
+  if(pe == null || pe <= 0) return "";
+  const range = FAIR_PE[c.sec];
+  if(!range) return "";
+  const [lo, hi] = range;
+  const mid = (lo + hi) / 2;
+  // Marge de sécurité = combien de % en + ou - vs la borne basse (si décote) ou haute (si prime)
+  let pill, txt, dscIco;
+  if(pe < lo){
+    const upside = Math.round(((lo / pe) - 1) * 100);
+    pill = '<span class="fv-pill" style="color:var(--green);border-color:var(--green-line);background:var(--green-bg)">−'+(100-Math.round(pe/lo*100))+'% vs fourchette</span>';
+    txt  = '<strong>Sous-évaluée</strong> face à ses pairs — P/E forward <strong>'+pe+'×</strong>, fourchette « raisonnable » du secteur <strong>'+lo+'–'+hi+'×</strong>. <span class="up">+'+upside+'% de marge potentielle</span> si le marché revient à la borne basse.';
+    dscIco = "📉";
+  } else if(pe > hi){
+    const downside = Math.round((1 - (hi / pe)) * 100);
+    pill = '<span class="fv-pill" style="color:var(--red);border-color:var(--red-line);background:var(--red-bg)">+'+Math.round((pe/hi-1)*100)+'% vs fourchette</span>';
+    txt  = '<strong>Pleinement valorisée</strong> — P/E forward <strong>'+pe+'×</strong> au-dessus de la fourchette habituelle <strong>'+lo+'–'+hi+'×</strong>. <span class="down">−'+downside+'% potentiel</span> si retour à la borne haute.';
+    dscIco = "📈";
+  } else {
+    const pos = Math.round(((pe - lo) / (hi - lo)) * 100);
+    pill = '<span class="fv-pill">Dans la fourchette</span>';
+    txt  = 'P/E forward <strong>'+pe+'×</strong> dans la fourchette habituelle du secteur <strong>'+lo+'–'+hi+'×</strong> (positionnement '+pos+'%). Valorisation cohérente.';
+    dscIco = "⚖";
+  }
+  return '<div class="fv">'
+    +'<div class="fv-ico">'+dscIco+'</div>'
+    +'<div class="fv-tx">'
+      +'<div class="fv-l">Valorisation relative · '+c.sec+'</div>'
+      +'<div class="fv-v">'+txt+'</div>'
+      +'<div class="fv-d">Heuristique fondée sur le P/E forward médian européen du secteur — c\'est un <strong>repère</strong>, pas un objectif de cours. Toujours croiser avec les fondamentaux propres à l\'entreprise.</div>'
+    +'</div>'
+    +pill
+  +'</div>';
+}
+
+function radarBlockHTML(c, r){
+  const data = computeRadar(c, r);
+  const svg = radarSVG(data);
+  const summary = radarSummary(data);
+  const bars = data.map(d => '<div class="radar-bar"><span class="bl">'+d.label+'</span><span class="bb"><span class="bf'+(d.value<40?' low':'')+'" style="width:'+d.value+'%"></span></span><span class="bv">'+d.value+'</span></div>').join("");
+  return '<div class="radar-block">'+svg+'<div class="radar-tx"><div class="radar-l">Profil Swiss Private</div><h3 class="radar-summary">'+summary+'</h3><div class="radar-bars">'+bars+'</div></div></div>';
+}
+
 function autoFlags(c,r){
   const reds=[],greens=[];
   // Drapeaux rouges
@@ -956,7 +1515,7 @@ function render(){
     const chips=r.bools.map(chip).join("");
     const star = r.eligible ? '<span class="star" title="Crème de la crème">★</span>' : '';
     return '<tr class="'+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
-      +'<td><div class="co">'+logo(c)+'<div><div class="nm">'+star+c.name+' <span class="ctry">'+flag(c.ctry)+' '+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
+      +'<td><div class="co"><button class="fav '+(isFav(c)?'on':'')+'" data-fav="'+DATA.indexOf(c)+'" title="Ajouter à ma watchlist" aria-label="Watchlist"></button>'+logo(c)+'<div><div class="nm">'+star+c.name+' <span class="ctry">'+flag(c.ctry)+' '+c.ctry+'</span></div><div class="sec">'+c.sec+' · '+c.tk+'</div></div></div></td>'
       +'<td class="num">'+(c.mcap==null?'—':c.mcap.toFixed(0))+'</td>'
       +'<td class="num">'+(c.yield==null?'—':c.yield.toFixed(2))+'</td>'
       +'<td class="num">'+(c.nd==null?'—':(c.nd<=0?'<span style="color:var(--green);font-weight:600">net cash</span>':c.nd.toFixed(1)+'×'))+'</td>'
@@ -966,9 +1525,15 @@ function render(){
       +'<td><span class="verdict '+rk.c+'">'+rk.t+'</span></td>'
       +'</tr>';
   }).join("");
-  tb.querySelectorAll("tr").forEach(tr=>tr.onclick=()=>openPanel(+tr.dataset.i));
+  tb.querySelectorAll("tr").forEach(tr=>tr.onclick=e=>{
+    if(e.target.classList && e.target.classList.contains("fav")){
+      e.stopPropagation(); toggleFav(DATA[+e.target.dataset.fav]); return;
+    }
+    openPanel(+tr.dataset.i);
+  });
   renderCards(rows);
   renderSummary(rows);
+  renderIdeas();
 }
 
 // Vue cartes mobile (rendue en parallèle, basculée via CSS)
@@ -992,6 +1557,7 @@ function renderCards(rows){
     else levHTML='<span class="v'+(c.nd>3?' neg':'')+'">'+c.nd.toFixed(1)+'×</span>';
     return '<div class="m-card '+(r.eligible?'creme':'')+'" data-i="'+DATA.indexOf(c)+'">'
       +'<div class="m-card-top">'
+        +'<button class="fav '+(isFav(c)?'on':'')+'" data-fav="'+DATA.indexOf(c)+'" aria-label="Watchlist"></button>'
         +logo(c)
         +'<div class="m-card-tx">'
           +'<div class="m-card-nm">'+star+c.name+' <span class="ctry">'+flag(c.ctry)+' '+c.ctry+'</span></div>'
@@ -1008,11 +1574,131 @@ function renderCards(rows){
       +'<div class="m-card-chips">'
         +'<span class="lbl">Critères</span>'
         +r.bools.map(chipMobile).join("")
-        +'<div class="m-card-score" title="Score composite '+r.score+'/100"><span class="sn">'+r.score+'</span><span class="bar"><span class="fill" style="width:'+r.score+'%"></span></span></div>'
+        +'<div class="m-card-score" title="Swiss Private Score '+r.score+'/100"><span class="sn">'+r.score+'</span><span class="bar"><span class="fill" style="width:'+r.score+'%"></span></span></div>'
       +'</div>'
       +'</div>';
   }).join("");
-  cont.querySelectorAll(".m-card").forEach(el=>el.onclick=()=>openPanel(+el.dataset.i));
+  cont.querySelectorAll(".m-card").forEach(el=>el.onclick=e=>{
+    if(e.target.classList && e.target.classList.contains("fav")){
+      e.stopPropagation(); toggleFav(DATA[+e.target.dataset.fav]); return;
+    }
+    openPanel(+el.dataset.i);
+  });
+}
+
+// ─── Bibliothèque de collections thématiques (6 affichées) ───
+// Une seule source de vérité par preset : la fonction filter() — utilisée à la fois pour
+// le compteur affiché sur la carte ET pour le filtrage réel du tableau (cohérence garantie).
+const IDEA_LIBRARY = [
+  {key:"creme",      ico:"⭐", ttl:"La Crème de la Crème", dsc:"Les 7 critères au vert, sans compromis", sort:["score",-1],
+   filter: x => x.r.eligible},
+  {key:"pepites",    ico:"💎", ttl:"Pépites Cachées", dsc:"À un critère de la crème, score ≥ 80", sort:["score",-1],
+   filter: x => !x.r.eligible && x.r.greens>=6 && x.r.score>=80},
+  {key:"croissance", ico:"🚀", ttl:"Hypercroissance", dsc:"CAGR ≥ 15 % — les champions de demain", sort:["cagr",-1],
+   filter: x => x.r.cagr!=null && x.r.cagr>=0.15},
+  {key:"dividende",  ico:"💰", ttl:"Rois du Dividende", dsc:"Rendement ≥ 4 % + dividende en croissance", sort:["yield",-1],
+   filter: x => x.c.yield!=null && x.c.yield>=4 && x.c.div && x.c.div[x.c.div.length-1]>x.c.div[0]},
+  {key:"netcash",    ico:"🛡", ttl:"Forteresses Net Cash", dsc:"Trésorerie nette positive + 5 critères au vert", sort:["score",-1],
+   filter: x => x.c.nd!=null && x.c.nd<=0 && x.r.greens>=5},
+  {key:"souseval",   ico:"📉", ttl:"Sous-évaluées de Qualité", dsc:"P/E forward ≤ 14× avec score ≥ 70", sort:["score",-1],
+   filter: x => { const pe = x.c.fwd_pe!=null?x.c.fwd_pe:x.c.pe; return pe!=null && pe>0 && pe<=14 && x.r.score>=70; }},
+  {key:"megacap",    ico:"🏛", ttl:"Mégacaps Sereines", dsc:"+50 Md€ de capi, croissance soutenue", sort:["score",-1],
+   filter: x => x.c.mcap!=null && x.c.mcap>=50 && x.r.greens>=5},
+  {key:"midcap",     ico:"🌿", ttl:"Mid-Caps Dynamiques", dsc:"Moins de 30 Md€, score ≥ 75, croissance ≥ 8 %", sort:["cagr",-1],
+   filter: x => x.c.mcap!=null && x.c.mcap<30 && x.r.cagr!=null && x.r.cagr>=0.08 && x.r.score>=75}
+];
+function applyPreset(key){
+  const p = IDEA_LIBRARY.find(p => p.key === key);
+  if(!p) return;
+  PRESET_FILTER = p.filter;
+  state.presetKey = key;
+  state.sort = p.sort[0]; state.dir = p.sort[1];
+  state.onlyCreme = false; state.onlyFav = false;
+  const oc = document.getElementById("onlyCreme"); if(oc) oc.checked = false;
+  if(typeof updateFavBtn === "function") updateFavBtn();
+  render(); updateResetBtn(); syncMobileSort(); renderPresetPill();
+}
+function clearPreset(){
+  PRESET_FILTER = null; state.presetKey = null;
+  render(); updateResetBtn(); renderPresetPill();
+}
+// Ordre des collections selon le profil de risque — la première est marquée "gold" (mise en avant)
+const PROFILE_ORDER = {
+  prudent:   ["dividende","netcash","creme","megacap","souseval","pepites"],
+  equilibre: ["creme","pepites","croissance","dividende","souseval","netcash"],
+  offensif:  ["croissance","pepites","midcap","creme","souseval","megacap"],
+  default:   ["creme","pepites","croissance","dividende","souseval","netcash"]
+};
+function getPresets(){
+  let p = "default";
+  try { const pf = JSON.parse(localStorage.getItem("leman_profile")||"{}");
+        if(pf.risque && PROFILE_ORDER[pf.risque]) p = pf.risque; } catch(e){}
+  const order = PROFILE_ORDER[p];
+  const byKey = Object.fromEntries(IDEA_LIBRARY.map(p=>[p.key,p]));
+  return order.map(k => ({...byKey[k], cls:""}));   // doré réservé à l'état "actif" (sélectionné)
+}
+function renderIdeas(){
+  const cont=document.getElementById("ideas");
+  if(!cont || !DATA.length) return;
+  const all=DATA.map(c=>({c,r:evalCo(c)}));
+  const presets=getPresets();
+  cont.innerHTML = presets.map((p,i)=>{
+    const matches = all.filter(p.filter).length;
+    const isActive = state.presetKey === p.key;
+    return '<button type="button" class="idea '+(p.cls||'')+(isActive?' active':'')+'" data-key="'+p.key+'">'
+      +'<div class="idea-ico">'+p.ico+'</div>'
+      +'<div class="idea-num">'+matches+'<small>sociétés</small></div>'
+      +'<div class="idea-ttl">'+p.ttl+'</div>'
+      +'<div class="idea-dsc">'+p.dsc+'</div>'
+      +'<div class="idea-arrow">'+(isActive?'✓ Actif':'Voir →')+'</div>'
+      +'</button>';
+  }).join("");
+  cont.querySelectorAll(".idea").forEach(el=>el.onclick=()=>{
+    const key = el.dataset.key;
+    if(state.presetKey === key){ clearPreset(); }
+    else {
+      applyPreset(key);
+      const sh = document.querySelector(".section-h");
+      if(sh) sh.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+}
+
+// Pill « Preset actif » dans la barre de filtres (close = clear preset)
+function renderPresetPill(){
+  let pill = document.getElementById("presetPill");
+  if(!state.presetKey){
+    if(pill) pill.remove();
+    return;
+  }
+  const p = IDEA_LIBRARY.find(p => p.key === state.presetKey);
+  if(!p) return;
+  if(!pill){
+    pill = document.createElement("button");
+    pill.id = "presetPill";
+    pill.type = "button";
+    pill.className = "preset-pill";
+    pill.onclick = clearPreset;
+    document.querySelector(".controls").appendChild(pill);
+  }
+  pill.innerHTML = '<span class="ico">'+p.ico+'</span><span class="lbl">Collection : <strong>'+p.ttl+'</strong></span><span class="x">×</span>';
+}
+
+// Compteurs animés (count-up 0 → valeur cible)
+let _summaryFirstRender = true;
+function animateCount(el, to, suffix, decimals){
+  if(!el) return;
+  const dur = 900;
+  const t0 = performance.now();
+  const fmt = v => (decimals?v.toFixed(decimals):Math.round(v))+(suffix||'');
+  function tick(now){
+    const t = Math.min(1, (now-t0)/dur);
+    const eased = 1 - Math.pow(1-t, 3);   // ease-out cubic
+    el.textContent = fmt(to*eased);
+    if(t<1) requestAnimationFrame(tick);
+    else el.textContent = fmt(to);
+  }
+  requestAnimationFrame(tick);
 }
 
 function renderSummary(rows){
@@ -1020,14 +1706,27 @@ function renderSummary(rows){
   const creme=all.filter(x=>x.r.eligible);
   const avgYld=creme.length?(creme.reduce((s,x)=>s+x.c.yield,0)/creme.length):0;
   const avgCap=creme.length?(creme.reduce((s,x)=>s+(x.c.mcap||0),0)/creme.length):0;
-  const s=[
-    ["Univers analysé",DATA.length,"",  "Stoxx 600 + SMI"],
-    ["⭐ Crème de la crème",creme.length,"creme",  creme.length>0?"sociétés au 7/7":"—"],
-    ["Rendement médian",avgYld.toFixed(2)+"%","creme",  "des crème"],
-    ["Cap. moyenne",avgCap>=100?(avgCap/1).toFixed(0)+" Md€":avgCap.toFixed(1)+" Md€","",  "des crème"],
-    ["Affichées",rows.length,"",  "selon filtres"]
+  // Données structurées pour permettre l'animation count-up au 1er rendu
+  const tiles=[
+    {l:"Univers analysé",        v:DATA.length,                                cls:"",      sub:"Stoxx 600 + SMI"},
+    {l:"⭐ Crème de la crème",   v:creme.length,                              cls:"creme", sub:creme.length>0?"sociétés au 7/7":"—"},
+    {l:"Rendement moyen",        v:avgYld, suffix:"%", decimals:2,            cls:"creme", sub:"des crème"},
+    {l:"Cap. moyenne",           v:avgCap, suffix:" Md€", decimals:avgCap>=100?0:1, cls:"", sub:"des crème"},
+    {l:"Affichées",              v:rows.length,                                cls:"",      sub:"selon filtres"}
   ];
-  document.getElementById("summary").innerHTML=s.map(t=>'<div class="tile '+(t[2])+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+'</div>'+(t[3]?'<div class="vsub">'+t[3]+'</div>':'')+'</div>').join("");
+  const sum=document.getElementById("summary");
+  sum.innerHTML=tiles.map((t,i)=>{
+    const valStr = t.decimals!=null ? (t.v.toFixed(t.decimals)+(t.suffix||'')) : t.v+(t.suffix||'');
+    return '<div class="tile '+t.cls+'"><div class="l">'+t.l+'</div><div class="v" data-tv="'+i+'">'+(_summaryFirstRender?'0'+(t.suffix||''):valStr)+'</div>'+(t.sub?'<div class="vsub">'+t.sub+'</div>':'')+'</div>';
+  }).join("");
+  if(_summaryFirstRender){
+    tiles.forEach((t,i)=>{
+      const el = sum.querySelector('[data-tv="'+i+'"]');
+      // décalage subtil pour cascader l'animation
+      setTimeout(()=>animateCount(el, t.v, t.suffix||'', t.decimals), 80 + i*120);
+    });
+    _summaryFirstRender = false;
+  }
 }
 
 function openPanel(i){
@@ -1037,7 +1736,7 @@ function openPanel(i){
   const metaPills = [
     '<span class="pill">'+flag(c.ctry)+' '+c.ctry+'</span>',
     '<span class="pill">'+c.sec+'</span>',
-    (c.industry && c.industry!==c.sec ? '<span class="pill">'+c.industry+'</span>' : ''),
+    (c.industry && c.industry!==c.sec ? '<span class="pill">'+indFR(c.industry)+'</span>' : ''),
     '<span class="pill">'+c.tk+'</span>',
     (c.mcap!=null?'<span class="pill"><strong>'+c.mcap.toFixed(0)+' Md€</strong></span>':'')
   ].filter(Boolean).join('');
@@ -1055,11 +1754,13 @@ function openPanel(i){
     +'<span class="vr verdict '+rk.c+'">'+rk.t+'</span>'
     +'<button class="close" onclick="closePanel()" aria-label="Fermer">×</button></div>'
     +'<div class="panel-body">'
+    +radarBlockHTML(c,r)
+    +fairValueHTML(c)
     +statsHTML(c)
     +(c.fiche_activite?ficheHTML(c):descrHTML(c))
     +flagsHTML(c,r)
     +'<div class="note"><span class="lbl"><span>Verdict</span><span class="sc">'+r.score+'<small> / 100</small></span></span>'+verdictBody
-    +' <em style="display:block;margin-top:8px;font-size:12.5px;color:var(--muted)">Score composite : <strong>'+r.baseScore+'</strong> pts (critères, pondération 80%) + <strong>'+r.growthBonus+'</strong> pts (croissance CA, '+(r.cagr==null?'n/d':((r.cagr*100).toFixed(1)+'%/an'))+', pondération 20%).</em>'
+    +' <em style="display:block;margin-top:8px;font-size:12.5px;color:var(--muted)">Swiss Private Score : <strong>'+r.baseScore+'</strong> pts (critères, pondération 80%) + <strong>'+r.growthBonus+'</strong> pts (croissance CA, '+(r.cagr==null?'n/d':((r.cagr*100).toFixed(1)+'%/an'))+', pondération 20%).</em>'
     +'</div>'
     +'<ul class="crit">'+r.crit.map(x=>'<li><span class="chip '+(x.s==='ok'?'ok">✓':x.s==='no'?'no">✗':x.s==='na'?'na">n/a':'nd">–')+'</span><div class="c-txt"><div class="c-name">'+x.k+'</div><div class="c-detail">'+x.d+'</div></div></li>').join("")+'</ul>'
     +'<div class="evo-h">Trajectoire'+(c.fy?' · exercices '+c.fy[0]+' → '+c.fy[1]:' · derniers exercices publiés')+' · '+(c.is_financial?'CA &amp; résultat net':'CA / EBITDA / RN')+' en €'+(c.fin_ccy&&c.fin_ccy!=="EUR"?' (valeur publiée en '+c.fin_ccy+' en sous-titre)':'')+'</div>'
@@ -1130,8 +1831,9 @@ function updateResetBtn(){
   const dirty=Object.keys(DEFAULTS).some(k=>state[k]!==DEFAULTS[k]);
   document.getElementById("resetBtn").classList.toggle("active",dirty);
 }
-function resetFilters(){
+function resetFilters(silent){
   Object.assign(state,DEFAULTS);
+  PRESET_FILTER = null;
   document.getElementById("yld").value=DEFAULTS.yld;
   document.getElementById("lev").value=DEFAULTS.lev;
   document.getElementById("cap").value=DEFAULTS.cap;
@@ -1139,7 +1841,8 @@ function resetFilters(){
   document.getElementById("q").value="";
   ctrySel.value=""; secSel.value="";
   document.getElementById("onlyCreme").checked=false;
-  render();updateResetBtn();
+  if(silent) return;
+  render();updateResetBtn();updateFavBtn();renderPresetPill();
 }
 document.getElementById("yld").oninput=e=>{state.yld=parseFloat(e.target.value)||0;render();updateResetBtn();};
 document.getElementById("lev").oninput=e=>{state.lev=parseFloat(e.target.value)||0;render();updateResetBtn();};
@@ -1150,6 +1853,8 @@ ctrySel.onchange=e=>{state.ctry=e.target.value;render();updateResetBtn();};
 document.getElementById("q").oninput=e=>{state.q=e.target.value;render();updateResetBtn();};
 document.getElementById("onlyCreme").onchange=e=>{state.onlyCreme=e.target.checked;render();updateResetBtn();};
 document.getElementById("resetBtn").onclick=resetFilters;
+document.getElementById("favToggle").onclick=()=>{state.onlyFav=!state.onlyFav;updateFavBtn();render();updateResetBtn();};
+updateFavBtn();
 document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{
   const k=th.dataset.k;state.dir=(state.sort===k)?-state.dir:(k==="name"?1:-1);state.sort=k;render();syncMobileSort();});
 // Tri mobile : sélecteur + bouton de sens, synchro bidirectionnelle avec l'état global
@@ -1172,6 +1877,9 @@ const statusEl=document.getElementById("updated");
 function showData(j,prefix){
   DATA=j.companies; META=j; buildSectors(); buildCountries(); render();
   const hc = document.getElementById("howtoCount"); if(hc) hc.textContent = j.companies.length;
+  // Mise à jour du compteur dans le bandeau crédibilité
+  const cred = document.getElementById("cred");
+  if(cred){ const badges = cred.querySelectorAll(".cred-badge strong"); if(badges[2]) badges[2].textContent = j.companies.length; }
   const d=j.as_of?new Date(j.as_of).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):"";
   statusEl.textContent=(prefix||"")+"Données réelles · "+(j.source||"Yahoo Finance")+" · "+j.count+" sociétés · au "+d;
 }
@@ -1241,6 +1949,14 @@ howtoBtn.onclick = ()=>{
   applyHowto(collapsed);
   localStorage.setItem("howto_collapsed", collapsed?"1":"0");
 };
+
+// Réinitialise les inputs aux valeurs par défaut (au cas où le navigateur aurait
+// restauré des valeurs d'une session précédente via l'autofill formulaire).
+(function syncInputsToDefaults(){
+  const ids = {yld:DEFAULTS.yld, lev:DEFAULTS.lev, cap:DEFAULTS.cap, cagr:DEFAULTS.cagrMin};
+  Object.entries(ids).forEach(([id, v])=>{ const el = document.getElementById(id); if(el) el.value = v; });
+  const q = document.getElementById("q"); if(q) q.value = "";
+})();
 
 render();      // état vide (chargement) puis peuplé par loadData()
 loadData();
@@ -1346,17 +2062,12 @@ function finishProfile(){
 }
 function applyProfileToFilters(p){
   if(!p || p.skipped) return;
-  if(p.risque === "prudent"){
-    state.sort = "yield"; state.dir = -1;
-    state.lev = 1.5; const lv=document.getElementById("lev"); if(lv) lv.value = 1.5;
-    state.yld = 3.5; const yl=document.getElementById("yld"); if(yl) yl.value = 3.5;
-  } else if(p.risque === "offensif"){
-    state.sort = "cagr"; state.dir = -1;
-    state.yld = 0;       const yl=document.getElementById("yld"); if(yl) yl.value = 0;
-    state.cagrMin = 5;   const cg=document.getElementById("cagr"); if(cg) cg.value = 5;
-  } else if(p.risque === "equilibre"){
-    state.sort = "score"; state.dir = -1;
-  }
+  // Le profil n'influe QUE sur le tri par défaut — il ne touche jamais aux seuils
+  // Buffett (yld, lev, cap, cagrMin), pour préserver la définition canonique
+  // de "Crème" et garantir des chiffres cohérents pour tous les utilisateurs.
+  if(p.risque === "prudent")       { state.sort = "yield"; state.dir = -1; }
+  else if(p.risque === "offensif") { state.sort = "cagr";  state.dir = -1; }
+  else                              { state.sort = "score"; state.dir = -1; }
   if(typeof updateResetBtn==="function") updateResetBtn();
   if(DATA.length && typeof render==="function") render();
 }
@@ -1416,6 +2127,132 @@ _profileBtn.onclick = ()=>{
   renderProfileStep();
 };
 document.querySelector(".controls").appendChild(_profileBtn);
+
+// ─── Command Palette (⌘K / Ctrl+K) ───
+(function initCmdK(){
+  const modal = document.getElementById("cmdk");
+  const input = document.getElementById("cmdkInput");
+  const list  = document.getElementById("cmdkList");
+  const btn   = document.getElementById("cmdkBtn");
+  if(!modal||!input||!list) return;
+  let activeIdx = 0;
+  let items = [];
+
+  const ACTIONS = [
+    {ico:"⭐", ttl:"Filtre : Crème uniquement", dsc:"Les 7 critères au vert",
+     act:()=>{state.onlyCreme=true;document.getElementById("onlyCreme").checked=true;render();updateResetBtn();}},
+    {ico:"★", ttl:"Filtre : Ma watchlist", dsc:"Voir uniquement les sociétés épinglées",
+     act:()=>{state.onlyFav=true;updateFavBtn();render();updateResetBtn();}},
+    {ico:"💰", ttl:"Tri : Rendement décroissant", dsc:"Du plus haut au plus bas",
+     act:()=>{state.sort="yield";state.dir=-1;render();syncMobileSort();}},
+    {ico:"🚀", ttl:"Tri : Croissance (CAGR) décroissante", dsc:"Les plus dynamiques en tête",
+     act:()=>{state.sort="cagr";state.dir=-1;render();syncMobileSort();}},
+    {ico:"🏛", ttl:"Tri : Capitalisation décroissante", dsc:"Mégacaps en premier",
+     act:()=>{state.sort="mcap";state.dir=-1;render();syncMobileSort();}},
+    {ico:"↺", ttl:"Réinitialiser tous les filtres", dsc:"Retour à l'état initial",
+     act:()=>{resetFilters();}},
+    {ico:"⚙", ttl:"Modifier mon profil d'investisseur", dsc:"Rouvrir le parcours d'onboarding",
+     act:()=>{document.querySelector(".profile-btn").click();}}
+  ];
+
+  function highlight(s,q){
+    if(!q) return s;
+    const i = s.toLowerCase().indexOf(q.toLowerCase());
+    if(i<0) return s;
+    return s.slice(0,i)+'<mark>'+s.slice(i,i+q.length)+'</mark>'+s.slice(i+q.length);
+  }
+
+  function build(q){
+    q = (q||"").trim();
+    const out = [];
+    if(!q){
+      // État vide : actions rapides + favoris si présents
+      out.push({type:'section', label:'Actions rapides'});
+      ACTIONS.forEach((a,i)=>out.push({type:'action', a, idx:i}));
+      if(FAV.size>0){
+        out.push({type:'section', label:'Ma watchlist'});
+        DATA.filter(c=>isFav(c)).slice(0,8).forEach(c=>out.push({type:'co', c}));
+      }
+    } else {
+      // Recherche sociétés
+      const ql = q.toLowerCase();
+      const matches = DATA.filter(c => (c.name+" "+c.tk+" "+c.sec+" "+c.ctry).toLowerCase().includes(ql)).slice(0,12);
+      if(matches.length){
+        out.push({type:'section', label:matches.length+' société'+(matches.length>1?'s':'')});
+        matches.forEach(c=>out.push({type:'co', c, q}));
+      }
+      // Actions matching the query
+      const actMatches = ACTIONS.map((a,i)=>({a,i})).filter(({a})=>(a.ttl+" "+a.dsc).toLowerCase().includes(ql));
+      if(actMatches.length){
+        out.push({type:'section', label:'Actions'});
+        actMatches.forEach(({a,i})=>out.push({type:'action', a, idx:i, q}));
+      }
+      if(!matches.length && !actMatches.length){
+        out.push({type:'empty', label:'Aucun résultat pour « '+q+' »'});
+      }
+    }
+    return out;
+  }
+
+  function buildList(q){
+    const data = build(q);
+    items = data.filter(d=>d.type==='action'||d.type==='co');
+    activeIdx = 0;
+    list.innerHTML = data.map((d,i)=>{
+      if(d.type==='section') return '<div class="cmdk-section">'+d.label+'</div>';
+      if(d.type==='empty')   return '<div class="cmdk-empty">'+d.label+'</div>';
+      if(d.type==='action'){
+        const a = d.a, idx = items.indexOf(d);
+        return '<button class="cmdk-item" data-i="'+idx+'"><span class="ico">'+a.ico+'</span><div class="tx"><div class="ttl">'+highlight(a.ttl,d.q)+'</div><div class="dsc">'+a.dsc+'</div></div></button>';
+      }
+      if(d.type==='co'){
+        const c = d.c, idx = items.indexOf(d);
+        return '<button class="cmdk-item" data-i="'+idx+'"><span class="ico co-logo" style="background:'+c.color+'">'+c.tk.slice(0,4)+'</span><div class="tx"><div class="ttl">'+(isFav(c)?'<span style="color:var(--gold);margin-right:5px">★</span>':'')+highlight(c.name,d.q)+'</div><div class="dsc">'+highlight(c.sec+' · '+c.ctry+' · '+c.tk,d.q)+'</div></div></button>';
+      }
+      return '';
+    }).join("");
+    updateActive();
+    list.querySelectorAll(".cmdk-item").forEach(el=>el.onclick=()=>pick(+el.dataset.i));
+  }
+  function updateActive(){
+    list.querySelectorAll(".cmdk-item").forEach((el,i)=>el.classList.toggle("active", +el.dataset.i===activeIdx));
+    const act = list.querySelector(".cmdk-item.active");
+    if(act) act.scrollIntoView({block:'nearest'});
+  }
+  function pick(i){
+    const it = items[i];
+    if(!it) return;
+    close();
+    if(it.type==='action') it.a.act();
+    else if(it.type==='co'){
+      const idx = DATA.indexOf(it.c);
+      if(idx>=0) openPanel(idx);
+    }
+  }
+  function open(){
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    input.value = "";
+    buildList("");
+    setTimeout(()=>input.focus(), 50);
+  }
+  function close(){
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  input.oninput = e => buildList(e.target.value);
+  input.onkeydown = e => {
+    if(e.key === "Escape"){ close(); }
+    else if(e.key === "ArrowDown"){ e.preventDefault(); activeIdx = Math.min(items.length-1, activeIdx+1); updateActive(); }
+    else if(e.key === "ArrowUp"){   e.preventDefault(); activeIdx = Math.max(0, activeIdx-1); updateActive(); }
+    else if(e.key === "Enter"){     e.preventDefault(); pick(activeIdx); }
+  };
+  modal.onclick = e => { if(e.target === modal) close(); };
+  if(btn) btn.onclick = open;
+  document.addEventListener("keydown", e => {
+    if((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")){ e.preventDefault(); open(); }
+  });
+})();
 
 // ─── Lightbox vidéo (CTA howto) ───
 (function initVideoModal(){
